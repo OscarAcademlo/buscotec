@@ -8,13 +8,14 @@ if (!($conn instanceof mysqli)) {
 }
 $conn->set_charset('utf8mb4');
 
-$res = $conn->query("SELECT clave, valor FROM ajustes WHERE clave IN ('creditos_bienvenida', 'dia_cobro', 'hora_cobro', 'mensaje_extra', 'cron_activado')");
+$res = $conn->query("SELECT clave, valor FROM ajustes WHERE clave IN ('creditos_bienvenida', 'dia_cobro', 'hora_cobro', 'mensaje_extra', 'cron_activado', 'region_cobertura')");
 $ajustes = [
     'creditos_bienvenida' => 5,
     'dia_cobro' => 'Lunes',
     'hora_cobro' => '10',
     'mensaje_extra' => '',
-    'cron_activado' => 1
+    'cron_activado' => 1,
+    'region_cobertura' => 'Bariloche, Neuquén, Alto Valle de Río Negro y Neuquén'
 ];
 
 

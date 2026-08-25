@@ -18,8 +18,7 @@ $creditos = (int)($_POST['creditos_bienvenida'] ?? 5);
 $dia_cobro = trim($_POST['dia_cobro'] ?? 'Lunes');
 $hora_cobro = trim($_POST['hora_cobro'] ?? '10');
 $mensaje_extra = trim($_POST['mensaje_extra'] ?? '');
-$cron_activado = isset($_POST['cron_activado']) ? (int)$_POST['cron_activado'] : 1;
-
+$region_cobertura = trim($_POST['region_cobertura'] ?? 'Bariloche, Neuquén, Alto Valle de Río Negro y Neuquén');
 
 if ($creditos < 0 || $creditos > 100) {
     echo json_encode(['ok' => false, 'error' => 'Créditos deben ser entre 0 y 100']);
@@ -50,6 +49,11 @@ $stmt_act = $conn->prepare("INSERT INTO ajustes (clave, valor) VALUES ('cron_act
 $stmt_act->bind_param('i', $cron_activado);
 $stmt_act->execute();
 $stmt_act->close();
+
+$stmt_reg = $conn->prepare("INSERT INTO ajustes (clave, valor) VALUES ('region_cobertura', ?) ON DUPLICATE KEY UPDATE valor = VALUES(valor)");
+$stmt_reg->bind_param('s', $region_cobertura);
+$stmt_reg->execute();
+$stmt_reg->close();
 
 echo json_encode(['ok' => true]);
 

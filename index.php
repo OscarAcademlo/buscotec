@@ -83,7 +83,7 @@ if (isset($conn) && $conn) {
         }
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BuscoTec — Encontrá profesionales en Bariloche</title>
+    <title>BuscoTec — Encontrá profesionales en Bariloche, Neuquén, Alto Valle de Río Negro y Neuquén</title>
     <meta name="description" content="Conectamos personas que necesiten un servicio, con quines saben hacerlo.">
 
     <link rel="icon" href="/img/icons/icon-192.png">
@@ -1336,7 +1336,7 @@ if (isset($conn) && $conn) {
         <section id="profesionales-cerca" class="pb-5">
             <div class="app-section-header">
                 <h3 class="app-section-title">Profesionales cerca</h3>
-                <span class="badge bg-primary-subtle text-primary fw-bold rounded-pill px-3 py-2"><i class="bi bi-geo-alt-fill"></i> Bariloche</span>
+                <span class="badge bg-primary-subtle text-primary fw-bold rounded-pill px-3 py-2" id="badge-city"><i class="bi bi-geo-alt-fill"></i> Bariloche, Neuquén, Alto Valle de Río Negro y Neuquén</span>
             </div>
 
             <!-- Mapa interactivo -->
@@ -1355,11 +1355,11 @@ if (isset($conn) && $conn) {
     <!-- SECCIÓN HERO ORIGINAL Y ESTADÍSTICAS (PRESENTES PARA SEO Y COMPATIBILIDAD) -->
     <section class="hero d-none d-md-flex">
         <h1 class="fade-up delay-1">
-            Encontrá lo que<br><em>necesitás en <span class="dynamic-city">Bariloche</span></em>
+            Encontrá lo que<br><em>necesitás en <span class="dynamic-city">Bariloche, Neuquén, Alto Valle de Río Negro y Neuquén</span></em>
         </h1>
         <p class="fade-up delay-2">
             Conectamos personas que necesitan un servicio con profesionales y oficios en <span
-                class="dynamic-city">Bariloche</span>.
+                class="dynamic-city">Bariloche, Neuquén, Alto Valle de Río Negro y Neuquén</span>.
         </p>
         <div class="cta-btns fade-up delay-3 position-relative" style="z-index: 10; margin-top: 40px;">
             <a href="/categoria.php" class="btn-cta-green" style="font-size: 1.1rem; padding: 18px 40px;">Buscar un
@@ -1399,7 +1399,7 @@ if (isset($conn) && $conn) {
             <div class="stat-divider"></div>
             <div class="stat">
                 <div class="stat-num">100%</div>
-                <div class="stat-label">Local · <span class="dynamic-city">Bariloche</span></div>
+                <div class="stat-label">Local · <span class="dynamic-city">Bariloche, Neuquén, Alto Valle de Río Negro y Neuquén</span></div>
             </div>
         </div>
     </section>
@@ -3314,10 +3314,22 @@ if (isset($conn) && $conn) {
                 document.querySelectorAll('.dynamic-city').forEach(el => {
                     el.textContent = cityName;
                 });
-                console.log("📍 Ubicación detectada:", cityName);
+                const badgeCity = document.getElementById('badge-city');
+                if (badgeCity) badgeCity.innerHTML = `<i class="bi bi-geo-alt-fill"></i> ${cityName}`;
+                console.log("📍 Ubicación activa:", cityName);
             }
 
-            updateDynamicCity();
+            async function loadConfiguredRegion() {
+                try {
+                    const r = await fetch('backend/get_ajustes_cobro.php');
+                    const j = await r.json();
+                    if (j.ok && j.data && j.data.region_cobertura) {
+                        applyCity(j.data.region_cobertura);
+                    }
+                } catch (e) { }
+            }
+
+            loadConfiguredRegion();
 
             setTimeout(function () {
                 var p = document.getElementById('ios-prompt');

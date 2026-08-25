@@ -233,6 +233,13 @@
                <div class="form-text">Este texto se añadirá al final del correo y del mensaje en la app.</div>
              </div>
           </div>
+          <div class="row g-3 mt-1">
+            <div class="col-12">
+              <label class="form-label fw-bold mb-1">📍 Ciudades / Región de Cobertura</label>
+              <input type="text" id="inpRegionCobertura" class="form-control" placeholder="Ej: Bariloche, Neuquén, Alto Valle de Río Negro y Neuquén">
+              <div class="form-text">Texto dinámico que aparecerá en los títulos y badges del sitio web para indicar la zona de cobertura.</div>
+            </div>
+          </div>
           <div class="mt-3">
              <div class="form-check mb-2">
                <input class="form-check-input" type="checkbox" id="checkSoloDeudores" value="1">
@@ -861,6 +868,7 @@
              document.getElementById('selDiaCobro').value = dia;
              if (document.getElementById('selHoraCobro')) document.getElementById('selHoraCobro').value = hora;
              if (document.getElementById('inpMensajeExtra')) document.getElementById('inpMensajeExtra').value = j.data.mensaje_extra || '';
+             if (document.getElementById('inpRegionCobertura')) document.getElementById('inpRegionCobertura').value = j.data.region_cobertura || 'Bariloche, Neuquén, Alto Valle de Río Negro y Neuquén';
              
              if (document.getElementById('switchCronActivo')) {
                  const sw = document.getElementById('switchCronActivo');
@@ -913,6 +921,7 @@
        const dia = document.getElementById('selDiaCobro').value;
        const hora = document.getElementById('selHoraCobro')?.value || '10';
        const msg = document.getElementById('inpMensajeExtra')?.value || '';
+       const reg = document.getElementById('inpRegionCobertura')?.value || 'Bariloche, Neuquén, Alto Valle de Río Negro y Neuquén';
        const activo = document.getElementById('switchCronActivo')?.checked ? 1 : 0;
        try {
           const fd = new FormData();
@@ -920,6 +929,7 @@
           fd.append('dia_cobro', dia);
           fd.append('hora_cobro', hora);
           fd.append('mensaje_extra', msg);
+          fd.append('region_cobertura', reg);
           fd.append('cron_activado', activo);
           const r = await fetch('backend/set_ajustes_cobro.php', { method: 'POST', body: fd, credentials: 'include' });
 
@@ -2147,7 +2157,8 @@
       const limpio = wa.replace(/\D/g, '');
       if (!limpio) { alert('No hay WhatsApp registrado.'); return; }
       
-      const msg = `Hola ${nombre}, te hablamos de BuscoTec. Notamos que aún no has verificado tu email. Por favor, revisa tu casilla de correo para activar tu cuenta y poder aparecer en los mapas de Bariloche.`;
+      const reg = document.getElementById('inpRegionCobertura')?.value || 'Bariloche, Neuquén, Alto Valle de Río Negro y Neuquén';
+      const msg = `Hola ${nombre}, te hablamos de BuscoTec. Notamos que aún no has verificado tu email. Por favor, revisa tu casilla de correo para activar tu cuenta y poder aparecer en los mapas de ${reg}.`;
       const url = `https://wa.me/${limpio}?text=${encodeURIComponent(msg)}`;
       window.open(url, '_blank');
     }
