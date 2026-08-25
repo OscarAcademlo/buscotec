@@ -104,8 +104,15 @@ function getAccessToken($serviceAccount)
     $base64UrlClaim = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($claim));
 
     // Crear la firma
-    $signatureInput = $base64UrlHeader . '.' . $base64UrlClaim;
+    if (empty($serviceAccount['private_key'])) {
+        error_log('Error: private_key vacía en service account');
+        return null;
+    }
     $privateKey = openssl_pkey_get_private($serviceAccount['private_key']);
+    if (!$privateKey) {
+        error_log('Error: No se pudo obtener la private key de openssl');
+        return null;
+    }
     openssl_sign($signatureInput, $signature, $privateKey, OPENSSL_ALGO_SHA256);
     $base64UrlSignature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
 

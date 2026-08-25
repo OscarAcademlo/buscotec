@@ -492,7 +492,8 @@ try {
   // 🔥 FIREBASE PUSH (FCM V1) - Usando la función probada
   // ============================================================
   try {
-    if ($emailDest) {
+    $serviceAccountPath = __DIR__ . '/buscotec-fadc9-firebase-adminsdk-fbsvc-9409231e5d.json';
+    if ($emailDest && file_exists($serviceAccountPath)) {
       // 1. Buscar tokens de FCM en la tabla push_tokens
       $qFCM = $conn->prepare("SELECT token FROM push_tokens WHERE (user_id = ? OR email = ?) AND type = 'fcm'");
       $qFCM->bind_param("is", $destinatario_id, $emailDest);
