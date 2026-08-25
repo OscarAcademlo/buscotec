@@ -4,7 +4,7 @@ mailer.env.php
 **/*firebase*.json
 **/*adminsdk*.json
 
-# User uploads & user generated content
+# Sensitive user documents & uploads
 img/dni/*
 !img/dni/.gitkeep
 img/penales/*
@@ -13,8 +13,6 @@ img/matriculas/*
 !img/matriculas/.gitkeep
 img/usuarios/*
 !img/usuarios/.gitkeep
-img/profesionales/*
-!img/profesionales/.gitkeep
 img/img/
 uploads_mensajes/*
 !uploads_mensajes/.gitkeep
