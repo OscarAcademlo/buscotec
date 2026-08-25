@@ -9,17 +9,17 @@ require_once __DIR__ . '/phpmailer/src/SMTP.php';
 
 // carga configuración
 $configPath = __DIR__ . '/config/mailer.env.php';
-if (!file_exists($configPath)) {
-    error_log('[MAIL] Config missing: ' . $configPath);
-    throw new Exception('Mail config missing');
-}
-$config = require $configPath;
+$config = file_exists($configPath) ? @require $configPath : [];
 
 /**
  * bt_enviar_mail
  */
 function bt_enviar_mail(string $destinatario, string $asunto, string $mensajeHtml, string $alt = ''): bool {
     global $config;
+    if (empty($config) || empty($config['SMTP_HOST'])) {
+        error_log('[MAIL] Config missing or empty');
+        return false;
+    }
     $mail = new PHPMailer(true);
 
     try {

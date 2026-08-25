@@ -111,8 +111,10 @@ $url = "https://buscotec.click/backend/verificar_usuario.php?email=" . urlencode
 $mail = new PHPMailer(true);
 
 try {
+    $configFile = __DIR__ . '/config/mailer.env.php';
+    $config = file_exists($configFile) ? require $configFile : [];
+    if (empty($config)) throw new Exception("Configuración SMTP no disponible");
     $mail->isSMTP();
-    $config = require __DIR__ . '/config/mailer.env.php';
     $mail->Host = $config['SMTP_HOST'];
     $mail->SMTPAuth = true;
     $mail->Username = $config['SMTP_USER'];

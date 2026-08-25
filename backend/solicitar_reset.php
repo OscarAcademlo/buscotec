@@ -25,9 +25,10 @@ require_once __DIR__ . '/src/SMTP.php';
 // ----------------------------------------------------
 // 🔹 Configuración SMTP
 // ----------------------------------------------------
-$config = require __DIR__ . '/config/mailer.env.php';
-if (!is_array($config)) {
-    echo json_encode(['ok' => false, 'error' => 'Archivo mailer.env.php inválido o mal formado']);
+$configFile = __DIR__ . '/config/mailer.env.php';
+$config = file_exists($configFile) ? require $configFile : [];
+if (!is_array($config) || empty($config)) {
+    echo json_encode(['ok' => false, 'error' => 'Configuración de correo no encontrada']);
     exit;
 }
 
