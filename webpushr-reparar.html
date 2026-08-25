@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        // Redirección ultra-agresiva a WWW + Limpieza de Service Worker (Crítico para PWA/Caché)
+        if (window.location.hostname === 'buscotec.com.ar') {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for(let registration of registrations) { registration.unregister(); }
+                    window.location.replace('https://www.buscotec.com.ar' + window.location.pathname + window.location.search);
+                }).catch(function() {
+                    window.location.replace('https://www.buscotec.com.ar' + window.location.pathname + window.location.search);
+                });
+            } else {
+                window.location.replace('https://www.buscotec.com.ar' + window.location.pathname + window.location.search);
+            }
+        }
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reparador de Webpushr - BuscoTec</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f4f7f6; padding: 20px; font-family: sans-serif; }
+        .card { max-width: 600px; margin: auto; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 12px; }
+        .log-box { background: #1a1a1a; color: #00ff00; padding: 15px; border-radius: 8px; font-family: monospace; max-height: 200px; overflow-y: auto; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="card p-4">
+        <h3 class="text-center mb-4">🔧 Reparador de Notificaciones</h3>
+        <p class="text-muted text-center">Usa esta herramienta si no ves la campanita o no recibes anuncios.</p>
+        
+        <div class="d-grid gap-3">
+            <button onclick="clearEverything()" class="btn btn-warning btn-lg">Paso 1: Limpiar Cache y SW</button>
+            <button onclick="initWebpushr()" class="btn btn-primary btn-lg">Paso 2: Registrarse de Nuevo</button>
+            <a href="/" class="btn btn-outline-secondary">Volver al Inicio</a>
+        </div>
+
+        <div id="log" class="log-box mt-4">Listo para iniciar...</div>
+    </div>
+
+    <!-- Webpushr SDK correctly configured -->
+    <script>
+        (function (w, d, s, id) {
+            if (typeof (w.webpushr) !== 'undefined') return;
+            w.webpushr = w.webpushr || function () { (w.webpushr.q = w.webpushr.q || []).push(arguments) };
+            var js, fjs = d.getElementsByTagName(s)[0];
+            js = d.createElement(s); js.id = id; js.async = 1;
+            js.src = "https://cdn.webpushr.com/app.min.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(window, document, 'script', 'webpushr-jssdk'));
+
+        webpushr('setup', {
+            'key': 'BDR63kCbkqbFxjISA6Bd8yiiZ4KXM4YBKsn9dkuMOMRjNnVWdDy0hghctod9ErIX0KEFpSwLsYhcMVJuFMtXEyc',
+            'serviceWorker': '/sw.js',
+            'integration': 'pwa'
+        });
+    </script>
+
+    <script>
+        function log(msg) {
+            const l = document.getElementById('log');
+            const div = document.createElement('div');
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            l.appendChild(div);
+            l.scrollTop = l.scrollHeight;
+        }
+
+        async function clearEverything() {
+            log('Limpiando Service Workers...');
+            if ('serviceWorker' in navigator) {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                for (const reg of regs) {
+                    await reg.unregister();
+                    log(`Unregistered: ${reg.scope}`);
+                }
+            } else {
+                log('Service Worker no soportado.');
+            }
+            log('Limpiando Cache...');
+            if ('caches' in window) {
+                const names = await caches.keys();
+                for (const name of names) {
+                    await caches.delete(name);
+                    log(`Cache deleted: ${name}`);
+                }
+            }
+            log('✅ Limpieza terminada. Ahora presiona el Paso 2.');
+        }
+
+        function initWebpushr() {
+            log('Inicializando suscripción...');
+            if (typeof webpushr === 'function') {
+                webpushr('subscribe', function(status) {
+                    log('Estado de suscripción: ' + status);
+                    if (status) {
+                        webpushr('fetch_id', (sid) => {
+                            log('✅ Registrado con ID: ' + sid);
+                            alert('¡Listo! Revisa tu celular para notificaciones.');
+                        });
+                    } else {
+                        log('❌ No se aceptó la suscripción.');
+                    }
+                });
+            } else {
+                log('❌ El SDK de Webpushr no cargó aún. Espera unos segundos.');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Olvidé mi contraseña | BuscoTec</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-light">
+
+<div class="container my-5">
+  <h3>¿Olvidaste tu contraseña?</h3>
+  <p>Ingresa tu correo y te enviaremos un enlace para restablecerla.</p>
+
+  <form id="formOlvido">
+    <div class="mb-3">
+      <label for="email" class="form-label">Correo electrónico</label>
+      <input type="email" class="form-control" id="email" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Enviar enlace</button>
+  </form>
+</div>
+
+<script>
+document.getElementById('formOlvido').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const email = document.getElementById('email').value.trim();
+
+  try {
+    const res = await fetch('backend/solicitar_reset.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+
+    // Forzar lectura como texto para debug
+    const text = await res.text();
+    console.log("Respuesta cruda del servidor:", text);
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      Swal.fire('Error', 'El servidor no devolvió JSON válido.', 'error');
+      return;
+    }
+
+    if (data.ok) {
+      Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: data.message || 'Correo enviado correctamente.',
+        confirmButtonText: 'Volver al inicio'
+      }).then(() => {
+        window.location.href = 'index.html';
+      });
+    } else {
+      Swal.fire('Error', data.error || 'No se pudo procesar la solicitud.', 'error');
+    }
+
+  } catch (err) {
+    Swal.fire('Error', 'Hubo un problema en el servidor.', 'error');
+  }
+});
+</script>
+
+</body>
+</html>

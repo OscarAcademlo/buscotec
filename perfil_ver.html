@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mi Perfil | BuscoTec</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --bt-blue: #0d6efd;
+      --bt-dark-blue: #0a58ca;
+    }
+
+    body {
+      background-color: #f0f2f5;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding-bottom: 50px;
+    }
+
+    /* Header Premium */
+    .profile-header {
+      background: var(--bt-blue);
+      height: 180px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Avatar Circle */
+    .avatar-container {
+      position: absolute;
+      bottom: -45px;
+      width: 90px;
+      height: 90px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      z-index: 10;
+    }
+
+    .avatar-initial {
+      width: 80px;
+      height: 80px;
+      background: var(--bt-blue);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+
+    .avatar-img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    /* BOTONES DE NAVEGACION FLOTANTES (CORREGIDO) */
+    .btn-back-home {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      color: white;
+      font-size: 1.5rem;
+      z-index: 200;
+      /* Prioridad de toque */
+      text-decoration: none;
+    }
+
+    .nav-buttons {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 10px;
+      z-index: 200;
+      /* Prioridad de toque */
+    }
+
+    .btn-header {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: white;
+      backdrop-filter: blur(5px);
+      font-weight: 600;
+      border-radius: 30px;
+      padding: 5px 15px;
+      transition: all 0.2s;
+    }
+
+    .btn-header:hover {
+      background: white;
+      color: var(--bt-blue);
+    }
+
+    .user-name-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-top: -10px;
+      margin-bottom: 0;
+    }
+
+    /* Content Cards */
+    .main-content {
+      margin-top: 60px;
+      padding: 0 15px;
+    }
+
+    .profile-card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Info Row */
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f8f9fa;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      color: #777;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+
+    .info-value {
+      color: #333;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* Badge */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-verified {
+      background: #e7f5ff;
+      color: #0d6efd;
+    }
+
+    .status-pending {
+      background: #fff4e6;
+      color: #fd7e14;
+    }
+
+    /* Edit Photo Button */
+    .edit-photo-btn {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: var(--bt-blue);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid white;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .edit-photo-btn:hover {
+      background: var(--bt-dark-blue);
+      transform: scale(1.1);
+    }
+
+    .avatar-container {
+      position: relative;
+      /* Ensure relative for absolute positioning of button */
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header Section -->
+  <div class="profile-header">
+    <a href="index.php" class="btn-back-home"><i class="bi bi-arrow-left-short"></i></a>
+    <div class="nav-buttons">
+      <a id="adminPanelBtn" href="admin.html" class="btn btn-header btn-sm d-none">Panel Admin</a>
+      <a href="perfil_editar.html" class="btn btn-header btn-sm">Editar</a>
+      <button id="logoutBtn" class="btn btn-header btn-sm">Salir</button>
+    </div>
+
+    <h2 id="userNameHeader" class="user-name-title">Cargando...</h2>
+
+    <div class="avatar-container">
+      <div id="avatarInit" class="avatar-initial">?</div>
+      <!-- Si es profesional se puede alternar con img -->
+      <img id="avatarImage" class="avatar-img d-none" src="" alt="">
+
+      <!-- Botón para editar foto -->
+      <label for="fotoInput" class="edit-photo-btn" title="Cambiar foto de perfil">
+        <i class="bi bi-camera-fill"></i>
+      </label>
+      <input type="file" id="fotoInput" class="d-none" accept="image/*">
+    </div>
+  </div>
+
+  <!-- Content Section -->
+  <div class="main-content container">
+    <div id="perfilWrap" class="d-none">
+
+      <!-- Bloque Usuario -->
+      <div id="bloqueUsuario" class="profile-card d-none">
+        <h5 class="section-title">Datos Personales</h5>
+
+        <div class="info-row">
+          <span class="info-label">Nombre</span>
+          <span class="info-value" id="u_nombre">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Apellido</span>
+          <span class="info-value" id="u_apellido">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Email</span>
+          <span class="info-value" id="u_email">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">WhatsApp</span>
+          <span class="info-value" id="u_whatsapp">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Estado</span>
+          <span id="u_estado_badge" class="status-badge">—</span>
+        </div>
+      </div>
+
+      <!-- Bloque Profesional -->
+      <div id="bloqueProfesional" class="profile-card d-none">
+        <h5 class="section-title">Datos Profesionales</h5>
+
+        <div class="info-row">
+          <span class="info-label">Categorías</span>
+          <span class="info-value" id="p_categoria">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Experiencia</span>
+          <span class="info-value" id="p_experiencia">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Rating</span>
+          <span class="info-value" id="p_rating">—</span>
+        </div>
+        <div class="mt-3">
+          <span class="info-label d-block mb-1">Descripción</span>
+          <p class="text-muted small" id="p_descripcion">—</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Loader simple -->
+    <div id="mainLoader" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2 text-muted">Obteniendo datos...</p>
+    </div>
+
+    <!-- Error container -->
+    <div id="errorContainer" class="alert alert-danger d-none mt-3"></div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    let currentUserId = null;
+    let currentUserRole = 'usuario';
+
+    async function loadProfile() {
+      try {
+        const res = await fetch('backend/get_perfil.php', { credentials: 'include' });
+        const json = await res.json();
+
+        if (!json.ok) {
+          $('errorContainer').textContent = json.error || "Error al obtener perfil.";
+          $('errorContainer').classList.remove('d-none');
+          $('mainLoader').classList.add('d-none');
+          return;
+        }
+
+        const data = json.data;
+        const u = data.usuario;
+        const p = data.profesional;
+
+        // Guardar ID y Rol para subida de foto
+        // Priorizamos profesional si existe
+        if (p) {
+          currentUserId = p.id;
+          currentUserRole = 'profesional';
+        } else if (u) {
+          currentUserId = u.id;
+          currentUserRole = 'usuario';
+        }
+
+        // Header
+        $('userNameHeader').textContent = data.nombre || "Usuario";
+        $('avatarInit').textContent = (data.nombre || "?").charAt(0).toUpperCase();
+
+        if (u) {
+          $('bloqueUsuario').classList.remove('d-none');
+          $('u_nombre').textContent = u.nombre || '—';
+          $('u_apellido').textContent = u.apellido || '—';
+          $('u_email').textContent = u.email || '—';
+          $('u_whatsapp').textContent = u.whatsapp || '—';
+
+          const isVer = (String(u.verificado) === '1');
+          const badge = $('u_estado_badge');
+          badge.textContent = isVer ? "Verificado" : "Pendiente Verificación";
+          badge.className = isVer ? "status-badge status-verified" : "status-badge status-pending";
+
+          if (u.foto && !p) { // Si es usuario solo y tiene foto
+            updateAvatarDisplay(u.foto);
+          }
+        }
+
+        if (p) {
+          $('bloqueProfesional').classList.remove('d-none');
+          $('p_categoria').textContent = p.categorias_nombres || p.categoria_nombre || '—';
+          $('p_experiencia').textContent = (p.experiencia || '0') + " años";
+          $('p_rating').textContent = (p.rating || '0.0') + " ★";
+          $('p_descripcion').textContent = p.descripcion || "Sin descripción.";
+
+          if (p.foto_profesional) {
+            updateAvatarDisplay(p.foto_profesional);
+          }
+        }
+
+        // 🛡️ Verificar Administrador (Por email o por ID)
+        const admins = ['oscarns@gmail.com', 'orticelli@gmail.com'];
+        const userEmail = (u?.email || p?.email || '').toLowerCase().trim();
+        const isAuthorized = admins.includes(userEmail) || String(currentUserId) === '10' || String(currentUserId) === '11';
+
+        const adminBtn = $('adminPanelBtn');
+        if (isAuthorized && adminBtn) {
+          adminBtn.classList.remove('d-none');
+        }
+
+        $('perfilWrap').classList.remove('d-none');
+        $('mainLoader').classList.add('d-none');
+
+      } catch (e) {
+        console.error(e);
+        $('errorContainer').textContent = "Error de red al conectar con el servidor.";
+        $('errorContainer').classList.remove('d-none');
+        $('mainLoader').classList.add('d-none');
+      }
+    }
+
+    function updateAvatarDisplay(fotoPath) {
+      if (!fotoPath) return;
+      const img = $('avatarImage');
+      // Limpiar cache agregando timestamp
+      const timestamp = new Date().getTime();
+      img.src = fotoPath.startsWith('img/') ? fotoPath + '?v=' + timestamp : 'img/profesionales/' + fotoPath + '?v=' + timestamp;
+      img.classList.remove('d-none');
+      $('avatarInit').classList.add('d-none');
+    }
+
+    // Manejo de subida de foto
+    $('fotoInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (!currentUserId) {
+        alert("No se pudo identificar al usuario.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('id', currentUserId);
+      formData.append('role', currentUserRole);
+      formData.append('foto', file);
+
+      try {
+        // Mostrar algún indicador de carga si fuera necesario
+        $('avatarInit').textContent = "...";
+        $('avatarInit').classList.remove('d-none');
+        $('avatarImage').classList.add('d-none');
+
+        const res = await fetch('backend/subir_foto_perfil.php', {
+          method: 'POST',
+          body: formData,
+          credentials: 'include'
+        });
+        const json = await res.json();
+
+        if (json.ok) {
+          // Actualizar la foto en la vista
+          updateAvatarDisplay(json.url);
+          alert("Foto actualizada correctamente.");
+        } else {
+          alert("Error: " + (json.error || "No se pudo subir la foto."));
+          loadProfile(); // Recargar para volver al estado anterior
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error de conexión al subir la foto.");
+        loadProfile();
+      }
+    });
+
+    $('logoutBtn').addEventListener('click', async () => {
+      try {
+        await fetch('backend/logout.php', { method: 'POST', credentials: 'include' });
+        localStorage.clear();
+        window.location.href = 'index.php';
+      } catch (e) {
+        alert("Error al cerrar sesión.");
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', loadProfile);
+  </script>
+
+</body>
+
+</html>

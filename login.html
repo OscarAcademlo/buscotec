@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18059169740">
+  </script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'AW-18059169740');
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - BuscoTec</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+</head>
+<body class="d-flex align-items-center justify-content-center vh-100 bg-light">
+  <div class="card p-4 shadow" style="min-width: 320px; max-width: 400px;">
+    <h2 class="text-center mb-4">Iniciar sesión</h2>
+
+    <!-- Formulario de login -->
+    <form id="loginForm">
+      <div class="mb-3">
+        <label for="correo" class="form-label">Correo</label>
+        <input type="email" class="form-control" id="correo" required />
+      </div>
+
+      <!-- Campo de contraseña con ícono -->
+      <div class="mb-3 position-relative">
+        <label for="clave" class="form-label">Contraseña</label>
+        <div class="input-group">
+          <input type="password" class="form-control" id="clave" required />
+          <button type="button" class="btn btn-outline-secondary" id="toggleClave" tabindex="-1">
+            <i class="bi bi-eye"></i>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+    </form>
+
+    <!-- Mensaje de error -->
+    <div id="loginError" class="alert alert-danger mt-3 d-none"></div>
+
+    <!-- 🔗 Enlace a recuperar contraseña -->
+    <div class="text-center mt-3">
+      <a href="olvido.html" class="text-decoration-none">¿Olvidaste tu contraseña?</a>
+    </div>
+  </div>
+
+  <script>
+  // 👁️ Mostrar / ocultar contraseña
+  const toggleBtn = document.getElementById("toggleClave");
+  const claveInput = document.getElementById("clave");
+  toggleBtn.addEventListener("click", () => {
+    const tipo = claveInput.getAttribute("type") === "password" ? "text" : "password";
+    claveInput.setAttribute("type", tipo);
+    toggleBtn.innerHTML = tipo === "password" ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const correo = document.getElementById('correo').value.trim();
+    const clave  = document.getElementById('clave').value.trim();
+    const errorBox = document.getElementById('loginError');
+    errorBox.classList.add('d-none');
+    errorBox.textContent = "";
+
+    try {
+      const res = await fetch('backend/login.php', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `correo=${encodeURIComponent(correo)}&clave=${encodeURIComponent(clave)}`
+      });
+
+      const json = await res.json();
+      console.log("Respuesta login:", json);
+
+      if (json.success) {
+        localStorage.setItem("buscotec_user_id", json.id);
+        localStorage.setItem("buscotec_email", json.email);
+        localStorage.setItem("buscotec_role", json.role);
+        localStorage.setItem("user_nombre", json.nombre || "");
+
+        if (json.token) {
+          localStorage.setItem("jwt_token", json.token);
+          document.cookie = `bt_jwt=${json.token}; path=/; secure; samesite=None`;
+        }
+
+        try {
+          const resp = await fetch("https://buscotec.click/backend/session_from_jwt.php", {
+            method: "GET",
+            credentials: "include"
+          });
+          const dataSession = await resp.json();
+          console.log("🟢 Sesión restaurada en PHP:", dataSession);
+        } catch (err) {
+          console.warn("⚠️ Error al rehidratar sesión PHP:", err);
+        }
+
+        if (typeof webpushr !== "undefined") {
+          try {
+            webpushr("ready", function () {
+              const subId = webpushr.subscriber_id;
+              if (subId) {
+                fetch("backend/guardar_suscripcion.php", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    user_id: json.id,
+                    rol: json.role,
+                    webpushr_id: subId
+                  })
+                })
+                .then(r => r.json())
+                .then(data => console.log("Suscripción guardada:", data))
+                .catch(err => console.error("Error guardando suscripción:", err));
+              }
+            });
+          } catch (e) {
+            console.warn("Webpushr no disponible:", e);
+          }
+        }
+
+        if (json.role === "profesional" && navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(async (pos) => {
+            try {
+              const lat = pos.coords.latitude;
+              const lng = pos.coords.longitude;
+
+              const resp = await fetch("backend/guardar_ubicacion.php", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `lat=${lat}&lng=${lng}`
+              });
+              const data = await resp.json();
+              console.log("📍 Ubicación guardada:", data);
+            } catch (err) {
+              console.error("❌ Error al enviar ubicación:", err);
+            } finally {
+              window.location.href = "index.php";
+            }
+          }, 
+          (err) => {
+            console.warn("⚠️ No se pudo obtener ubicación:", err);
+            window.location.href = "index.php";
+          });
+        } else {
+          window.location.href = "index.php";
+        }
+
+      } else {
+        errorBox.textContent = json.message || "Usuario o contraseña incorrectos";
+        errorBox.classList.remove('d-none');
+      }
+
+    } catch (err) {
+      console.error("Error en login:", err);
+      errorBox.textContent = "Error al conectar con el servidor.";
+      errorBox.classList.remove('d-none');
+    }
+  });
+  </script>
+</body>
+</html>

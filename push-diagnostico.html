@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Diagnóstico Push - BuscoTec</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            padding: 20px;
+        }
+
+        .log-box {
+            background: #212529;
+            color: #0f0;
+            font-family: monospace;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin: 4px 0;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        .warning {
+            color: #ffc107;
+        }
+
+        .info {
+            color: #17a2b8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2 class="mb-4">🔔 Diagnóstico de Notificaciones Push</h2>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>Estado del sistema</h5>
+                <table class="table table-sm mb-0">
+                    <tr>
+                        <td>Permisos de notificación</td>
+                        <td id="permiso">-</td>
+                    </tr>
+                    <tr>
+                        <td>Service Worker</td>
+                        <td id="sw-status">-</td>
+                    </tr>
+                    <tr>
+                        <td>Webpushr SDK</td>
+                        <td id="sdk-status">-</td>
+                    </tr>
+                    <tr>
+                        <td>Subscriber ID (Webpushr)</td>
+                        <td id="sid">-</td>
+                    </tr>
+                    <tr>
+                        <td>Usuario logueado</td>
+                        <td id="user-info">-</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2 mb-4">
+            <button id="btnPermiso" class="btn btn-primary">1️⃣ Solicitar permiso de notificaciones</button>
+            <button id="btnSW" class="btn btn-secondary">2️⃣ Registrar Service Worker</button>
+            <button id="btnWebpushr" class="btn btn-info">3️⃣ Inicializar Webpushr</button>
+            <button id="btnTestLocal" class="btn btn-success">4️⃣ Enviar notificación de prueba (local)</button>
+            <button id="btnGuardar" class="btn btn-warning">5️⃣ Guardar webpushr_id en base de datos</button>
+            <button id="btnTestPush" class="btn btn-danger">6️⃣ Enviar push desde servidor</button>
+        </div>
+
+        <h5>Log de eventos:</h5>
+        <div id="log" class="log-box"></div>
+    </div>
+
+    <!-- SDK Webpushr -->
+    <script>
+        (function (w, d, s, id) {
+            if (typeof (w.webpushr) !== 'undefined') return;
+            w.webpushr = w.webpushr || function () { (w.webpushr.q = w.webpushr.q || []).push(arguments) };
+            var js, fjs = d.getElementsByTagName(s)[0];
+            js = d.createElement(s); js.id = id; js.async = 1;
+            js.src = "https://cdn.webpushr.com/app.min.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(window, document, 'script', 'webpushr-jssdk'));
+
+        webpushr('setup', {
+            'key': '4d4a588e817b482187cee2c9dfb64aec',
+            'integration': 'pwa'
+        });
+    </script>
+
+    <script>
+        const logBox = document.getElementById('log');
+
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log-entry ${type}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logBox.appendChild(div);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        // Estado inicial
+        function checkStatus() {
+            // Permisos
+            const permiso = Notification.permission;
+            document.getElementById('permiso').textContent = permiso;
+            document.getElementById('permiso').className = permiso === 'granted' ? 'text-success' : 'text-warning';
+
+            // Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistration().then(reg => {
+                    if (reg) {
+                        document.getElementById('sw-status').textContent = '✅ Registrado: ' + reg.scope;
+                        document.getElementById('sw-status').className = 'text-success';
+                    } else {
+                        document.getElementById('sw-status').textContent = '❌ No registrado';
+                        document.getElementById('sw-status').className = 'text-danger';
+                    }
+                });
+            } else {
+                document.getElementById('sw-status').textContent = '❌ No soportado';
+            }
+
+            // SDK Webpushr
+            setTimeout(() => {
+                if (typeof webpushr === 'function') {
+                    document.getElementById('sdk-status').textContent = '✅ Cargado';
+                    document.getElementById('sdk-status').className = 'text-success';
+
+                    // Obtener SID
+                    webpushr('fetch_id', function (sid) {
+                        if (sid && sid !== '0') {
+                            document.getElementById('sid').textContent = sid;
+                            document.getElementById('sid').className = 'text-success';
+                        } else {
+                            webpushr('get', 'subscriber_id', function (sid2) {
+                                document.getElementById('sid').textContent = sid2 || '❌ No suscripto';
+                                document.getElementById('sid').className = sid2 ? 'text-success' : 'text-danger';
+                            });
+                        }
+                    });
+                } else {
+                    document.getElementById('sdk-status').textContent = '❌ No cargado';
+                    document.getElementById('sdk-status').className = 'text-danger';
+                }
+            }, 2000);
+
+            // Usuario
+            const userId = localStorage.getItem('buscotec_user_id');
+            const role = localStorage.getItem('buscotec_role');
+            if (userId && role) {
+                document.getElementById('user-info').textContent = `ID: ${userId}, Rol: ${role}`;
+                document.getElementById('user-info').className = 'text-success';
+            } else {
+                document.getElementById('user-info').textContent = '❌ No logueado';
+                document.getElementById('user-info').className = 'text-danger';
+            }
+        }
+
+        // 1. Solicitar permiso
+        document.getElementById('btnPermiso').onclick = async () => {
+            log('Solicitando permiso de notificaciones...', 'info');
+            try {
+                const result = await Notification.requestPermission();
+                log(`Permiso: ${result}`, result === 'granted' ? 'success' : 'warning');
+                checkStatus();
+            } catch (e) {
+                log(`Error: ${e.message}`, 'error');
+            }
+        };
+
+        // 2. Registrar SW
+        document.getElementById('btnSW').onclick = async () => {
+            log('Registrando Service Worker...', 'info');
+            try {
+                const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+                log(`SW registrado: ${reg.scope}`, 'success');
+                checkStatus();
+            } catch (e) {
+                log(`Error SW: ${e.message}`, 'error');
+            }
+        };
+
+        // 3. Inicializar Webpushr
+        document.getElementById('btnWebpushr').onclick = () => {
+            log('Inicializando Webpushr...', 'info');
+            try {
+                webpushr('subscribe', function (status) {
+                    log(`Subscribe status: ${status}`, status ? 'success' : 'warning');
+                    checkStatus();
+                });
+            } catch (e) {
+                log(`Error Webpushr: ${e.message}`, 'error');
+            }
+        };
+
+        // 4. Test local
+        document.getElementById('btnTestLocal').onclick = () => {
+            log('Enviando notificación local...', 'info');
+            if (Notification.permission === 'granted') {
+                const n = new Notification('🔔 Test BuscoTec', {
+                    body: 'Esta es una notificación de prueba local.',
+                    icon: '/img/icons/icon-192.png'
+                });
+                log('Notificación local enviada!', 'success');
+            } else {
+                log('Permisos no concedidos. Haz clic en "Solicitar permiso" primero.', 'warning');
+            }
+        };
+
+        // 5. Guardar en BD
+        document.getElementById('btnGuardar').onclick = async () => {
+            log('Guardando webpushr_id en base de datos...', 'info');
+
+            const userId = localStorage.getItem('buscotec_user_id');
+            const role = localStorage.getItem('buscotec_role');
+
+            if (!userId || !role) {
+                log('No hay usuario logueado!', 'error');
+                return;
+            }
+
+            let sid = '';
+
+            try {
+                sid = await new Promise((resolve) => {
+                    webpushr('fetch_id', function (s) {
+                        if (s && s !== '0') resolve(s);
+                        else {
+                            webpushr('get', 'subscriber_id', function (s2) {
+                                resolve(s2 || '');
+                            });
+                        }
+                    });
+                    setTimeout(() => resolve(''), 5000);
+                });
+            } catch (e) {
+                log(`Error obteniendo SID: ${e.message}`, 'error');
+                return;
+            }
+
+            if (!sid) {
+                log('No hay subscriber_id de Webpushr. Haz clic en "Inicializar Webpushr" primero.', 'warning');
+                return;
+            }
+
+            log(`SID obtenido: ${sid}`, 'success');
+
+            try {
+                const res = await fetch('/backend/guardar_suscripcion.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        user_id: parseInt(userId, 10),
+                        rol: role,
+                        webpushr_id: sid
+                    })
+                });
+                const j = await res.json();
+                log(`Respuesta: ${JSON.stringify(j)}`, j.ok ? 'success' : 'error');
+                checkStatus();
+            } catch (e) {
+                log(`Error guardando: ${e.message}`, 'error');
+            }
+        };
+
+        // 6. Test push desde servidor
+        document.getElementById('btnTestPush').onclick = async () => {
+            log('Enviando push desde servidor...', 'info');
+
+            let sid = document.getElementById('sid').textContent;
+            if (!sid || sid.includes('❌')) {
+                log('No hay subscriber_id. Inicializa Webpushr primero.', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/backend/test_webpushr_diagnostico.php?test_push_to=${encodeURIComponent(sid)}`);
+                const j = await res.json();
+                log(`Respuesta push: ${JSON.stringify(j.test_push || j)}`, j.test_push?.http_code === 200 ? 'success' : 'warning');
+            } catch (e) {
+                log(`Error: ${e.message}`, 'error');
+            }
+        };
+
+        // Init
+        checkStatus();
+        log('Página de diagnóstico cargada. Esperando SDK Webpushr...', 'info');
+        setTimeout(checkStatus, 3000);
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

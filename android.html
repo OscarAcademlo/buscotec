@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Instalar BuscoTec en Android</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="icon" href="img/android_help.png" type="image/png" />
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #1877f2 0%, #0d47a1 100%);
+      color: #fff;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .card {
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #1877f2, #0d47a1);
+      color: white;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.3rem;
+    }
+
+    .btn-facebook {
+      background-color: #1877f2;
+      color: #fff;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      transition: 0.3s ease;
+    }
+
+    .btn-facebook:hover {
+      background-color: #145dbf;
+      color: #fff;
+    }
+
+    .step-img {
+      width: 100%;
+      max-width: 350px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+      margin: 0 auto 20px;
+      display: block;
+    }
+
+    footer {
+      text-align: center;
+      color: #fff;
+      margin-top: auto;
+      padding: 1rem 0;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    #installButton {
+      display: inline-block;
+      animation: fadeIn 0.6s ease;
+      font-size: 1.1rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .alert-info {
+      background-color: #e7f0ff;
+      border: none;
+      color: #145dbf;
+      font-weight: 500;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <nav class="navbar navbar-dark bg-primary shadow-sm fixed-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">🔙 Volver a BuscoTec</a>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO -->
+  <div class="container my-5 pt-5">
+    <div class="card mx-auto" style="max-width: 600px;">
+      <div class="card-header">
+        🤖 Instalar BuscoTec en tu Android
+      </div>
+      <div class="card-body text-dark bg-white rounded-bottom">
+
+        <p class="text-center fw-semibold text-primary mb-4">
+          ⚠️ Es muy importante instalar la App para recibir notificaciones y acceder a todos los servicios.
+        </p>
+
+        <!-- IMAGEN PRINCIPAL -->
+        <div class="text-center mb-4">
+          <img src="img/android_install.png" alt="Instalar BuscoTec en Android" class="step-img" />
+          <h5 class="fw-bold text-primary mt-3">Instalá BuscoTec fácilmente</h5>
+          <p class="small text-muted">
+            Desde tu navegador Chrome en Android, podés instalar la app directamente para usarla como si fuera una aplicación nativa.
+          </p>
+        </div>
+
+        <!-- BOTÓN INSTALAR -->
+        <div class="text-center mt-4">
+          <button id="installButton" class="btn btn-facebook btn-lg shadow">
+            📲 Instalar BuscoTec
+          </button>
+        </div>
+
+        <div class="alert alert-info text-center fw-semibold mt-4">
+          💡 Consejo: Si el botón no funciona, abrí esta página desde <strong>Chrome en Android</strong> y asegurate de tener conexión activa.
+        </div>
+
+        <div class="d-grid mt-4">
+          <a href="index.html" class="btn btn-outline-primary fw-semibold">Volver a BuscoTec</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>© 2025 BuscoTec - Todos los derechos reservados</footer>
+
+  <script>
+  let deferredPrompt;
+  const installButton = document.getElementById('installButton');
+
+  // Escucha el evento del navegador cuando la PWA es instalable
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installButton.style.display = 'inline-block';
+  });
+
+  // Acción al presionar el botón
+  installButton.addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const choiceResult = await deferredPrompt.userChoice;
+      if (choiceResult.outcome === 'accepted') {
+        console.log('✅ Usuario aceptó instalar la app');
+      } else {
+        console.log('❌ Usuario canceló la instalación');
+      }
+      deferredPrompt = null;
+    } else {
+      alert('⚠️ Para instalar BuscoTec, abrí esta página desde Google Chrome en tu teléfono o tablet Android.');
+    }
+  });
+
+  // Confirmación cuando ya se instaló
+  window.addEventListener('appinstalled', () => {
+    console.log('🎉 App instalada');
+    installButton.textContent = '✅ Aplicación instalada';
+    installButton.disabled = true;
+  });
+</script>
+
+</body>
+</html>

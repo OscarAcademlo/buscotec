@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fix Push iOS – BuscoTec</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>body{padding:16px} pre{white-space:pre-wrap;font-size:.9rem}</style>
+</head>
+<body>
+<h4>🔧 Reparar notificaciones iOS</h4>
+<div class="mb-2">
+  <button id="btnStatus" class="btn btn-outline-secondary btn-sm">Ver estado</button>
+  <button id="btnClearSW" class="btn btn-warning btn-sm">1) Limpiar SW y registrar Webpushr</button>
+  <button id="btnSubscribe" class="btn btn-primary btn-sm">2) Activar notificaciones</button>
+</div>
+<pre id="log">Listo para diagnosticar…</pre>
+
+<!-- SDK Webpushr -->
+<script>
+(function(w,d,s,id){
+  if(typeof(w.webpushr)!=='undefined') return;
+  w.webpushr=w.webpushr||function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};
+  var js,fjs=d.getElementsByTagName(s)[0]; js=d.createElement(s);
+  js.id=id; js.async=1; js.src="https://cdn.webpushr.com/app.min.js";
+  fjs.parentNode.insertBefore(js,fjs);
+}(window,document,'script','webpushr-jssdk'));
+</script>
+
+<script>
+const APP_KEY = '4d4a588e817b482187cee2c9dfb64aec'; // tu appKey
+const log = (m)=>{ document.getElementById('log').textContent += '\n' + m; };
+
+function isIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent); }
+function isStandalone(){
+  return (window.navigator.standalone===true) || window.matchMedia('(display-mode: standalone)').matches;
+}
+
+async function showStatus(){
+  document.getElementById('log').textContent = '— Estado actual —';
+  log('UserAgent: ' + navigator.userAgent);
+  log('iOS: ' + isIOS() + ' | PWA/Standalone: ' + isStandalone());
+  log('Notification.permission: ' + ((window.Notification && Notification.permission) || 'n/a'));
+  if ('serviceWorker' in navigator) {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    log('SW registrados: ' + regs.length);
+    regs.forEach(r=>log(' • ' + r.scope));
+  } else {
+    log('serviceWorker no disponible');
+  }
+  try {
+    webpushr('isSubscribed', (s)=>log('isSubscribed: ' + s));
+    webpushr('getSubscriberId', (sid)=>log('SubscriberId: ' + (sid||'(vacío)')));
+  } catch(e){ log('webpushr error: ' + e.message); }
+}
+
+async function clearAndRegister(){
+  if (!('serviceWorker' in navigator)){ log('SW no disponible'); return; }
+  // 1) Desregistrar TODOS los SW (evita conflictos)
+  const regs = await navigator.serviceWorker.getRegistrations();
+  for (const r of regs){ await r.unregister(); }
+  log('SW previos desregistrados: ' + regs.length);
+  // 2) Registrar SOLO el SW unificado de Webpushr
+  try{
+    const reg = await navigator.serviceWorker.register('/webpushr-sw.js', { scope:'/' });
+    log('SW registrado: ' + reg.scope);
+  }catch(e){ log('Error registrando /webpushr-sw.js: ' + e.message); }
+  // 3) Init Webpushr apuntando a ese SW
+  try{
+    webpushr('init', { appKey: APP_KEY, serviceWorker: '/webpushr-sw.js', widget:{enable:false} });
+    log('webpushr init OK');
+  }catch(e){ log('webpushr init error: ' + e.message); }
+}
+
+function subscribeNow(){
+  // Si el permiso está en denied, iOS NUNCA vuelve a preguntar
+  if (window.Notification && Notification.permission === 'denied'){
+    log('⚠️ Permiso = denied.');
+    log('👉 En iPhone: Ajustes > Notificaciones > (nombre de tu app en pantalla de inicio) > Permitir Notificaciones.');
+    alert('En iPhone andá a: Ajustes > Notificaciones > (tu app PWA) > Permitir Notificaciones. Luego vuelve aquí.');
+    return;
+  }
+  try{
+    // Debe ejecutarse por gesto del usuario (este botón)
+    webpushr('subscribe', function(status){
+      log('subscribe status: ' + status);
+      webpushr('getSubscriberId', function(sid){
+        log('SubscriberId: ' + (sid||'(vacío)'));
+        if (sid) alert('✅ Activadas. SID: ' + sid);
+      });
+    });
+  }catch(e){ log('subscribe error: ' + e.message); }
+}
+
+document.getElementById('btnStatus').onclick = showStatus;
+document.getElementById('btnClearSW').onclick = clearAndRegister;
+document.getElementById('btnSubscribe').onclick = subscribeNow;
+
+// Sugerencia: en iOS solo corre como PWA (Standalone). Si no, avisar:
+if (isIOS() && !isStandalone()){
+  log('ℹ️ Abrí esta página desde el ÍCONO de la PWA (no desde Safari), si no iOS no permite Web Push.');
+}
+</script>
+</body>
+</html>

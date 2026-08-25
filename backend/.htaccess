@@ -1,0 +1,18 @@
+<IfModule mod_headers.c>
+    # 1. Por defecto habilitamos la web oficial
+    Header always set Access-Control-Allow-Origin "https://buscotec.click"
+    
+    # 2. Si venís desde oscarsoft, cambiamos el permiso para que no dé error
+    SetEnvIf Origin "oscarsoft\.click" IS_OSCAR
+    Header always set Access-Control-Allow-Origin "https://oscarsoft.click" env=IS_OSCAR
+    
+    # 3. Permisos de seguridad obligatorios
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, X-User-Id, X-User-Role"
+    Header always set Access-Control-Allow-Credentials "true"
+</IfModule>
+
+# 4. Evitar errores de conexión
+RewriteEngine On
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=204,L]

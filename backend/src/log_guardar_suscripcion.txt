@@ -1,0 +1,170 @@
+2025-10-04 19:29:49 RAW: {"user_id":29,"rol":"usuario","webpushr_id":"186669308"}
+2025-10-04 19:29:49 ✅ Guardado correctamente para usuario ID=29 con player_id=186669308
+2025-10-04 19:29:50 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186669308"}
+2025-10-04 19:29:50 ✅ Guardado correctamente para profesional ID=29 con player_id=186669308
+2025-10-04 19:29:59 RAW: {"user_id":10,"rol":"profesional","webpushr_id":"186666530"}
+2025-10-04 19:29:59 ✅ Guardado correctamente para profesional ID=10 con player_id=186666530
+2025-10-04 19:30:01 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186666530"}
+2025-10-04 19:30:01 ✅ Guardado correctamente para usuario ID=10 con player_id=186666530
+2025-10-04 19:30:03 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186666530"}
+2025-10-04 19:30:03 ✅ Guardado correctamente para usuario ID=10 con player_id=186666530
+2025-10-04 19:31:44 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186666530"}
+2025-10-04 19:31:44 ✅ Guardado correctamente para usuario ID=10 con player_id=186666530
+2025-10-04 19:32:08 RAW: {"user_id":10,"rol":"profesional","webpushr_id":"186666530"}
+2025-10-04 19:32:08 ✅ Guardado correctamente para profesional ID=10 con player_id=186666530
+2025-10-04 19:32:10 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186666530"}
+2025-10-04 19:32:10 ✅ Guardado correctamente para usuario ID=10 con player_id=186666530
+2025-10-04 19:32:12 RAW: {"user_id":10,"rol":"profesional","webpushr_id":"186666530"}
+2025-10-04 19:32:12 ✅ Guardado correctamente para profesional ID=10 con player_id=186666530
+2025-10-04 19:32:18 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186666530"}
+2025-10-04 19:32:18 ✅ Guardado correctamente para usuario ID=10 con player_id=186666530
+2025-10-04 19:32:37 RAW: {"user_id":11,"rol":"profesional","webpushr_id":"186669544"}
+2025-10-04 19:32:37 ✅ Guardado correctamente para profesional ID=11 con player_id=186669544
+2025-10-04 20:28:46 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186671027"}
+2025-10-04 20:28:46 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186671027"}
+2025-10-04 20:28:46 ✅ Guardado correctamente para profesional ID=29 con player_id=186671027
+2025-10-04 20:28:46 ✅ Guardado correctamente para profesional ID=29 con player_id=186671027
+2025-10-04 20:28:47 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186671027"}
+2025-10-04 20:28:47 ✅ Guardado correctamente para profesional ID=29 con player_id=186671027
+2025-10-04 20:29:06 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186671027"}
+2025-10-04 20:29:06 ✅ Guardado correctamente para profesional ID=29 con player_id=186671027
+2025-10-04 20:38:02 RAW: {"user_id":10,"rol":"profesional","webpushr_id":"186669544"}
+2025-10-04 20:38:02 ✅ Guardado correctamente para profesional ID=10 con player_id=186669544
+2025-10-04 20:38:04 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186669544"}
+2025-10-04 20:38:04 ✅ Guardado correctamente para usuario ID=10 con player_id=186669544
+2025-10-04 21:58:02 RAW: {"user_id":14,"rol":"usuario","webpushr_id":"186673083"}
+2025-10-04 21:58:02 ✅ Guardado correctamente para usuario ID=14 con player_id=186673083
+2025-10-04 22:42:00 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186669544"}
+2025-10-04 22:42:00 ✅ Guardado correctamente para usuario ID=10 con player_id=186669544
+2025-10-04 22:42:51 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186669544"}
+2025-10-04 22:42:51 ✅ Guardado correctamente para usuario ID=10 con player_id=186669544
+2025-10-04 22:43:05 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186669544"}
+2025-10-04 22:43:05 ✅ Guardado correctamente para usuario ID=10 con player_id=186669544
+2025-10-04 22:43:14 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186669544"}
+2025-10-04 22:43:14 ✅ Guardado correctamente para usuario ID=10 con player_id=186669544
+2025-10-04 22:43:22 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186669544"}
+2025-10-04 22:43:22 ✅ Guardado correctamente para usuario ID=10 con player_id=186669544
+2025-10-04 22:43:29 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186669544"}
+2025-10-04 22:43:29 ✅ Guardado correctamente para usuario ID=10 con player_id=186669544
+2025-10-04 22:43:36 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186669544"}
+2025-10-04 22:43:36 ✅ Guardado correctamente para usuario ID=10 con player_id=186669544
+2025-10-04 22:43:46 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186669544"}
+2025-10-04 22:43:46 ✅ Guardado correctamente para usuario ID=10 con player_id=186669544
+2025-10-04 22:43:56 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186669544"}
+2025-10-04 22:43:56 ✅ Guardado correctamente para usuario ID=10 con player_id=186669544
+2025-10-04 22:44:03 RAW: {"user_id":10,"rol":"profesional","webpushr_id":"186669544"}
+2025-10-04 22:44:03 ✅ Guardado correctamente para profesional ID=10 con player_id=186669544
+2025-10-04 22:44:04 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186669544"}
+2025-10-04 22:44:04 ✅ Guardado correctamente para usuario ID=10 con player_id=186669544
+2025-10-04 22:50:28 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186671027"}
+2025-10-04 22:50:28 ✅ Guardado correctamente para profesional ID=29 con player_id=186671027
+2025-10-04 22:51:28 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186669544"}
+2025-10-04 22:51:28 ✅ Guardado correctamente para usuario ID=10 con player_id=186669544
+2025-10-04 22:54:56 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674783"}
+2025-10-04 22:54:56 ✅ Guardado correctamente para profesional ID=29 con player_id=186674783
+2025-10-04 22:54:57 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674783"}
+2025-10-04 22:54:57 ✅ Guardado correctamente para profesional ID=29 con player_id=186674783
+2025-10-04 22:54:57 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674783"}
+2025-10-04 22:54:57 ✅ Guardado correctamente para profesional ID=29 con player_id=186674783
+2025-10-04 22:58:26 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674873"}
+2025-10-04 22:58:26 ✅ Guardado correctamente para profesional ID=29 con player_id=186674873
+2025-10-04 22:58:46 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674873"}
+2025-10-04 22:58:46 ✅ Guardado correctamente para profesional ID=29 con player_id=186674873
+2025-10-04 22:58:49 RAW: {"user_id":29,"rol":"usuario","webpushr_id":"186674873"}
+2025-10-04 22:58:49 ✅ Guardado correctamente para usuario ID=29 con player_id=186674873
+2025-10-04 22:58:50 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674873"}
+2025-10-04 22:58:50 ✅ Guardado correctamente para profesional ID=29 con player_id=186674873
+2025-10-04 23:06:35 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674873"}
+2025-10-04 23:06:35 ✅ Guardado correctamente para profesional ID=29 con player_id=186674873
+2025-10-04 23:06:42 RAW: {"user_id":11,"rol":"profesional","webpushr_id":"186674873"}
+2025-10-04 23:06:42 ✅ Guardado correctamente para profesional ID=11 con player_id=186674873
+2025-10-04 23:07:30 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186674873"}
+2025-10-04 23:07:30 ✅ Guardado correctamente para usuario ID=10 con player_id=186674873
+2025-10-04 23:08:02 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186674873"}
+2025-10-04 23:08:02 ✅ Guardado correctamente para usuario ID=10 con player_id=186674873
+2025-10-04 23:09:32 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186674873"}
+2025-10-04 23:09:32 ✅ Guardado correctamente para usuario ID=10 con player_id=186674873
+2025-10-05 09:49:43 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674783"}
+2025-10-05 09:49:43 ✅ Guardado correctamente para profesional ID=29 con player_id=186674783
+2025-10-05 09:51:03 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674783"}
+2025-10-05 09:51:03 ✅ Guardado correctamente para profesional ID=29 con player_id=186674783
+2025-10-05 09:52:59 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674783"}
+2025-10-05 09:52:59 ✅ Guardado correctamente para profesional ID=29 con player_id=186674783
+2025-10-05 09:53:21 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674783"}
+2025-10-05 09:53:21 ✅ Guardado correctamente para profesional ID=29 con player_id=186674783
+2025-10-05 09:53:37 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674783"}
+2025-10-05 09:53:37 ✅ Guardado correctamente para profesional ID=29 con player_id=186674783
+2025-10-05 09:54:26 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186674873"}
+2025-10-05 09:54:26 ✅ Guardado correctamente para usuario ID=10 con player_id=186674873
+2025-10-05 09:55:01 RAW: {"user_id":11,"rol":"profesional","webpushr_id":"186674873"}
+2025-10-05 09:55:01 ✅ Guardado correctamente para profesional ID=11 con player_id=186674873
+2025-10-05 10:25:52 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674783"}
+2025-10-05 10:25:52 ✅ Guardado correctamente para profesional ID=29 con player_id=186674783
+2025-10-05 10:55:38 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186669308"}
+2025-10-05 10:55:38 ✅ Guardado correctamente para profesional ID=29 con player_id=186669308
+2025-10-05 11:38:54 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186674873"}
+2025-10-05 11:38:54 ✅ Guardado correctamente para usuario ID=10 con player_id=186674873
+2025-10-05 11:39:36 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186674873"}
+2025-10-05 11:39:36 ✅ Guardado correctamente para usuario ID=10 con player_id=186674873
+2025-10-05 11:41:04 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186674873"}
+2025-10-05 11:41:04 ✅ Guardado correctamente para usuario ID=10 con player_id=186674873
+2025-10-05 11:42:01 RAW: {"user_id":11,"rol":"profesional","webpushr_id":"186669308"}
+2025-10-05 11:42:01 ✅ Guardado correctamente para profesional ID=11 con player_id=186669308
+2025-10-05 11:42:54 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674783"}
+2025-10-05 11:42:54 ✅ Guardado correctamente para profesional ID=29 con player_id=186674783
+2025-10-05 11:43:17 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186674873"}
+2025-10-05 11:43:17 ✅ Guardado correctamente para usuario ID=10 con player_id=186674873
+2025-10-05 11:43:21 RAW: {"user_id":10,"rol":"profesional","webpushr_id":"186674873"}
+2025-10-05 11:43:21 ✅ Guardado correctamente para profesional ID=10 con player_id=186674873
+2025-10-05 11:43:22 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186674873"}
+2025-10-05 11:43:22 ✅ Guardado correctamente para usuario ID=10 con player_id=186674873
+2025-10-05 11:47:49 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674783"}
+2025-10-05 11:47:49 ✅ Guardado correctamente para profesional ID=29 con player_id=186674783
+2025-10-05 11:50:41 RAW: {"user_id":10,"rol":"profesional","webpushr_id":"186669308"}
+2025-10-05 11:50:41 ✅ Guardado correctamente para profesional ID=10 con player_id=186669308
+2025-10-05 11:50:44 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186713894"}
+2025-10-05 11:50:44 ✅ Guardado correctamente para usuario ID=10 con player_id=186713894
+2025-10-05 11:51:08 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674783"}
+2025-10-05 11:51:08 ✅ Guardado correctamente para profesional ID=29 con player_id=186674783
+2025-10-05 11:54:35 RAW: {"user_id":10,"rol":"profesional","webpushr_id":"186674873"}
+2025-10-05 11:54:35 ✅ Guardado correctamente para profesional ID=10 con player_id=186674873
+2025-10-05 11:54:37 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186674873"}
+2025-10-05 11:54:37 ✅ Guardado correctamente para usuario ID=10 con player_id=186674873
+2025-10-05 12:12:32 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674783"}
+2025-10-05 12:12:32 ✅ Guardado correctamente para profesional ID=29 con player_id=186674783
+2025-10-05 14:22:00 RAW: {"user_id":29,"rol":"profesional","webpushr_id":"186674783"}
+2025-10-05 14:22:00 ✅ Guardado correctamente para profesional ID=29 con player_id=186674783
+2025-10-05 14:28:05 RAW: {"user_id":10,"rol":"profesional","webpushr_id":"186713894"}
+2025-10-05 14:28:05 ✅ Guardado correctamente para profesional ID=10 con player_id=186713894
+2025-10-05 14:28:12 RAW: {"user_id":10,"rol":"profesional","webpushr_id":"186724041"}
+2025-10-05 14:28:12 ✅ Guardado correctamente para profesional ID=10 con player_id=186724041
+2025-10-05 14:28:14 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186724041"}
+2025-10-05 14:28:14 ✅ Guardado correctamente para usuario ID=10 con player_id=186724041
+2025-10-05 14:28:19 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186724041"}
+2025-10-05 14:28:19 ✅ Guardado correctamente para usuario ID=10 con player_id=186724041
+2025-10-05 14:28:28 RAW: {"user_id":11,"rol":"profesional","webpushr_id":"186724041"}
+2025-10-05 14:28:28 ✅ Guardado correctamente para profesional ID=11 con player_id=186724041
+2025-10-05 14:30:10 RAW: {"user_id":11,"rol":"profesional","webpushr_id":"186724138"}
+2025-10-05 14:30:10 ✅ Guardado correctamente para profesional ID=11 con player_id=186724138
+2025-10-05 14:38:17 RAW: {"user_id":10,"rol":"profesional","webpushr_id":"186724138"}
+2025-10-05 14:38:17 ✅ Guardado correctamente para profesional ID=10 con player_id=186724138
+2025-10-05 14:41:16 RAW: {"user_id":10,"rol":"profesional","webpushr_id":"186724138"}
+2025-10-05 14:41:16 ✅ Guardado correctamente para profesional ID=10 con player_id=186724138
+2025-10-05 14:41:25 RAW: {"user_id":10,"rol":"profesional","webpushr_id":"186724138"}
+2025-10-05 14:41:25 ✅ Guardado correctamente para profesional ID=10 con player_id=186724138
+2025-10-05 14:45:28 RAW: {"user_id":10,"rol":"profesional","webpushr_id":"186724138"}
+2025-10-05 14:45:28 ✅ Guardado correctamente para profesional ID=10 con player_id=186724138
+2025-10-05 14:46:05 RAW: {"user_id":10,"rol":"usuario","webpushr_id":"186674873"}
+2025-10-05 14:46:05 ✅ Guardado correctamente para usuario ID=10 con player_id=186674873
+2025-10-05 15:00:10 RAW: {"user_id":11,"rol":"profesional","webpushr_id":"186724138"}
+2025-10-05 15:00:10 ✅ Guardado correctamente para profesional ID=11 con player_id=186724138
+2025-10-05 16:05:18 RAW: {"user_id":11,"rol":"profesional","webpushr_id":"186674873"}
+2025-10-05 16:05:18 ✅ Guardado correctamente para profesional ID=11 con player_id=186674873
+2025-10-05 16:07:18 RAW: {"user_id":11,"rol":"profesional","webpushr_id":"186729620"}
+2025-10-05 16:07:18 ✅ Guardado correctamente para profesional ID=11 con player_id=186729620
+2025-10-05 16:09:27 RAW: {"user_id":11,"rol":"profesional","webpushr_id":"186724138"}
+2025-10-05 16:09:27 ✅ Guardado correctamente para profesional ID=11 con player_id=186724138
+2025-10-05 17:30:51 RAW: {"user_id":11,"rol":"profesional","webpushr_id":"186733385"}
+2025-10-05 17:30:51 ✅ Guardado correctamente para profesional ID=11 con player_id=186733385
+2025-10-05 17:31:16 RAW: {"user_id":11,"rol":"profesional","webpushr_id":"186724138"}
+2025-10-05 17:31:16 ✅ Guardado correctamente para profesional ID=11 con player_id=186724138

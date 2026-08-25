@@ -1,0 +1,32 @@
+# Sensitive configs and secrets
+**/mailer.env.php
+mailer.env.php
+**/*firebase*.json
+**/*adminsdk*.json
+
+# User uploads & user generated content
+img/dni/*
+!img/dni/.gitkeep
+img/penales/*
+!img/penales/.gitkeep
+img/matriculas/*
+!img/matriculas/.gitkeep
+img/usuarios/*
+!img/usuarios/.gitkeep
+img/profesionales/*
+!img/profesionales/.gitkeep
+img/img/
+uploads_mensajes/*
+!uploads_mensajes/.gitkeep
+uploads_perfiles/*
+!uploads_perfiles/.gitkeep
+tmp_sessions/*
+!tmp_sessions/.gitkeep
+
+# Logs and temp files
+*.log
+**/*.log
+debug_*.txt
+
+# System files
+.DS_Store

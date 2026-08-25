@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18059169740">
+  </script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'AW-18059169740');
+  </script>
+  <meta charset="UTF-8" />
+  <title>Perfil Profesional - BuscoTec</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .pro-card img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: .5rem;
+    }
+
+    textarea {
+      resize: none;
+    }
+
+    #preview img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: .25rem;
+    }
+
+    .rating-box {
+      display: inline-block;
+      margin-top: .25rem;
+    }
+
+    .rating-box span {
+      font-size: 1.3rem;
+    }
+  </style>
+
+  <style>
+    /* === BLOQUE MENSAJE === */
+    .mensaje-box {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid #dee2e6;
+    }
+
+    .mensaje-box label {
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .mensaje-box textarea {
+      font-size: 0.95rem;
+      border-radius: 10px;
+    }
+
+    /* === PRIORIDAD COMPACTA === */
+    .prioridad-box {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .urgencia-btn {
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      line-height: 1.1;
+    }
+
+    .urgencia-btn small {
+      font-size: 0.7rem;
+    }
+
+    .urgencia-btn.active {
+      outline: 2px solid rgba(0, 0, 0, .15);
+    }
+  </style>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+  <script>
+    // 🚑 FIX SESSION: Restaurar sesión SOLO si es necesario
+    (async function () {
+      try {
+        const uid = localStorage.getItem('buscotec_user_id');
+        const email = localStorage.getItem('buscotec_email');
+        const role = localStorage.getItem('buscotec_role');
+
+        if (uid && email) {
+          // Verificar si la sesión PHP está viva
+          const r = await fetch('backend/get_sesion.php', { credentials: 'include' });
+          const s = await r.json();
+
+          // Si NO hay sesión activa en PHP (pero sí en local), restaurar
+          if (!s.data || !s.data.id) {
+            console.warn("🔄 Sesión PHP perdida en perfil, restaurando...");
+            await fetch('/backend/sesion_estable.php', {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: `user_id=${encodeURIComponent(uid)}&email=${encodeURIComponent(email)}&role=${encodeURIComponent(role || 'usuario')}`
+            });
+          }
+        }
+      } catch (e) { console.warn("Error check session:", e); }
+    })();
+  </script>
+</head>
+
+<body>
+  <div class="container py-4">
+    <a href="index.php" class="btn btn-outline-secondary btn-sm mb-3">&larr; Volver</a>
+
+    <div class="card shadow-lg p-4">
+      <div class="row g-3 align-items-center">
+        <div class="col-md-4 text-center">
+          <img id="proFoto" class="img-fluid rounded shadow-sm" src="/img/placeholder-pro.jpg" alt="Foto Profesional"
+            onerror="this.src='img/placeholder-pro.jpg';" />
+        </div>
+
+        <div class="col-md-8">
+          <h3 id="proNombre" class="fw-bold mb-1">Nombre Profesional</h3>
+          <p id="proDescripcion" class="text-muted">Descripción del profesional…</p>
+
+          <div class="mt-2">
+            <div id="proCategorias" class="d-flex flex-wrap gap-2"></div>
+
+          </div>
+
+          <div class="mt-4">
+
+            <!-- PRIORIDAD -->
+            <div class="prioridad-box mb-3">
+              <label class="form-label fw-bold mb-2">Prioridad del trabajo</label>
+              <div class="d-flex gap-2 flex-wrap">
+                <button type="button" class="btn btn-danger urgencia-btn" data-valor="URGENTE">
+                  🔴 Urgente<br><small>Hoy</small>
+                </button>
+
+                <button type="button" class="btn btn-warning urgencia-btn" data-valor="PRIORITARIO">
+                  🟡 Prioritario<br><small>48/72 hs</small>
+                </button>
+
+                <button type="button" class="btn btn-success urgencia-btn active" data-valor="PROGRAMADO">
+                  🟢 Programado<br><small>+7 días</small>
+                </button>
+              </div>
+              <input type="hidden" id="urgencia" value="PROGRAMADO">
+            </div>
+
+            <!-- MEDIO DE PAGO -->
+            <div class="prioridad-box mb-3">
+              <label class="form-label fw-bold mb-2">Forma de pago</label>
+
+              <div class="d-flex gap-2 flex-wrap">
+                <button type="button" class="btn btn-sm btn-outline-primary pago-btn active" data-pago="MERCADOPAGO">
+                  <img src="img/mp.jpg" alt="MP" style="height:16px; vertical-align:middle; margin-right:4px;">
+                  Mercado Pago
+                </button>
+
+                <button type="button" class="btn btn-sm btn-outline-success pago-btn" data-pago="TRANSFERENCIA">
+                  🏦 Transferencia
+                </button>
+
+                <button type="button" class="btn btn-sm btn-outline-secondary pago-btn" data-pago="EFECTIVO">
+                  💵 Efectivo
+                </button>
+              </div>
+
+              <input type="hidden" id="medio_pago" value="MERCADOPAGO">
+            </div>
+
+
+
+            <!-- MENSAJE -->
+            <div class="mensaje-box mb-3">
+              <label for="mensaje">ESCRIBA AQUÍ SU MENSAJE AL PROFESIONAL</label>
+              <textarea id="mensaje" class="form-control" rows="4"
+                placeholder="Describa el problema, indique si es urgente o presupuesto y agregue cualquier detalle importante."></textarea>
+            </div>
+
+            <!-- ADJUNTOS -->
+            <div class="mb-3">
+              <input type="file" id="imagen" accept="image/*" capture="environment" multiple class="d-none" />
+
+              <button id="btnAdjuntar" class="btn btn-outline-primary btn-sm mb-2">
+              </button>
+
+              <div id="preview" class="d-flex flex-wrap gap-2"></div>
+              <small class="text-muted d-block">
+                Podés adjuntar imágenes para que el profesional evalúe mejor el problema.
+              </small>
+            </div>
+
+            <!-- ENVIAR -->
+            <button id="btnEnviar" class="btn btn-success px-4">
+              Enviar mensaje
+            </button>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL RESULTADO -->
+  <div class="modal fade" id="modalResultado" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title">Resultado del envío</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center" id="modalBody">
+          <div id="loadingSpinner">
+            <div class="spinner-border text-success" role="status"></div>
+            <p class="mt-2 mb-0">Enviando mensaje...</p>
+          </div>
+
+          <div id="resultadoEnvio" style="display:none;"></div>
+        </div>
+
+        <div class="modal-footer justify-content-center">
+          <button id="btnCerrarModal" class="btn btn-success" data-bs-dismiss="modal">Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================
+    // PERFIL PROFESIONAL (sin tocar nada)
+    // =========================================================
+    const params = new URLSearchParams(window.location.search);
+    const profesionalId = params.get("id");
+    if (!profesionalId) {
+      alert("Error: falta el ID del profesional.");
+    } else {
+      fetch(`backend/get_profesional.php?id=${profesionalId}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.error) {
+            console.error("Error:", data.error);
+            return;
+          }
+
+          document.getElementById("proNombre").textContent = `${data.nombre} ${data.apellido}`;
+          document.getElementById("proDescripcion").textContent = data.descripcion || "Sin descripción disponible.";
+          let foto = data.foto_profesional?.trim() || "";
+          if (foto !== "") {
+            document.getElementById("proFoto").src =
+              foto.includes("img/profesionales")
+                ? `${foto}?t=${Date.now()}`
+                : `img/profesionales/${foto}?t=${Date.now()}`;
+          } else {
+            document.getElementById("proFoto").src = "img/placeholder-pro.jpg";
+          }
+
+          if (Array.isArray(data.categorias)) {
+            document.getElementById("proCategorias").textContent =
+              data.categorias.map(c => c.nombre).join(", ");
+          }
+
+          // === ⭐ MOSTRAR RATING PROMEDIO ===
+          fetch(`backend/get_rating.php?id=${profesionalId}`)
+            .then(r => r.json())
+            .then(calif => {
+              if (!calif.ok) return;
+              const promedio = parseFloat(calif.promedio || 0);
+              const total = parseInt(calif.total || 0);
+              const estrellas = "★".repeat(Math.round(promedio)).padEnd(5, "☆");
+              const bloque = document.createElement("div");
+              bloque.className = "mt-2";
+              bloque.innerHTML = `
+            <span class="text-warning fs-5">${estrellas}</span>
+            <span class="fw-bold text-warning">(${promedio.toFixed(1)})</span>
+            <small class="text-muted ms-1">${total > 0 ? total + " calificación(es)" : "Sin calificaciones"}</small>
+            <br>
+            <button class="btn btn-outline-secondary btn-sm mt-2" id="btnVerCalificaciones">
+              Ver calificaciones
+            </button>`;
+              document.getElementById("proDescripcion").before(bloque);
+            })
+            .catch(err => console.warn("No se pudo cargar rating:", err));
+        })
+        .catch(err => console.error("Error cargando profesional:", err));
+    }
+
+    // === Acción del botón "Ver calificaciones" ===
+    document.addEventListener("click", (ev) => {
+      if (ev.target && ev.target.id === "btnVerCalificaciones") {
+        const opiniones = document.getElementById("listaCalificaciones") || document.getElementById("listaOpiniones");
+        if (opiniones) {
+          opiniones.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          alert("No hay calificaciones para mostrar aún.");
+        }
+      }
+    });
+
+    // =========================================================
+    // UI DE ADJUNTOS
+    // =========================================================
+    document.addEventListener("DOMContentLoaded", () => {
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const btnAdjuntar = document.getElementById("btnAdjuntar");
+      const inputImagen = document.getElementById("imagen");
+      const preview = document.getElementById("preview");
+
+      btnAdjuntar.textContent = isMobile ? "📸 Tomar foto del problema" : "📤 Subir imagen del problema";
+      btnAdjuntar.addEventListener("click", () => inputImagen.click());
+
+      inputImagen.addEventListener("change", () => {
+        preview.innerHTML = "";
+        const files = Array.from(inputImagen.files);
+        if (files.length > 3) {
+          alert("Solo podés subir hasta 3 imágenes.");
+          inputImagen.value = "";
+          return;
+        }
+        files.forEach(file => {
+          const reader = new FileReader();
+          reader.onload = e => {
+            const img = document.createElement("img");
+            img.src = e.target.result;
+            preview.appendChild(img);
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+    });
+
+    // =========================================================
+    // ENVÍO DE MENSAJE (con categoría incluida + LOADING)
+    // =========================================================
+    let enviandoMensaje = false;
+
+    document.getElementById("btnEnviar").addEventListener("click", async () => {
+      if (enviandoMensaje) return; // 🚫 evita doble click
+      enviandoMensaje = true;
+
+      const btnEnviar = document.getElementById("btnEnviar");
+      btnEnviar.disabled = true;
+
+      const mensaje = document.getElementById("mensaje").value.trim();
+      const inputImagen = document.getElementById("imagen");
+      const files = inputImagen.files;
+      const urgencia = document.getElementById("urgencia").value || "PROGRAMADO";
+
+      // 💳 MEDIO DE PAGO (LEER DEL INPUT, NO de variable global)
+      const medioPago = document.getElementById("medio_pago")?.value || "MERCADOPAGO";
+
+
+      if (!mensaje && files.length === 0) {
+        alert("Escribí un mensaje o adjuntá una imagen.");
+        return;
+      }
+
+      // 🟩 Armamos el mensaje con los prefijos visibles
+      let mensajeFinal = mensaje;
+
+
+
+
+
+      // 📦 FormData (UNA sola vez)
+      const formData = new FormData();
+      formData.append("profesional_id", profesionalId);
+      formData.append("mensaje", mensajeFinal);
+      formData.append("urgencia", urgencia);
+      formData.append("medio_pago", medioPago);
+
+      Array.from(files).forEach(file => formData.append("adjuntos[]", file));
+
+
+
+      // 🔄 Configuramos el modal y el loading
+      const modalEl = document.getElementById("modalResultado");
+      const modal = new bootstrap.Modal(modalEl);
+      const loading = document.getElementById("loadingSpinner");
+      const resultado = document.getElementById("resultadoEnvio");
+
+      // Mostrar solo el spinner al inicio
+      loading.style.display = "block";
+      resultado.style.display = "none";
+      resultado.innerHTML = "";
+      modal.show();
+
+      try {
+        const resp = await fetch("backend/enviar_mensaje.php", {
+          method: "POST",
+          body: formData,
+          credentials: "include"
+        });
+        const data = await resp.json();
+
+        if (data.ok) {
+          // ✅ Ocultamos el spinner y mostramos mensaje final
+          loading.style.display = "none";
+          resultado.style.display = "block";
+          resultado.innerHTML =
+            `<strong>✅ Mensaje enviado con éxito</strong><br><small>Serás redirigido al inicio...</small>`;
+
+          // Limpieza del formulario
+          document.getElementById("mensaje").value = "";
+          document.getElementById("imagen").value = "";
+          document.getElementById("preview").innerHTML = "";
+
+          // Redirección igual que antes
+          modalEl.addEventListener("hidden.bs.modal", () => {
+            window.location.href = "index.php";
+          }, { once: true });
+
+          setTimeout(() => {
+            const modalInst = bootstrap.Modal.getInstance(modalEl);
+            if (modalInst) modalInst.hide();
+          }, 3000);
+
+        } else {
+          // ❌ Error desde el backend
+          loading.style.display = "none";
+          resultado.style.display = "block";
+          resultado.innerHTML =
+            `❌ Error al enviar: ${data.error || "Desconocido"}`;
+        }
+
+      } catch (err) {
+        enviandoMensaje = false;
+        btnEnviar.disabled = false;
+
+        console.error("Error en el envío:", err);
+        loading.style.display = "none";
+        resultado.style.display = "block";
+        resultado.innerHTML = "❌ Error de conexión con el servidor.";
+      }
+    });
+
+
+
+    // =========================================================
+    // CALIFICACIONES (3 últimas)
+    // =========================================================
+    fetch(`backend/get_calificaciones_profesional.php?id=${profesionalId}`)
+      .then(r => r.json())
+      .then(j => {
+        if (!j.ok) return;
+        const contenedor = document.createElement("div");
+        contenedor.className = "mt-4";
+        contenedor.innerHTML = `<h5>💬 Opiniones recientes</h5>`;
+        const lista = document.createElement("div");
+        lista.id = "listaOpiniones";
+        contenedor.appendChild(lista);
+        document.querySelector(".card.shadow-lg.p-4").appendChild(contenedor);
+
+        if (!j.items.length) {
+          lista.innerHTML = `<div class="alert alert-light border text-center mt-2">Aún no hay calificaciones.</div>`;
+          return;
+        }
+
+        lista.innerHTML = j.items.map(c => `
+      <div class="card mb-2 border-0 shadow-sm">
+        <div class="card-body p-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <strong>${c.nombre || 'Usuario'} ${c.apellido || ''}</strong>
+            <span class="text-warning">${"★".repeat(Math.round(c.puntuacion)).padEnd(5, "☆")}</span>
+          </div>
+          ${c.comentario ? `<p class="mb-0">${c.comentario}</p>` : ""}
+          <small class="text-muted">${c.fecha}</small>
+        </div>
+      </div>
+    `).join("");
+
+        const btn = document.createElement("a");
+        btn.href = `todas_calificaciones.html?id=${profesionalId}`;
+        btn.className = "btn btn-outline-secondary btn-sm mt-2";
+        btn.textContent = "Ver todas las calificaciones";
+        contenedor.appendChild(btn);
+      })
+      .catch(err => console.warn("No se pudieron cargar las calificaciones:", err));
+
+
+    // =========================================================
+    // CATEGORÍA DE URGENCIA — versión corregida (evita duplicado de cabecera)
+    // =========================================================
+    const mensajeBox = document.getElementById("mensaje");
+    const urgenciaInput = document.getElementById("urgencia");
+
+    // marcar por defecto PROGRAMADO
+    urgenciaInput.value = "PROGRAMADO";
+    document.querySelector('.urgencia-btn[data-valor="PROGRAMADO"]').classList.add("active");
+
+    // agregar solo un listener por botón
+    document.querySelectorAll(".urgencia-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        // quitar activo previo
+        document.querySelectorAll(".urgencia-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const valor = btn.dataset.valor;
+        urgenciaInput.value = valor;
+
+        // construir cabecera según el valor
+        let cabecera = "";
+        switch (valor) {
+          case "URGENTE":
+            cabecera = "🔴 URGENTE (a resolver en el día)";
+            break;
+          case "PRIORITARIO":
+            cabecera = "🟡 PRIORITARIO (en 48/72 hs)";
+            break;
+          default:
+            cabecera = "🟢 PROGRAMADO (coordinar en +7 días)";
+        }
+
+        // eliminar cualquier cabecera previa (si ya existía) y escribir solo una
+        const textoSinCabecera = mensajeBox.value
+          .replace(/^(🔴|🟡|🟢)[^\n]*\n\n?/m, "")
+          .trimStart();
+
+        mensajeBox.value = cabecera + "\n\n" + textoSinCabecera;
+
+        console.log("Mensaje actual:", mensajeBox.value);
+      });
+    });
+
+
+    // =========================================================
+    // MEDIO DE PAGO — INYECTAR EN MENSAJE (FUNCIONAL)
+    // =========================================================
+    const mensajeBoxPago = document.getElementById("mensaje");
+    const medioPagoInput = document.getElementById("medio_pago");
+
+    // valor por defecto
+    medioPagoInput.value = "MERCADOPAGO";
+
+    // asegurar activo visual inicial
+    document.querySelectorAll(".pago-btn").forEach(b => b.classList.remove("active"));
+    const btnDefaultPago = document.querySelector('.pago-btn[data-pago="MERCADOPAGO"]');
+    if (btnDefaultPago) btnDefaultPago.classList.add("active");
+
+    // listener REAL
+    document.querySelectorAll(".pago-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+
+        // estado visual
+        document.querySelectorAll(".pago-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const valor = btn.dataset.pago;
+        medioPagoInput.value = valor;
+
+        let cabeceraPago = "";
+        switch (valor) {
+          case "TRANSFERENCIA":
+            cabeceraPago = "🏦 Necesito abonar con: Transferencia";
+            break;
+          case "EFECTIVO":
+            cabeceraPago = "💵 Necesito abonar con: Efectivo";
+            break;
+          default:
+            cabeceraPago = "💳 Necesito abonar con: Mercado Pago";
+        }
+
+
+        // ❌ eliminar cabecera de pago previa si existía
+        const textoLimpio = mensajeBoxPago.value
+          .replace(/^(💳|🏦|💵)[^\n]*\n\n?/m, "")
+          .trimStart();
+
+        // ✅ escribir mensaje final
+        mensajeBoxPago.value = cabeceraPago + "\n\n" + textoLimpio;
+
+        console.log("Pago aplicado:", cabeceraPago);
+      });
+    });
+
+
+  </script>
+</body>
+
+</html>

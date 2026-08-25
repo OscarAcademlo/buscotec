@@ -1,0 +1,30 @@
+<?php
+session_start();
+require_once __DIR__ . '/conexion.php';
+header('Content-Type: application/json; charset=utf-8');
+
+$userId = $_SESSION['user_id'] ?? 0;
+if (!$userId) { http_response_code(401); echo json_encode(['ok'=>false,'error'=>'No auth']); exit; }
+
+$raw = file_get_contents('php://input');
+$js  = json_decode($raw, true);
+$token = trim($js['token'] ?? '');
+
+if (!$token) { http_response_code(400); echo json_encode(['ok'=>false,'error'=>'Token vacío']); exit; }
+
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$ip = $_SERVER['REMOTE_ADDR'] ?? '';
+
+// Evitar duplicados para el mismo user/token
+$stmt = $conn->prepare("SELECT id FROM push_subscriptions WHERE user_id=? AND token=? LIMIT 1");
+$stmt->bind_param("is", $userId, $token);
+$stmt->execute();
+$res = $stmt->get_result();
+if ($res->num_rows === 0) {
+    $stmt = $conn->prepare("INSERT INTO push_subscriptions (user_id, token, user_agent, ip_addr, created_at)
+                            VALUES (?, ?, ?, ?, NOW())");
+    $stmt->bind_param("isss", $userId, $token, $userAgent, $ip);
+    $stmt->execute();
+}
+
+echo json_encode(['ok'=>true]);

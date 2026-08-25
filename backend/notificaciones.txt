@@ -1,0 +1,90 @@
+[2026-04-16 20:22:47] CALL RECEIVED
+GET: {"id":"40009277351","topic":"merchant_order"}
+BODY: {"resource":"https://api.mercadolibre.com/merchant_orders/40009277351","topic":"merchant_order"}
+[2026-04-16 20:22:51] CALL RECEIVED
+GET: {"data_id":"154341804785","type":"payment"}
+BODY: {"action":"payment.created","api_version":"v1","data":{"id":"154341804785"},"date_created":"2026-04-16T20:22:50Z","id":130771021477,"live_mode":true,"type":"payment","user_id":"741894322"}
+[2026-04-16 20:22:52] CALL RECEIVED
+GET: {"id":"40009277351","topic":"merchant_order"}
+BODY: {"resource":"https://api.mercadolibre.com/merchant_orders/40009277351","topic":"merchant_order"}
+[2026-04-16 20:23:52] CALL RECEIVED
+GET: {"id":"154341804785","topic":"payment"}
+BODY: {"resource":"154341804785","topic":"payment"}
+[2026-04-16 20:23:52] CALL RECEIVED
+GET: {"data_id":"154341804785","type":"payment"}
+BODY: {"action":"payment.created","api_version":"v1","data":{"id":"154341804785"},"date_created":"2026-04-16T20:22:50Z","id":130771204407,"live_mode":true,"type":"payment","user_id":"741894322"}
+[2026-04-16 20:23:53] CALL RECEIVED
+GET: {"id":"154341804785","topic":"payment"}
+BODY: {"resource":"154341804785","topic":"payment"}
+[2026-04-16 20:23:53] CALL RECEIVED
+GET: {"data_id":"154341804785","type":"payment"}
+BODY: {"action":"payment.created","api_version":"v1","data":{"id":"154341804785"},"date_created":"2026-04-16T20:22:50Z","id":130771187167,"live_mode":true,"type":"payment","user_id":"741894322"}
+[2026-04-16 20:40:37] CALL RECEIVED
+GET: {"data_id":"154341804785","type":"payment"}
+BODY: {"action":"payment.created","api_version":"v1","data":{"id":"154341804785"},"date_created":"2026-04-16T20:22:50Z","id":130771790335,"live_mode":true,"type":"payment","user_id":"741894322"}
+[2026-04-16 20:40:37] CALL RECEIVED
+GET: {"id":"154341804785","topic":"payment"}
+BODY: {"resource":"154341804785","topic":"payment"}
+[2026-04-16 20:42:07] CALL RECEIVED
+GET: {"id":"40038553146","topic":"merchant_order"}
+BODY: {"resource":"https://api.mercadolibre.com/merchant_orders/40038553146","topic":"merchant_order"}
+[2026-04-16 20:42:13] CALL RECEIVED
+GET: {"id":"155097618120","topic":"payment"}
+BODY: {"resource":"155097618120","topic":"payment"}
+[2026-04-16 20:42:13] CALL RECEIVED
+GET: {"id":"40038553146","topic":"merchant_order"}
+BODY: {"resource":"https://api.mercadolibre.com/merchant_orders/40038553146","topic":"merchant_order"}
+[2026-04-16 20:43:13] CALL RECEIVED
+GET: {"data_id":"155097618120","type":"payment"}
+BODY: {"action":"payment.created","api_version":"v1","data":{"id":"155097618120"},"date_created":"2026-04-16T20:42:12Z","id":130771906227,"live_mode":true,"type":"payment","user_id":"741894322"}
+[2026-04-16 20:49:02] CALL RECEIVED
+GET: {"id":"154341804785","topic":"payment"}
+BODY: {"resource":"154341804785","topic":"payment"}
+[2026-04-16 20:49:03] CALL RECEIVED
+GET: {"id":"40009277351","topic":"merchant_order"}
+BODY: {"resource":"https://api.mercadolibre.com/merchant_orders/40009277351","topic":"merchant_order"}
+[2026-04-16 20:49:11] CALL RECEIVED
+GET: {"id":"154341804785","topic":"payment"}
+BODY: {"resource":"154341804785","topic":"payment"}
+[2026-04-16 20:49:11] CALL RECEIVED
+GET: {"id":"40009277351","topic":"merchant_order"}
+BODY: {"resource":"https://api.mercadolibre.com/merchant_orders/40009277351","topic":"merchant_order"}
+[2026-04-16 20:49:11] CALL RECEIVED
+GET: {"data_id":"154341804785","type":"payment"}
+BODY: {"action":"payment.updated","api_version":"v1","data":{"id":"154341804785"},"date_created":"2026-04-16T20:22:50Z","id":130898779728,"live_mode":true,"type":"payment","user_id":"741894322"}
+[2026-04-16 20:49:24] CALL RECEIVED
+GET: {"id":"155097618120","topic":"payment"}
+BODY: {"resource":"155097618120","topic":"payment"}
+[2026-04-16 20:49:24] CALL RECEIVED
+GET: {"data_id":"155097618120","type":"payment"}
+BODY: {"action":"payment.updated","api_version":"v1","data":{"id":"155097618120"},"date_created":"2026-04-16T20:42:12Z","id":130898838154,"live_mode":true,"type":"payment","user_id":"741894322"}
+[2026-04-16 20:49:25] CALL RECEIVED
+GET: {"id":"40038553146","topic":"merchant_order"}
+BODY: {"resource":"https://api.mercadolibre.com/merchant_orders/40038553146","topic":"merchant_order"}
+[2026-04-16 20:49:40] CALL RECEIVED
+GET: {"data_id":"155097618120","type":"payment"}
+BODY: {"action":"payment.updated","api_version":"v1","data":{"id":"155097618120"},"date_created":"2026-04-16T20:42:12Z","id":130898838472,"live_mode":true,"type":"payment","user_id":"741894322"}
+[2026-04-16 20:49:40] CALL RECEIVED
+GET: {"id":"40038553146","topic":"merchant_order"}
+BODY: {"resource":"https://api.mercadolibre.com/merchant_orders/40038553146","topic":"merchant_order"}
+[2026-04-16 20:49:41] CALL RECEIVED
+GET: {"id":"155097618120","topic":"payment"}
+BODY: {"resource":"155097618120","topic":"payment"}
+[2026-04-16 20:51:20] CALL RECEIVED
+GET: {"data_id":"154341804785","type":"payment"}
+BODY: {"action":"payment.updated","api_version":"v1","data":{"id":"154341804785"},"date_created":"2026-04-16T20:22:50Z","id":130898896922,"live_mode":true,"type":"payment","user_id":"741894322"}
+[2026-04-16 20:51:21] CALL RECEIVED
+GET: {"id":"154341804785","topic":"payment"}
+BODY: {"resource":"154341804785","topic":"payment"}
+[2026-04-16 20:51:22] CALL RECEIVED
+GET: {"id":"40009277351","topic":"merchant_order"}
+BODY: {"resource":"https://api.mercadolibre.com/merchant_orders/40009277351","topic":"merchant_order"}
+[2026-04-16 20:51:36] CALL RECEIVED
+GET: {"id":"155097618120","topic":"payment"}
+BODY: {"resource":"155097618120","topic":"payment"}
+[2026-04-16 20:51:36] CALL RECEIVED
+GET: {"data_id":"155097618120","type":"payment"}
+BODY: {"action":"payment.updated","api_version":"v1","data":{"id":"155097618120"},"date_created":"2026-04-16T20:42:12Z","id":130898897288,"live_mode":true,"type":"payment","user_id":"741894322"}
+[2026-04-16 20:51:36] CALL RECEIVED
+GET: {"id":"40038553146","topic":"merchant_order"}
+BODY: {"resource":"https://api.mercadolibre.com/merchant_orders/40038553146","topic":"merchant_order"}

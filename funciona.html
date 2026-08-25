@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>¿Cómo funciona BuscoTec?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap 5 -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <!-- Bootstrap Icons -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --bt-azul: #1877f2;     /* Azul Facebook */
+      --bt-azul-oscuro: #0f5ac0;
+      --bt-gris-fondo: #f0f2f5;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bt-gris-fondo);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      padding-top: 56px; /* espacio para navbar fija */
+    }
+
+    .navbar-buscotec {
+      background-color: var(--bt-azul);
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .hero {
+      background: linear-gradient(
+        135deg,
+        var(--bt-azul),
+        var(--bt-azul-oscuro)
+      );
+      color: #fff;
+      padding: 3rem 1rem;
+    }
+
+    .hero h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+
+    .hero p {
+      font-size: 1rem;
+      max-width: 600px;
+    }
+
+    .hero-badge {
+      background-color: rgba(255, 255, 255, 0.15);
+      border-radius: 999px;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .hero-badge i {
+      font-size: 1.1rem;
+    }
+
+    .hero-cta {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .btn-hero-primary {
+      background-color: #fff;
+      color: var(--bt-azul-oscuro);
+      border: none;
+      font-weight: 600;
+      border-radius: 999px;
+      padding-inline: 1.8rem;
+    }
+
+    .btn-hero-primary:hover {
+      background-color: #f5f6f7;
+      color: var(--bt-azul-oscuro);
+    }
+
+    .btn-hero-secondary {
+      border-radius: 999px;
+      border-color: #fff;
+      color: #fff;
+    }
+
+    .btn-hero-secondary:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .hero-mini-card {
+      background-color: rgba(255, 255, 255, 0.12);
+      border-radius: 1rem;
+      padding: 0.9rem 1rem;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      max-width: 420px;
+    }
+
+    .hero-mini-card i {
+      font-size: 1.3rem;
+      margin-right: 0.5rem;
+    }
+
+    /* Índice */
+    .indice-card {
+      position: sticky;
+      top: 80px;
+    }
+
+    @media (max-width: 991px) {
+      .indice-card {
+        position: static;
+        margin-bottom: 1.5rem;
+      }
+
+      .hero {
+        padding: 2.4rem 1rem;
+      }
+
+      .hero h1 {
+        font-size: 1.8rem;
+      }
+    }
+
+    .indice-titulo {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #6c757d;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .list-group-indice .list-group-item {
+      border: none;
+      border-radius: 0.6rem;
+      margin-bottom: 0.35rem;
+      cursor: pointer;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .list-group-indice .list-group-item i {
+      color: var(--bt-azul);
+      font-size: 1rem;
+    }
+
+    .list-group-indice .list-group-item:hover {
+      background-color: #e7f1ff;
+      color: #0c63e7;
+    }
+
+    /* Secciones */
+    section {
+      scroll-margin-top: 80px;
+    }
+
+    .section-card {
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+      margin-bottom: 1.5rem;
+    }
+
+    .section-card .card-header {
+      background-color: #fff;
+      border-bottom: none;
+      border-radius: 1rem 1rem 0 0;
+      padding-bottom: 0.5rem;
+    }
+
+    .section-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      margin-right: 0.5rem;
+      background: linear-gradient(
+        135deg,
+        var(--bt-azul),
+        var(--bt-azul-oscuro)
+      );
+    }
+
+    .section-card h2 {
+      font-size: 1.15rem;
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-card .badge-etiqueta {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background-color: #e7f1ff;
+      color: #0c63e7;
+      border-radius: 999px;
+      padding: 0.25rem 0.7rem;
+    }
+
+    .section-card p,
+    .section-card li {
+      font-size: 0.95rem;
+    }
+
+    .pill-list {
+      list-style: none;
+      padding-left: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .pill-list li {
+      background-color: #f1f3f5;
+      border-radius: 999px;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.8rem;
+    }
+
+   
+
+    .nota-info {
+      font-size: 0.85rem;
+      color: #6c757d;
+    }
+
+    .icono-paso {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background-color: #e7f1ff;
+      color: #0c63e7;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      margin-right: 0.4rem;
+      flex-shrink: 0;
+    }
+
+    /* Footer */
+    footer {
+      background-color: #fff;
+      border-top: 1px solid #dde1e7;
+      margin-top: 2rem;
+      padding: 1rem 0;
+      font-size: 0.85rem;
+      color: #6c757d;
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-buscotec fixed-top shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="bi bi-house-door"></i> BuscoTec
+        </a>
+
+
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarContenido"
+        aria-controls="navbarContenido"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarContenido">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 small">
+          <li class="nav-item">
+            <a class="nav-link" href="#registro-login">Registro y login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#categorias-profesionales"
+              >Profesionales</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#solicitud-servicio"
+              >Solicitar servicio</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#notificaciones">Notificaciones push</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#pwa">Instalar la app</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#mapa">Mapa y ubicación</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header id="inicio" class="hero">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+          <div class="hero-badge mb-3">
+            <i class="bi bi-lightning-charge-fill"></i>
+            Guía rápida · ¿Cómo funciona BuscoTec?
+          </div>
+          <h1 class="mb-3">
+            Encontrá profesionales de confianza<br />y gestioná tus servicios
+            desde un solo lugar.
+          </h1>
+          <p>
+            Esta página resume, en un solo vistazo, cómo funciona BuscoTec:
+            registro, login, búsqueda de profesionales, solicitud de servicio,
+            notificaciones push, mapa y seguridad de tus datos.
+          </p>
+
+          <div class="hero-cta">
+            <a href="#registro-login" class="btn btn-hero-primary btn-sm">
+              <i class="bi bi-person-check me-1"></i>
+              Ver cómo registrarme
+            </a>
+            <a href="#solicitud-servicio" class="btn btn-outline-light btn-sm btn-hero-secondary">
+              <i class="bi bi-chat-dots me-1"></i>
+              Cómo solicitar un servicio
+            </a>
+          </div>
+
+          <div class="hero-mini-card">
+            <i class="bi bi-shield-lock"></i>
+            Tus datos de contacto se comparten con el profesional
+            <span class="fw-semibold">solo cuando acepta tu solicitud</span>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="py-4">
+    <div class="container">
+      <div class="row g-4">
+        <!-- ÍNDICE -->
+        <div class="col-lg-4 col-xl-3">
+        <div class="card indice-card shadow-sm">
+  <div class="card-body">
+    <div class="indice-titulo">Índice rápido</div>
+
+    <div class="list-group list-group-indice">
+
+      <a class="list-group-item list-group-item-action" href="#que-es">
+        <i class="bi bi-info-circle"></i> ¿Qué es BuscoTec?
+      </a>
+
+      <a class="list-group-item list-group-item-action" href="#registro-login">
+        <i class="bi bi-person-check"></i> Registro y login
+      </a>
+
+      <a class="list-group-item list-group-item-action" href="#categorias-profesionales">
+        <i class="bi bi-people"></i> Profesionales y categorías
+      </a>
+
+      <a class="list-group-item list-group-item-action" href="#solicitud-servicio">
+        <i class="bi bi-chat-dots"></i> Solicitar un servicio
+      </a>
+
+      <a class="list-group-item list-group-item-action" href="#notificaciones">
+        <i class="bi bi-bell"></i> Notificaciones push
+      </a>
+
+      <a class="list-group-item list-group-item-action" href="#pwa">
+        <i class="bi bi-phone"></i> Instalar la app (PWA)
+      </a>
+
+      <a class="list-group-item list-group-item-action" href="#mapa">
+        <i class="bi bi-geo-alt"></i> Mapa y ubicación
+      </a>
+
+      <a class="list-group-item list-group-item-action" href="#seguridad">
+        <i class="bi bi-shield-check"></i> Privacidad y seguridad
+      </a>
+
+      <!-- 🔹 NUEVO -->
+      <a class="list-group-item list-group-item-action" href="#costo-usuario">
+        <i class="bi bi-currency-dollar"></i> Costo para el usuario
+      </a>
+
+      <!-- 🔹 NUEVO -->
+      <a class="list-group-item list-group-item-action" href="#costo-profesional">
+        <i class="bi bi-cash-stack"></i> Costo para profesionales
+      </a>
+
+      <a class="list-group-item list-group-item-action" href="#faq">
+        <i class="bi bi-question-circle"></i> Preguntas frecuentes
+      </a>
+
+    </div>
+  </div>
+</div>
+
+        </div>
+
+        <!-- SECCIONES -->
+        <div class="col-lg-8 col-xl-9">
+          <!-- Qué es BuscoTec -->
+          <section id="que-es">
+            <div class="card section-card">
+              <div class="card-header d-flex align-items-center justify-content-between">
+                <div>
+                  <span class="section-icon">
+                    <i class="bi bi-info-lg"></i>
+                  </span>
+                  <h2>¿Qué es BuscoTec?</h2>
+                </div>
+                <span class="badge badge-etiqueta">Vista general</span>
+              </div>
+              <div class="card-body">
+                <p>
+                  <strong>BuscoTec</strong> es una plataforma donde podés
+                  encontrar profesionales de distintos oficios y servicios,
+                  ver su experiencia, valoración y, si te interesa,
+                  <span class="resaltado-buscotec">
+                    enviar una solicitud de trabajo es importante por tu seguridad no compartir tus datos
+                    personales ni de contacto.
+                  </span>.
+                </p>
+                <p>
+                  <p>Cuando enviás un pedido de trabajo a través de la aplicación, solo tenés que esperar la respuesta del profesional.
+
+                Si el profesional acepta:
+                Recibirás una notificación en la aplicación informándote que el trabajo fue aceptado. A partir de ese momento, el profesional podrá comunicarse con vos para coordinar la visita o el servicio.
+                Si el profesional rechaza:
+  También recibirás una notificación indicando que el profesional no aceptó el trabajo. Esto te permitirá continuar la búsqueda y contactar a otros profesionales.  </p>
+
+Recordá que podés enviar tu mensaje a más de un profesional para aumentar tus posibilidades de conseguir una respuesta rápida.
+Solo el profesional que acepte recibirá tus datos de contacto.
+
+
+
+            
+
+                <ul class="pill-list mt-2 mb-0">
+                  <li><i class="bi bi-check2"></i> Profesionales verificados</li>
+                  <li><i class="bi bi-check2"></i> Historial de servicios</li>
+                  <li><i class="bi bi-check2"></i> Comunicación a través de bot</li>
+                  <li><i class="bi bi-check2"></i> Pensado para notificaciones push</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- Registro y Login -->
+          <section id="registro-login">
+            <div class="card section-card">
+              <div class="card-header d-flex align-items-center justify-content-between">
+                <div>
+                  <span class="section-icon">
+                    <i class="bi bi-person-check-fill"></i>
+                  </span>
+                     
+                  <h2 class="mb-3">Registro y acceso a BuscoTec</h2>
+
+<span class="badge bg-primary mb-3">Paso 1</span>
+
+<div class="card-body p-0">
+
+  <p>
+    Para usar BuscoTec necesitás crear una cuenta con
+    <strong>email y contraseña</strong>.
+    Existen dos tipos de usuarios:
+  </p>
+
+  <ul>
+    <li>
+      <strong>Clientes:</strong> personas que solicitan un servicio.
+    </li>
+    <li>
+      <strong>Profesionales:</strong> personas que ofrecen sus servicios.
+    </li>
+  </ul>
+
+  <hr>
+
+  <p class="fw-semibold mb-2">Proceso de registro:</p>
+
+  <div class="d-flex align-items-start mb-2">
+    <span class="icono-paso me-2">1</span>
+    <div>
+      <strong>Completás el formulario</strong> con tu nombre, email y una
+      contraseña segura.
+    </div>
+  </div>
+
+  <div class="d-flex align-items-start mb-2">
+    <span class="icono-paso me-2">2</span>
+    <div>
+      <strong>Recibís un correo de verificación</strong> con un enlace para
+      activar tu cuenta.
+    </div>
+  </div>
+
+  <div class="d-flex align-items-start mb-2">
+    <span class="icono-paso me-2">3</span>
+    <div>
+      <strong>Hacés clic en el enlace</strong> recibido por email.
+      Solo después de verificar tu correo, la cuenta queda habilitada.
+    </div>
+  </div>
+
+  <div class="d-flex align-items-start mb-4">
+    <span class="icono-paso me-2">4</span>
+    <div>
+      Podés <strong>iniciar sesión con tu email y contraseña</strong>
+      e ingresar a la plataforma.
+    </div>
+    
+        
+  </div>
+
+ 
+<hr class="my-5">
+
+<section id="cuenta-ayuda">
+
+  <h2 class="mb-3">Recuperar contraseña</h2>
+
+  <p>
+    Si olvidaste tu contraseña, ingresá tu dirección de correo electrónico
+    en la opción <strong>“Recuperar contraseña”</strong>.
+    Recibirás un enlace en tu correo para generar una nueva contraseña
+    y acceder nuevamente a tu cuenta.
+  </p>
+
+  <hr>
+
+  <h2 class="mt-4 mb-3">Modificar datos de tu cuenta</h2>
+
+  <p>
+    Si al momento de registrarte cargaste algún dato incorrecto,
+    o si necesitás actualizar tu información personal o profesional,
+    podés hacerlo fácilmente a través de la sección
+    <strong>“Editar perfil”</strong> enviando un mensaje a nuestro equipo.
+  </p>
+
+  <p>
+    También podés solicitar el cambio o la incorporación de nuevas
+    categorías de servicio si sos profesional.
+  </p>
+
+  <h5 class="mt-4">¿Qué debo incluir en el mensaje para modificar mi perfil?</h5>
+
+  <p>Por favor, detallá:</p>
+
+  <ul>
+    <li>El dato actual que querés modificar.</li>
+    <li>El dato nuevo que deseás reemplazar o agregar.</li>
+    <li>Podés solicitar más de una modificación en el mismo mensaje.</li>
+  </ul>
+
+  <p>
+    Nuestro equipo realizará los cambios por vos y te notificará
+    cuando la información esté actualizada.
+  </p>
+
+</section>
+
+  <h5 class="mt-3">Cómo registrarte como profesional</h5>
+
+  <p>
+    El registro en BuscoTec es único: podés inscribirte como usuario,
+    como profesional, o en ambas modalidades dentro de la misma cuenta.
+    Para comenzar, solo necesitás completar tus datos básicos y aceptar
+    los <strong>Términos y Condiciones</strong> de la aplicación.
+  </p>
+
+  <h6 class="mt-3">Datos necesarios para registrarte como profesional</h6>
+
+  <h6 class="mt-3">Datos personales</h6>
+  <ul>
+    <li>Nombre y apellido</li>
+    <li>Correo electrónico</li>
+    <li>Contraseña</li>
+    <li>Número de teléfono</li>
+    <li>Dirección completa (Barrio – Ciudad – Provincia)</li>
+  </ul>
+
+  <h6 class="mt-3">Datos de tu profesión</h6>
+  <ul>
+    <li>Selección de una o más categorías de servicio</li>
+    <li>Años de experiencia</li>
+    <li>
+      Descripción de tus habilidades, servicios y cualquier información
+      relevante sobre tu trabajo
+    </li>
+  </ul>
+
+  <h6 class="mt-3">Documentación requerida</h6>
+  <ul>
+    <li>Foto de tu rostro</li>
+    <li>Foto del DNI (frente)</li>
+    <li>Foto del DNI (dorso)</li>
+    <li>Matrícula profesional (opcional, según el rubro)</li>
+    <li>Certificado de antecedentes penales (opcional por el momento)</li>
+  </ul>
+
+  <h6 class="mt-3">Activación de la cuenta</h6>
+  <p>
+    Una vez completado el registro, recibirás un correo electrónico para
+    verificar tu dirección de email.  
+    Luego de confirmar el correo, tu cuenta quedará activada y lista para
+    comenzar a recibir solicitudes de trabajo.
+  </p>
+
+</div>
+ <p class="nota-info mt-3 mb-0">
+                  Si no ves el correo de verificación,
+                  revisá la carpeta de <strong>Spam</strong> o
+                  <strong>Promociones</strong>.
+                </p>
+                </div>
+
+               
+              </div>
+            </div>
+          </section>
+
+          <!-- Categorías y Profesionales -->
+          <section id="categorias-profesionales">
+            <div class="card section-card">
+              <div class="card-header d-flex align-items-center justify-content-between">
+                <div>
+                  <span class="section-icon">
+                    <i class="bi bi-people-fill"></i>
+                  </span>
+                  <h2>Profesionales y categorías</h2>
+                </div>
+                <span class="badge badge-etiqueta">Paso 2</span>
+              </div>
+              <div class="card-body">
+                <p>
+                  Una vez logueado, podés navegar por las distintas
+                  <strong>categorías de servicios</strong> disponibles
+                  (por ejemplo: plomería, electricidad, albañilería, etc.).
+                </p>
+
+                <p>En cada categoría vas a ver una lista de profesionales con:</p>
+                <ul>
+                  <li>Nombre y apellido.</li>
+                  <li>Años de experiencia y formación.</li>
+                  <li>Foto de perfil.</li>
+                  <li>Puntuación o valoración promedio (cuando esté disponible).</li>
+                  <li>Botón para <strong>ver perfil</strong> .</li>
+                  <li>Botón para <strong>solicitar servicio</strong>.</li>
+                </ul>
+
+                <p>
+                  El objetivo es que puedas comparar rápidamente y tomar una
+                  decisión informada antes de enviar una solicitud concreta.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Solicitar servicio -->
+          <section id="solicitud-servicio">
+            <div class="card section-card">
+              <div class="card-header d-flex align-items-center justify-content-between">
+                <div>
+                  <span class="section-icon">
+                    <i class="bi bi-chat-left-dots-fill"></i>
+                  </span>
+                  <h2>Cómo solicitar un servicio</h2>
+                </div>
+                <span class="badge badge-etiqueta">Paso 3</span>
+              </div>
+              <div class="card-body">
+                <p>
+                  Cuando encuentres un profesional que te interese, podés
+                  hacer clic en <strong>“Solicitar servicio”</strong>. Ahí
+                  se abre un formulario donde completás:
+                </p>
+                <ul>
+                  <li>Una descripción del problema o trabajo que necesitás. Es importante enviar un mensaje claro y completo, ya que ayuda a que el profesional determine rapidamente si puede resolver tu necesidad</li>
+                  
+                  <li>Es importante seleccionar la prioridad de una de las 3 opciones (URGENTE-PRIORITARIO-PROGRAMADO, para que el profesional sepa si puede cumplir con tu necesidad.</li>
+                  <li>Opcionalmente, <strong>una foto</strong> (por ejemplo, de la instalación, conexión, rotura, etc.).</li>
+                </ul>
+
+                <p class="fw-semibold mt-2">¿Qué pasa con esa solicitud?</p>
+                <p>
+                  Tu mensaje va directo al profesional.
+                  
+                    El profesional recibe dos opciones:     
+                </p>
+                <ul>
+                  <li><strong>Aceptar</strong> el trabajo.</li>
+                  <li><strong>Rechazar</strong> el trabajo.</li>
+                  
+                </ul>
+                    <hr class="my-5">
+
+<section id="aceptar-rechazar-trabajo">
+
+  <h2 class="mb-3">Cómo aceptar o rechazar un trabajo</h2>
+
+  <p>
+    Cuando un usuario solicita tus servicios, recibirás una notificación
+    con la siguiente información:
+  </p>
+
+  <ul>
+    <li>Tipo de trabajo solicitado</li>
+    <li>Nivel de urgencia (Urgente / Prioritario / Programado)</li>
+    <li>Descripción del problema o necesidad del cliente</li>
+    <li>Fotos adjuntas (si el usuario las añadió)</li>
+  </ul>
+
+  <p>
+    En base a esta información, podrás decidir si
+    <strong>aceptar o rechazar el trabajo</strong>.
+  </p>
+
+  <hr>
+
+  <h5 class="mt-4">1. Aceptar un trabajo</h5>
+
+  <p>
+    Si aceptás la solicitud:
+  </p>
+
+  <ul>
+    <li>
+      La app te proporcionará los datos del cliente.
+    </li>
+    <li>
+      A partir de ese momento, podrás comunicarte directamente con él
+      (llamada telefónica, WhatsApp o mensajes).
+    </li>
+    <li>
+      Se generará automáticamente el cargo por la comisión fija:
+      <strong>USD 1 (ARS $1.500)</strong>.
+    </li>
+    <li>
+      Esta comisión es independiente del valor del servicio que cobres
+      al usuario.
+    </li>
+    <li>
+      La app solo cobra si efectivamente conseguís un cliente.
+      <strong>Nunca pagás si no aceptás trabajos</strong>.
+    </li>
+  </ul>
+
+  <hr>
+
+  <h5 class="mt-4">2. Rechazar un trabajo</h5>
+
+  <p>
+    Si por cualquier motivo el trabajo no te resulta conveniente:
+  </p>
+
+  <ul>
+    <li>
+      Simplemente seleccioná la opción <strong>“Rechazar”</strong>.
+    </li>
+    <li>
+      No se te cobrará ningún cargo.
+    </li>
+    <li>
+      El usuario recibirá una notificación para continuar
+      buscando otros profesionales disponibles.
+    </li>
+  </ul>
+
+</section>
+
+                <p class="fw-semibold mt-3">
+                    
+                  ¿Cuándo se comparten tus datos con el profesional?
+                </p>
+                <p>
+                  Por seguiridad, <strong>tus datos personales se protegen</strong>.
+                  Solo cuando un profesional presiona “Aceptar”, el sistema:
+                </p>
+                <ul>
+                  <li>Le envía una confirmación al profesional.</li>
+                  <li>Le brinda tu nombre, apellido y telefono de contacto.</li>
+                  <li>Registra un servicio imputado para su posterior control.</li>
+                </ul>
+
+                <p class="nota-info mb-0">
+                  Si el profesional rechaza, el sistema notifica al cliente por medio de un mensaje de la aplicacion, para que el ususario puedan seguir buscando otros profesionales.
+                  
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Notificaciones push -->
+          <section id="notificaciones">
+            <div class="card section-card">
+              <div class="card-header d-flex align-items-center justify-content-between">
+                <div>
+                  <span class="section-icon">
+                    <i class="bi bi-bell-fill"></i>
+                  </span>
+                  <h2>Notificaciones</h2>
+                </div>
+                <span class="badge badge-etiqueta">Notificaciones</span>
+              </div>
+              <div class="card-body">
+                <p>
+                  BuscoTec está preparada para usar
+                  <strong>notificaciones</strong> en segundo plano.
+                  Esto significa que, incluso si no tenés la página abierta,
+                  podés recibir avisos cuando:
+                </p>
+                <ul>
+                  <li>Un profesional responde a tu solicitud.</li>
+                  <li>Tenés mensajes pendientes.</li>
+                  <li>Hay actualizaciones importantes sobre un servicio.</li>
+                </ul>
+
+                <p class="fw-semibold mt-2">Campanita de mensajes</p>
+                <p>
+                  Dentro de la app vas a ver una
+                  <strong>campanita</strong> que muestra la cantidad de
+                  <strong>mensajes pendientes</strong>. Eso te ayuda a saber
+                  de un vistazo si tenés novedades sin leer.
+                </p>
+
+                <p class="nota-info mb-0">
+                  Para recibir las notificaciones es importante
+                  <strong>instalar BuscoTec</strong> en tu dispositivo
+                  y <strong>aceptar el permiso de notificaciones</strong>.
+                  Más abajo te explicamos cómo hacerlo.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Instalar PWA -->
+          <section id="pwa">
+            <div class="card section-card">
+              <div class="card-header d-flex align-items-center justify-content-between">
+                <div>
+                  <span class="section-icon">
+                    <i class="bi bi-phone-fill"></i>
+                  </span>
+                  <h2>Instalar BuscoTec como app</h2>
+                </div>
+                <span class="badge badge-etiqueta">Recomendado</span>
+              </div>
+              <div class="card-body">
+                <p>
+                  BuscoTec funciona como una
+                  <strong>Aplicación Web Progresiva (PWA)</strong>. Esto te
+                  permite instalarla en tu celular o tablet como si fuera
+                  una app nativa y así aprovechar mejor las
+                  <strong>notificaciones</strong>.
+                </p>
+
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <p class="fw-semibold">
+                      Cómo instalar en Android (Chrome)
+                    </p>
+                    <ol class="mb-2">
+                      <li>Abrí BuscoTec en Chrome.(no funcionará si usas otro navegador que no sea chrome)</li>
+                      <li>Tocá el menú de tres puntos (arriba a la derecha).</li>
+                      <li>Elegí <strong>“Agregar a pantalla principal”</strong>.</li>
+                      <li>Confirmá el nombre y tocá <strong>“Instalar”</strong>.</li>
+                    </ol>
+                    <p class="nota-info">
+                      A partir de ahí, BuscoTec aparece como icono en tu
+                      pantalla de inicio y se abre a pantalla completa.
+                    </p>
+                  </div>
+                  <div class="col-md-6">
+                    <p class="fw-semibold">
+                      Cómo instalar en iPhone / iPad (Safari)
+                    </p>
+                    <ol class="mb-2">
+                      <li>Abrí BuscoTec en Safari.</li>
+                      <li>Tocá el ícono de <strong>Compartir</strong> (cuadrado con flecha hacia arriba).</li>
+                      <li>Buscá y elegí <strong>“Agregar a pantalla de inicio”</strong>.</li>
+                      <li>Confirmá el nombre y tocá <strong>“Agregar o instalar”</strong>.</li>
+                    </ol>
+                    <p class="nota-info mb-0">
+                      Después podés abrir BuscoTec directamente desde el
+                      icono de tu pantalla, sin entrar al navegador.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Mapa y ubicación -->
+          <section id="mapa">
+            <div class="card section-card">
+              <div class="card-header d-flex align-items-center justify-content-between">
+                <div>
+                  <span class="section-icon">
+                    <i class="bi bi-geo-alt-fill"></i>
+                  </span>
+                  <h2>Mapa y ubicación</h2>
+                </div>
+                <span class="badge badge-etiqueta">Geolocalización</span>
+              </div>
+              <div class="card-body">
+                <p>
+                  BuscoTec utiliza un mapa basado en
+                  <strong>OpenStreetMap</strong> para mostrar información
+                  de ubicación de los servicios. El objetivo es que puedas
+                  tener una referencia aproximada de dónde se ofrecen los
+                  servicios o dónde se encuentra el profesional
+                  (según las funciones activadas en cada versión).
+                </p>
+
+                <p>
+                  El mapa se integra de forma ligera, evitando consumir
+                  datos innecesarios y manteniendo la app rápida tanto
+                  en escritorio como en dispositivos móviles.
+                </p>
+
+                <p class="nota-info mb-0">
+                  La ubicación que se muestra es siempre aproximada y
+                  respeta la privacidad de los usuarios.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Seguridad -->
+          <section id="seguridad">
+            <div class="card section-card">
+              <div class="card-header d-flex align-items-center justify-content-between">
+                <div>
+                  <span class="section-icon">
+                    <i class="bi bi-shield-lock-fill"></i>
+                  </span>
+                  <h2>Privacidad y seguridad de tus datos</h2>
+                </div>
+                <span class="badge badge-etiqueta">Seguridad</span>
+              </div>
+              <div class="card-body">
+                <p>
+                  La plataforma está pensada para que el intercambio de
+                  información entre clientes y profesionales sea
+                  <strong>ordenado y seguro</strong>.
+                </p>
+
+                <ul>
+                  <li>Tu cuenta se protege con <strong>email + contraseña</strong>.</li>
+                  <li>Necesitás <strong>verificar tu email</strong> antes de usar la plataforma.</li>
+                  <li>Tus datos personales (solamente nombre y numero de contacto) se comparten con el profesional solo cuando <strong>acepta tu solicitud</strong>.</li>
+                  <li>Las comunicaciones iniciales quedan registradas en nuestras bases de datos lo que permite tener tu historia.</li>
+                </ul>
+
+                <p class="nota-info mb-0">
+                  Para más detalles legales, podés consultar los
+                  <strong>Términos y Condiciones</strong> y la
+                  <strong>Política de Privacidad</strong> específicos
+                  de BuscoTec.
+                </p>
+              </div>
+            </div>
+            <hr class="my-5">
+
+<section id="costo-usuario">
+
+  <div class="card shadow-sm mb-5" id="costo-usuario">
+  <div class="card-body">
+
+    <h2 class="mb-3">¿Cuál es el costo para el usuario?</h2>
+
+    <p>
+      <strong>BuscoTec no cobra comisiones a los usuarios.</strong>
+      Por lo tanto, ningún profesional puede cobrarte un adicional
+      por el uso de la plataforma.
+    </p>
+
+    <p>
+      Para el usuario, el servicio de BuscoTec es
+      <strong>siempre gratuito</strong>.
+    </p>
+
+  </div>
+</div>
+
+<div class="card shadow-sm mb-5" id="costo-profesional">
+  <div class="card-body">
+
+    <h2 class="mb-3">¿Cuál es el costo para profesionales?</h2>
+
+    <p>
+      BuscoTec no interviene en tus ingresos ni en los valores
+      que fijás para tus trabajos.
+      La plataforma solo cobra una
+      <strong>comisión fija por cada contacto generado</strong>
+      cuando aceptás una solicitud de trabajo.
+    </p>
+
+    <h5 class="mt-4">Comisión por contacto</h5>
+
+    <ul>
+      <li><strong>USD 1 </strong></li>
+      <li><strong>ARS $1.500</strong></li>
+    </ul>
+
+    <h5 class="mt-4">Aspectos importantes</h5>
+
+    <ul>
+      <li>La comisión se cobra únicamente si aceptás el trabajo.</li>
+      <li>Nunca pagás por rechazar solicitudes.</li>
+      <li>Se cobra el contacto del cliente, no un porcentaje de tu ganancia.</li>
+      <li>La relación comercial y la cobranza quedan completamente a tu cargo.</li>
+      <li>BuscoTec no participa en presupuestos ni en cobros.</li>
+    </ul>
+
+    <h5 class="mt-4">Pago de la comisión</h5>
+
+    <p>
+      El pago debe realizarse dentro de los
+      <strong>5 días hábiles</strong>
+      posteriores a la aceptación del trabajo.
+    </p>
+
+    <p>
+      Una vez realizado el pago, deberás enviar el comprobante
+      a través de la app.
+      El importe se dará de baja de tu
+      <strong>cuenta corriente</strong>.
+    </p>
+
+    <h5 class="mt-4">Falta de pago</h5>
+
+    <p class="mb-0">
+      Si la comisión no se abona dentro del plazo establecido,
+      la cuenta del profesional será
+      <strong>suspendida hasta regularizar la deuda</strong>.
+    </p>
+
+  </div>
+</div>
+
+</section>
+
+          </section>
+
+         <!-- ================================================= -->
+<!-- FAQ + BENEFICIOS + CALIFICACIÓN -->
+<!-- ================================================= -->
+
+<section id="faq" class="mb-5">
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+
+      <!-- ===================== -->
+      <!-- FAQ -->
+      <!-- ===================== -->
+      <h2 class="mb-3">Preguntas frecuentes rápidas</h2>
+
+      <h5 class="mt-3">¿Puedo usar BuscoTec sin crear una cuenta?</h5>
+      <p>
+        Podés ver información general, pero para solicitar un servicio
+        necesitás registrarte y verificar tu email.
+      </p>
+
+      <h5 class="mt-3">¿Me llegan notificaciones si no instalo la app?</h5>
+      <p>
+        Algunas notificaciones pueden funcionar desde el navegador,
+        pero la experiencia recomendada es instalar la app
+        y aceptar los permisos de notificación.
+      </p>
+
+      <h5 class="mt-3">¿El profesional ve mi teléfono y dirección desde el inicio?</h5>
+      <p>
+        No. Solo se comparten tu nombre y teléfono
+        cuando el profesional acepta tu solicitud.
+      </p>
+
+    </div>
+  </div>
+
+</section>
+
+<!-- ================================================= -->
+<!-- BENEFICIOS USUARIOS -->
+<!-- ================================================= -->
+
+<section class="mb-5">
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+
+      <h2 class="mb-3">Beneficios y ventajas para usuarios</h2>
+
+      <h5 class="mb-3">¿Por qué elegirnos antes de contratar?</h5>
+
+      <p class="fw-semibold text-primary">
+        Seguridad – Rapidez – Simplicidad – Gratuidad
+      </p>
+
+      <p>
+        BuscoTec te permite encontrar profesionales de manera
+        <strong>fácil, rápida y segura</strong>.
+        Cada profesional brinda sus servicios de forma independiente,
+        mientras que la plataforma facilita la búsqueda mostrándolos en un mapa,
+        ordenándolos por calificación y validando su identidad.
+      </p>
+
+      <p>
+        Para registrarse, los profesionales deben completar sus datos personales,
+        incluyendo <strong>DNI</strong>, <strong>matrícula</strong> (si corresponde)
+        y <strong>antecedentes penales</strong>.
+      </p>
+
+      <h5 class="mt-4">Ventajas principales</h5>
+
+      <ul class="mt-3">
+        <li class="mb-2">
+          <strong>Contactá a varios profesionales a la vez:</strong>
+          el primero que acepta queda asignado y se cancela el resto.
+        </li>
+
+        <li class="mb-2">
+          <strong>Notificaciones claras:</strong>
+          <ul>
+            <li>Rechazo → notificación automática.</li>
+            <li>Aceptación → se informa el profesional asignado.</li>
+          </ul>
+        </li>
+
+        <li class="mb-2">
+          <strong>Calificaciones transparentes:</strong>
+          ayudan a otros usuarios a decidir.
+        </li>
+
+        <li class="mb-2">
+          <strong>Mayor respaldo:</strong>
+          los pedidos quedan registrados en la plataforma.
+        </li>
+
+        <li class="mb-2">
+          <strong>Acciones ante faltas graves:</strong>
+          posibilidad de suspensión preventiva o definitiva.
+        </li>
+      </ul>
+
+    </div>
+  </div>
+
+</section>
+
+<!-- ================================================= -->
+<!-- BENEFICIOS PROFESIONALES -->
+<!-- ================================================= -->
+
+<section class="mb-5">
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+
+      <h2 class="mb-3">Beneficios y ventajas para profesionales</h2>
+
+      <h5 class="mb-3">¿Por qué elegirnos para conseguir trabajo?</h5>
+
+      <p class="fw-semibold text-primary">
+        Clientes ilimitados – Si no trabajás, no pagás – Registro de contactos
+      </p>
+
+      <p>
+        La inscripción es gratuita.
+        Solo se cobra una comisión fija
+        cuando aceptás un trabajo.
+      </p>
+
+      <h5 class="mt-4">Ventajas principales</h5>
+
+      <ul class="mt-3">
+        <li class="mb-2">
+          <strong>Acceso a clientes reales</strong> desde el mapa.
+        </li>
+
+        <li class="mb-2">
+          <strong>Publicación gratuita:</strong>
+          solo se cobra si aceptás.
+        </li>
+
+        <li class="mb-2">
+          <strong>Servicios flexibles:</strong>
+          podés solicitar nuevas categorías.
+        </li>
+
+        <li class="mb-2">
+          <strong>Calificaciones:</strong>
+          mejor reputación, más oportunidades.
+        </li>
+
+        <li class="mb-2">
+          <strong>Presupuestos:</strong>
+          si aceptás, la comisión se cobra igual.
+        </li>
+
+        <li class="mb-2">
+          <strong>Derecho a réplica</strong> ante comentarios.
+        </li>
+
+        <li class="mb-2">
+          <strong>Denuncias transparentes</strong>
+          con suspensión preventiva y revisión.
+        </li>
+      </ul>
+
+    </div>
+  </div>
+
+</section>
+
+<!-- ================================================= -->
+<!-- CALIFICACIÓN DEL PROFESIONAL -->
+<!-- ================================================= -->
+
+<section class="mb-5">
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+
+      <h2 class="mb-3">Calificación del profesional</h2>
+
+      <p>Una vez finalizado el trabajo, el usuario podrá:</p>
+
+      <ul>
+        <li>Calificarte con <strong>1 a 5 estrellas</strong>.</li>
+        <li>Dejar un comentario sobre su experiencia.</li>
+      </ul>
+
+      <p>
+        Estas calificaciones ayudan a mejorar la calidad del servicio
+        y a destacar a los profesionales con mejor desempeño.
+      </p>
+
+      <h5 class="mt-3">Derecho a réplica</h5>
+
+      <p>
+        Si no estás de acuerdo con una calificación o comentario,
+        podés escribir al equipo de BuscoTec desde la página de contacto.
+        Luego del análisis, el contenido podrá ser modificado o removido
+        si corresponde.
+      </p>
+
+    </div>
+  </div>
+
+</section>
+
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container text-center">
+      BuscoTec · Plataforma de oficios y servicios ·
+      <span class="text-muted">Guía de funcionamiento</span>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18059169740">
+  </script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'AW-18059169740');
+  </script>
+  <meta charset="UTF-8">
+  <title>Registro de Profesional - BuscoTec</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- SweetAlert2 para alertas tipo app móvil -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .card {
+      border-radius: 1rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .is-invalid {
+      border-color: #dc3545 !important;
+    }
+
+    .form-check-label {
+      font-weight: 700;
+    }
+
+    .form-check-input {
+      border: 2px solid #000 !important;
+      width: 1.3em;
+      height: 1.3em;
+    }
+
+    .form-check-input:checked {
+      background-color: #0d6efd;
+      border-color: #000;
+    }
+
+    /* Estilos para los casilleros de categorías */
+    .cat-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #0d6efd;
+      border-radius: 20px;
+      padding: 6px 12px;
+      background: #e3f2fd;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .cat-box input[type="checkbox"] {
+      accent-color: #0d6efd;
+      transform: scale(1.2);
+    }
+  </style>
+  <style>
+    .modal-body.terminos-scroll {
+      max-height: 70vh;
+      /* altura máxima visible */
+      overflow-y: auto;
+      /* scroll vertical */
+      white-space: pre-line;
+      /* respeta saltos de línea del texto */
+      font-size: 0.9rem;
+      /* opcional: letra un poco más chica */
+    }
+  </style>
+
+</head>
+
+<body>
+
+
+
+  <div class="container py-5">
+    <div class="card p-4 mx-auto" style="max-width:650px;">
+      <a href="/index.html" class="btn btn-outline-secondary btn-sm mb-2">🏠 Inicio</a>
+      <h3 class="text-center mb-3">🧰 Registro de Profesional</h3>
+      <div id="alertMsg" class="alert alert-danger d-none text-center"></div>
+
+      <form id="formRegistro" enctype="multipart/form-data" novalidate>
+
+        <!-- Nombre y apellido -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label>Nombre</label>
+            <input type="text" name="nombre" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label>Apellido</label>
+            <input type="text" name="apellido" class="form-control" required>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+          <label>Correo electrónico</label>
+          <input type="email" name="email" class="form-control" required>
+        </div>
+
+        <!-- Contraseña -->
+        <div class="mb-3 position-relative">
+          <label>Contraseña</label>
+          <div class="input-group">
+            <input type="password" name="password" id="password" class="form-control" minlength="8" required>
+            <button type="button" class="btn btn-outline-secondary" id="togglePassword"><i
+                class="bi bi-eye"></i></button>
+          </div>
+          <small class="text-muted">Debe tener al menos 8 caracteres.</small>
+        </div>
+
+        <!-- Repetir contraseña -->
+        <div class="mb-3 position-relative">
+          <label>Repetir contraseña</label>
+          <div class="input-group">
+            <input type="password" name="password2" id="password2" class="form-control" minlength="8" required>
+            <button type="button" class="btn btn-outline-secondary" id="togglePassword2"><i
+                class="bi bi-eye"></i></button>
+          </div>
+          <div class="invalid-feedback">Las contraseñas no coinciden.</div>
+        </div>
+
+        <!-- WhatsApp -->
+        <div class="mb-3">
+          <label>WhatsApp</label>
+          <input type="tel" name="whatsapp" class="form-control" placeholder="+5491123456789" required>
+        </div>
+
+        <!-- Profesiones dinámicas (checkboxes) -->
+        <div class="mb-3">
+          <label class="form-label">Seleccioná tus categorías profesionales</label>
+          <div id="categoriasContainer" class="d-flex flex-wrap gap-2"></div>
+          <small class="text-muted">Podés marcar una o varias opciones.</small>
+        </div>
+
+        <!-- Dirección -->
+        <div class="mb-3"><label>Dirección</label><input type="text" name="direccion" class="form-control" required>
+        </div>
+        <div class="mb-3"><label>Barrio</label><input type="text" name="barrio" class="form-control" required></div>
+        <div class="mb-3"><label>Ciudad</label><input type="text" name="ciudad" class="form-control" required></div>
+        <div class="mb-3"><label>Provincia</label><input type="text" name="provincia" class="form-control" required>
+        </div>
+
+        <!-- Experiencia -->
+        <div class="mb-3"><label>Años de experiencia</label><input type="number" name="experiencia" class="form-control"
+            min="0" required></div>
+
+        <!-- Foto profesional -->
+        <div class="mb-3">
+          <label>Foto profesional (obligatoria)</label>
+          <input type="file" name="foto_profesional" class="form-control" accept="image/*" required>
+        </div>
+
+        <!-- Matrícula -->
+        <div class="mb-3">
+          <label>Foto de matrícula (opcional)</label>
+          <input type="file" name="foto_matricula" class="form-control" accept="image/*">
+        </div>
+
+        <!-- Fecha de nacimiento -->
+        <div class="mb-3">
+          <label>Fecha de nacimiento</label>
+          <input type="date" name="fecha_nacimiento" class="form-control" required>
+        </div>
+
+        <!-- 📸 DNI frente -->
+        <div class="mb-3">
+          <label>
+            DNI - Frente 
+          </label>
+          <input type="file" name="dni_frente" id="dni_frente" class="form-control" accept="image/*" required>
+          <small class="text-muted" id="msg_frente">En móvil se abrirá la cámara, en PC podrás subir un archivo.</small>
+        </div>
+
+        <!-- 📸 DNI dorso -->
+        <div class="mb-3">
+          <label>
+            DNI - Dorso
+          </label>
+          <input type="file" name="dni_dorso" id="dni_dorso" class="form-control" accept="image/*" required>
+          <small class="text-muted" id="msg_dorso">En móvil se abrirá la cámara, en PC podrás subir un archivo.</small>
+        </div>
+
+        <!-- Certificado de antecedentes penales -->
+        <div class="mb-3">
+          <label>Certificado de antecedentes penales (opcional)</label>
+          <input type="file" name="cert_penales" class="form-control" accept="image/*">
+          <small class="text-muted">Solo imagen o captura legible.</small>
+        </div>
+
+        <!-- Descripción -->
+        <div class="mb-3">
+          <label>Descripción (opcional)</label>
+          <textarea name="descripcion" class="form-control" rows="3"
+            placeholder="Contanos brevemente sobre tu experiencia."></textarea>
+        </div>
+
+        <!-- Términos -->
+        <div class="form-check mt-3">
+          <input class="form-check-input" type="checkbox" name="acepta_terminos" required>
+          <label class="form-check-label">
+            <b>Acepto los</b> <a href="#" data-bs-toggle="modal" data-bs-target="#modalTerminos">Términos y
+              Condiciones</a>.
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 mt-4">Registrar profesional</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Términos -->
+  <div class="modal fade" id="modalTerminos" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Términos y Condiciones</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body terminos-scroll">
+          Documento General de Inscripción y Consentimiento – BUSCOTEC
+
+          1. Objeto del documento
+          El presente documento tiene por finalidad establecer los términos bajo los cuales los usuarios se inscriben en
+          la plataforma BUSCOTEC y otorgan su consentimiento para el tratamiento de sus datos personales, conforme a la
+          Ley Nº 25.326 de Protección de Datos Personales de la República Argentina.
+
+          2. Naturaleza del servicio
+          BUSCOTEC es una plataforma digital que actúa únicamente como intermediario de contacto entre personas que
+          buscan servicios (“Usuarios Clientes”) y profesionales o técnicos independientes (“Usuarios Prestadores”).
+          BUSCOTEC no interviene en la contratación, ejecución ni pago de los servicios ofrecidos a través de la
+          plataforma, limitándose a facilitar la comunicación entre las partes.
+
+          3. Aceptación
+          Al registrarse, el usuario declara haber leído, comprendido y aceptado los Términos y Condiciones y la
+          Política de Privacidad de BUSCOTEC, disponibles en la aplicación o sitio web.
+
+          4. Datos personales y documentación
+          El usuario autoriza a BUSCOTEC a recolectar y conservar la información y documentación que provea, incluyendo:
+          - Datos personales (nombre, DNI, correo electrónico, teléfono, dirección).
+          - Imágenes del DNI (frente y dorso).
+          - Matrícula o habilitación profesional, cuando corresponda.
+          - Otra información necesaria para el funcionamiento de la plataforma.
+          BUSCOTEC no valida ni certifica la autenticidad de los documentos remitidos; su recepción tiene un fin
+          meramente administrativo y de registro.
+
+          5. Tratamiento de datos
+          BUSCOTEC se compromete a tratar los datos personales conforme a la legislación vigente, adoptando las medidas
+          técnicas y organizativas necesarias para su protección. El usuario podrá ejercer los derechos de acceso,
+          rectificación y supresión conforme a la Ley Nº 25.326.
+
+          6. Consentimiento expreso
+          El usuario presta su consentimiento para:
+          - El tratamiento de sus datos personales.
+          - La conservación de documentación enviada.
+          - La comunicación de su información básica a otros usuarios dentro de la plataforma para posibilitar la
+          conexión entre partes.
+
+          7. Vigencia
+          Este consentimiento permanecerá vigente mientras el usuario mantenga una cuenta activa en BUSCOTEC o hasta que
+          solicite su baja y eliminación de datos.
+
+
+          Términos y Condiciones Generales de Uso – BUSCOTEC
+
+          1. Aceptación de los Términos
+          El uso de la aplicación o sitio web BUSCOTEC implica la aceptación plena y sin reservas de los presentes
+          Términos y Condiciones. El usuario declara haber leído y comprendido el alcance de los mismos antes de
+          registrarse o utilizar cualquier funcionalidad del servicio.
+
+          2. Objeto
+          BUSCOTEC es una plataforma digital que permite conectar a personas que necesitan realizar tareas o contratar
+          servicios (“Usuarios Clientes”) con profesionales o técnicos independientes (“Usuarios Prestadores”). BUSCOTEC
+          no presta servicios técnicos ni profesionales, ni garantiza los resultados de los trabajos acordados entre las
+          partes.
+
+          3. Rol de BUSCOTEC
+          BUSCOTEC actúa únicamente como intermediario de contacto. No participa, valida ni supervisa los acuerdos,
+          presupuestos, pagos, calidad, cumplimiento, tiempos ni resultados de los servicios ofrecidos por los Usuarios
+          Prestadores. Cualquier relación contractual o conflicto derivado entre usuarios será exclusiva responsabilidad
+          de las partes involucradas.
+
+          4. Registro de Usuarios
+          Para utilizar la plataforma, los usuarios deberán registrarse proporcionando información veraz y actualizada.
+          Los Usuarios Prestadores serán requeridos a enviar documentación adicional (DNI, matrícula profesional,
+          comprobantes de domicilio, entre otros). BUSCOTEC se reserva el derecho de suspender o eliminar cuentas que
+          incumplan los presentes Términos o que contengan información falsa o fraudulenta.
+
+          5. Publicaciones y comportamiento
+          Los usuarios se comprometen a:
+          - Utilizar la plataforma de manera lícita y respetuosa.
+          - No publicar contenidos ofensivos, falsos, ilegales o engañosos.
+          - Mantener la confidencialidad de la información recibida de otros usuarios.
+          - Abstenerse de usar la marca BUSCOTEC para fines no autorizados.
+          BUSCOTEC podrá eliminar publicaciones o cuentas que vulneren estas condiciones sin previo aviso.
+
+          6. Pagos y acuerdos entre usuarios
+          BUSCOTEC no gestiona pagos entre las partes. Las condiciones económicas, formas de pago y garantías deben ser
+          pactadas directamente entre el Usuario Cliente y el Usuario Prestador, sin intervención ni responsabilidad de
+          BUSCOTEC.
+
+          7. Responsabilidad
+          BUSCOTEC no será responsable por daños, pérdidas, reclamos o perjuicios derivados de:
+          - La ejecución de los trabajos.
+          - Incumplimientos de los usuarios.
+          - Errores en la información publicada.
+          - Fallas técnicas, interrupciones o demoras en el funcionamiento de la plataforma.
+
+          8. Propiedad intelectual
+          El diseño, logotipo, nombre comercial y elementos distintivos de BUSCOTEC son propiedad exclusiva de la
+          empresa titular. Los usuarios se comprometen a no copiar, reproducir ni distribuir los contenidos de la
+          plataforma sin autorización.
+
+          9. Modificaciones
+          BUSCOTEC podrá modificar estos Términos y Condiciones en cualquier momento, notificándolo a los usuarios a
+          través de la aplicación o por medios electrónicos. La continuación del uso implicará la aceptación de las
+          nuevas condiciones.
+
+          10. Legislación aplicable y jurisdicción
+          Estos Términos se rigen por las leyes de la República Argentina. Cualquier controversia será resuelta por los
+          tribunales ordinarios competentes con asiento en la Ciudad Autónoma de Buenos Aires.
+
+
+          ACUERDO PARA TÉCNICOS Y PROFESIONALES – BUSCOTEC
+
+          BUSCOTEC es un servicio digital de intermediación destinado a conectar a usuarios que buscan servicios
+          técnicos o profesionales con personas que los ofrecen, bajo los términos y condiciones del presente documento.
+          El Profesional acepta estas condiciones al registrarse.
+
+          1. Objeto
+          El Profesional reconoce que BUSCOTEC actúa exclusivamente como intermediario de contacto entre potenciales
+          clientes y oferentes de servicios, sin participar en la relación laboral, comercial o contractual que pudiera
+          generarse entre ellos.
+
+          2. Inscripción y documentación
+          Para registrarse, el Profesional deberá:
+          - Completar la información solicitada.
+          - Presentar copia del DNI.
+          - Acreditar matrícula o certificación habilitante cuando corresponda.
+          BUSCOTEC podrá verificar, aprobar o rechazar inscripciones que no cumplan los requisitos.
+
+          3. Funcionamiento del servicio
+          La Plataforma permite al Profesional recibir solicitudes de presupuestos, mensajes y contactos de potenciales
+          clientes. BUSCOTEC no garantiza la concreción de trabajos ni la continuidad de los contactos generados.
+
+          4. Responsabilidad del Profesional
+          El Profesional es responsable por:
+          - La calidad y cumplimiento de sus servicios.
+          - La veracidad de la información publicada.
+          - Cumplir normas impositivas y legales aplicables.
+          BUSCOTEC no se responsabiliza por los servicios prestados ni por daños derivados de la relación entre
+          Profesional y cliente.
+
+          5. Uso de la Plataforma
+          El Profesional se compromete a utilizar la Plataforma de forma lícita y ética. BUSCOTEC podrá suspender o
+          eliminar cuentas por incumplimiento.
+
+          6. Cargo por contacto o solicitud de presupuesto
+          1. BUSCOTEC brinda un servicio de intermediación digital; cada contacto o solicitud recibida constituye un
+          servicio prestado.
+          2. El Profesional deberá abonar un cargo por cada contacto según el valor vigente.
+          3. El pago debe realizarse dentro de 5 días hábiles.
+          4. Ante incumplimiento, BUSCOTEC podrá suspender o cancelar la cuenta.
+          5. El cargo se devenga aun si el trabajo no se concreta.
+          6. BUSCOTEC pondrá a disposición comprobantes y registros.
+
+          7. Vigencia y terminación
+          El acuerdo tendrá vigencia desde su aceptación y podrá ser rescindido por cualquiera de las partes sin derecho
+          a indemnización.
+
+          8. Jurisdicción y ley aplicable
+          El acuerdo se regirá por las leyes de la República Argentina. Las controversias se someterán a los tribunales
+          del domicilio legal de BUSCOTEC.
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal Privacidad DNI -->
+  <div class="modal fade" id="modalSeguridadDNI" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title"><i class="bi bi-shield-lock-fill text-success me-2"></i>Verificación de identidad</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-secondary pb-4 pt-3">
+          Te vamos a pedir unos datos, entre ellos la foto de tu DNI, que nadie va a poder ver y es un requisito de seguridad para poder usar esta plataforma. Tus datos están en absoluta confidencialidad.
+        </div>
+        <div class="modal-footer border-0 pt-0 justify-content-center">
+          <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">Continuar con el registro</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // === Mostrar modal de seguridad al inicio ===
+      const modalSeguridad = new bootstrap.Modal(document.getElementById('modalSeguridadDNI'));
+      modalSeguridad.show();
+
+      // === Cargar categorías dinámicas ===
+      fetch('/backend/get_categorias.php')
+        .then(r => r.json())
+        .then(j => {
+          const cont = document.getElementById('categoriasContainer');
+          cont.innerHTML = '';
+          (j.items || []).forEach(cat => {
+            const div = document.createElement('label');
+            div.className = 'cat-box';
+            div.innerHTML = `
+            <input type="checkbox" name="categorias[]" value="${cat.id}">
+            <span>${cat.nombre}</span>
+          `;
+            cont.appendChild(div);
+          });
+        });
+
+      const form = document.getElementById('formRegistro');
+      const alertMsg = document.getElementById('alertMsg');
+      const pass1 = document.getElementById('password');
+      const pass2 = document.getElementById('password2');
+
+      // Mostrar/ocultar contraseñas
+      ['togglePassword', 'togglePassword2'].forEach(id => {
+        const btn = document.getElementById(id);
+        const input = id === 'togglePassword' ? pass1 : pass2;
+        btn.addEventListener('click', () => {
+          const show = input.type === 'password';
+          input.type = show ? 'text' : 'password';
+          btn.querySelector('i').className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
+        });
+      });
+
+      // Validar contraseñas
+      function validarPasswords() {
+        if (pass1.value && pass2.value && pass1.value !== pass2.value) {
+          pass2.classList.add('is-invalid');
+          return false;
+        } else {
+          pass2.classList.remove('is-invalid');
+          return true;
+        }
+      }
+      pass1.addEventListener('input', validarPasswords);
+      pass2.addEventListener('input', validarPasswords);
+
+      // Detectar móvil (abrir cámara)
+      const esMovil = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+      const f = document.getElementById('dni_frente');
+      const d = document.getElementById('dni_dorso');
+      if (esMovil) { f.setAttribute('capture', 'environment'); d.setAttribute('capture', 'environment'); }
+
+      // Vista previa de fotos
+      ['dni_frente', 'dni_dorso', 'cert_penales'].forEach(id => {
+        const input = document.getElementById(id) || document.querySelector(`[name=${id}]`);
+        if (!input) return;
+        input.addEventListener('change', e => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const old = input.parentNode.querySelector('img[data-preview]');
+          if (old) old.remove();
+          const img = document.createElement('img');
+          img.src = URL.createObjectURL(file);
+          img.className = 'mt-2 rounded shadow-sm';
+          img.style.width = '100%';
+          img.dataset.preview = '1';
+          input.parentNode.appendChild(img);
+        });
+      });
+
+      // Envío del formulario
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        if (!validarPasswords()) return;
+
+        // ===============================
+        // 🔥 LOADING CON SWEETALERT
+        // ===============================
+        Swal.fire({
+          title: 'Enviando registro...',
+          text: 'Por favor, esperá un momento.',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        alertMsg.classList.add('d-none');
+        form.querySelectorAll('.is-invalid').forEach(x => x.classList.remove('is-invalid'));
+
+        const data = new FormData(form);
+
+        try {
+          const res = await fetch('/backend/registro_profesional.php', {
+            method: 'POST',
+            body: data
+          });
+
+          const json = await res.json();
+
+          // Cerrar loading
+          // Swal.close(); 
+          // No es necesario cerrarlo si vamos a abrir otro inmediatamente, 
+          // pero por seguridad:
+
+          if (!json.ok) {
+            // ERROR con SweetAlert
+            Swal.fire({
+              title: 'Error',
+              text: json.msg || 'Error en el registro',
+              icon: 'error',
+              confirmButtonText: 'Revisar',
+              heightAuto: false
+            });
+
+            if (json.campo) {
+              const campo = form.querySelector(`[name="${json.campo}"]`);
+              if (campo) campo.classList.add('is-invalid');
+            }
+          } else {
+            // ÉXITO con SweetAlert
+            Swal.fire({
+              title: '¡Bien solo te falta confirmar tu email!',
+              html: 'Bienvenido a BuscoTec.<br>Te enviamos un email para verificar tu cuenta.<br><br><b>Revisá tu correo (y Spam) para confirmar.</b>',
+              icon: 'success',
+              confirmButtonColor: '#0d6efd',
+              confirmButtonText: 'Entendido',
+              allowOutsideClick: false,
+              heightAuto: false
+            }).then((result) => {
+              if (result.isConfirmed) {
+                window.location.href = '/registro_exitoso.html?email=' + encodeURIComponent(data.get("email"));
+              }
+            });
+          }
+
+        } catch (err) {
+          console.error(err);
+          Swal.fire({
+            title: 'Error de conexión',
+            text: 'No se pudo contactar con el servidor',
+            icon: 'error',
+            confirmButtonText: 'Cerrar'
+          });
+        }
+      }); // fin submit
+
+    }); // fin DOMContentLoaded
+  </script>
+
+</body>
+
+</html>

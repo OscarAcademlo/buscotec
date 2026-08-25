@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Prueba Notificación</title>
+</head>
+<body>
+  <h3>Enviar notificación de prueba</h3>
+  <button onclick="enviar()">Enviar Notificación</button>
+
+  <script>
+  function enviar() {
+    fetch("https://buscotec.click/backend/enviar_notificacion.php", {
+      method: "POST"
+    })
+    .then(r => r.json())
+    .then(d => console.log("Respuesta:", d))
+    .catch(e => console.error("Error:", e));
+  }
+  </script>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pagos - BuscoTec</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #0b3558;
+      --secondary: #1565c0;
+      --accent: #1877f2;
+      --bg: #f8f9fa;
+      --text: #333;
+    }
+    body {
+      background-color: var(--bg);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--text);
+    }
+
+    .btn-premium {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      border: none;
+      border-radius: 100px;
+      padding: 10px 24px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(11, 53, 88, 0.2);
+    }
+    .btn-premium:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(11, 53, 88, 0.3);
+      color: #fff;
+      filter: brightness(1.1);
+    }
+
+    h3 {
+      color: var(--primary);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .card-premium {
+      border: none;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      background: #fff;
+    }
+
+    .header-gradient {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+      border-radius: 0 0 24px 24px;
+      margin-bottom: 30px;
+    }
+
+    .table thead th {
+      background-color: #f1f4f8;
+      border: none;
+      color: var(--primary);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      padding: 15px;
+    }
+
+    .table tbody td {
+      padding: 18px 15px;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: middle;
+    }
+
+    .badge-price {
+      background: rgba(24, 119, 242, 0.1);
+      color: var(--accent);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+    }
+
+    .total-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 20px;
+      border: 2px solid var(--accent);
+      display: inline-block;
+      min-width: 250px;
+    }
+
+    .total-label {
+      font-size: 0.8rem;
+      color: #777;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .total-amount {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--primary);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body class="bg-light">
+
+<div class="header-gradient">
+  <div class="container">
+    <a href="/" class="btn-premium mb-4 d-inline-block">🏠 Volver al inicio</a>
+    <h1 class="display-4 fw-bold">Estado de Cuenta</h1>
+    <p class="opacity-75">Resumen de trabajos aceptados y saldo pendiente</p>
+  </div>
+</div>
+
+<div class="container pb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      
+      <!-- Card de Total -->
+      <div class="text-center mb-5">
+        <div class="total-card">
+          <div id="total" class="total-amount">$0,00</div>
+          <div class="mt-3">
+            <button onclick="pagarTotal()" class="btn btn-primary rounded-pill px-4 fw-bold">Pagar Saldo Total</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-premium p-4">
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th style="width: 50px;">#</th>
+                <th>Cliente</th>
+                <th class="text-center">Acción</th>
+                <th>Fecha de Aceptación</th>
+                <th class="text-center">Estado</th>
+                <th class="text-end">Monto ARS</th>
+              </tr>
+            </thead>
+            <tbody id="tablaCasos">
+              <tr><td colspan="5" class="text-center py-5 text-muted">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const tbody   = document.getElementById('tablaCasos');
+  const totalEl = document.getElementById('total');
+
+  try {
+    const res = await fetch('backend/consultar_operaciones_prof.php');
+
+    const data = await res.json();
+
+    tbody.innerHTML = '';
+
+    if (!data.ok || !Array.isArray(data.items)) {
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${data.error || 'Error al cargar los datos'}</td></tr>`;
+      totalEl.textContent = '$0.00';
+      return;
+    }
+
+    // 🔁 Ordenar de más nuevo a más viejo
+    const lista = [...data.items].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+    if (lista.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No tenés casos cobrables.</td></tr>`;
+      totalEl.textContent = '$0.00';
+      return;
+    }
+
+    lista.forEach((c, idx) => {
+      const cliente  = c.cliente || '(sin nombre)';
+      const wa       = c.whatsapp || '';
+      const fechaTxt = c.fecha || '-';
+      const isPagado = c.pagado === 1;
+
+        const tr = document.createElement('tr');
+        if (isPagado) tr.style.opacity = '0.7';
+
+        tr.innerHTML = `
+          <td class="text-muted fw-bold">${idx + 1}</td>
+          <td class="fw-bold">${cliente}</td>
+          <td class="text-center">
+            ${isPagado 
+              ? '<span class="text-muted small">Pago completado</span>' 
+              : `<button onclick="pagar(${c.id_caso})" class="btn btn-primary btn-sm rounded-pill px-3">Abonar</button>`}
+          </td>
+          <td>${fechaTxt}</td>
+          <td class="text-center">
+            ${isPagado 
+              ? '<span class="badge bg-success rounded-pill">Pagado</span>' 
+              : '<span class="badge bg-warning text-dark rounded-pill">Pendiente</span>'}
+          </td>
+          <td class="text-end"><span class="badge-price">${c.costo}</span></td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    totalEl.textContent = data.total;
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">❌ Error de conexión con el servidor</td></tr>`;
+    totalEl.textContent = '$0.00';
+  }
+
+  // ✅ Mostrar alertas de estado de pago
+  const params = new URLSearchParams(window.location.search);
+  const status = params.get('status');
+  if (status === 'success') {
+    alert("✅ ¡Pago acreditado con éxito! El sistema se actualizará en unos instantes.");
+  } else if (status === 'failure') {
+    alert("❌ El pago no pudo completarse. Por favor reintentá.");
+  }
+});
+
+// --- FUNCIONES DE PAGO ---
+
+async function pagar(idCaso) {
+  try {
+    const formData = new FormData();
+    formData.append('id_caso', idCaso);
+
+    const res = await fetch('backend/crear_preferencia_mp.php', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+
+    if (data.ok && data.init_point) {
+      window.location.href = data.init_point; // Redirige a Mercado Pago
+    } else {
+      alert("Error: " + (data.error || 'No se pudo generar el link de pago'));
+    }
+  } catch (e) {
+    alert("Error de conexión");
+  }
+}
+
+async function pagarTotal() {
+  // id_caso 0 significa pagar todo el saldo pendiente
+  pagar(0);
+}
+</script>
+
+</body>
+</html>

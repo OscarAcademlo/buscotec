@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estado de cuenta | BuscoTec</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+  body { background:#f0f2f5; }
+  .bg-primary { background:#1877f2!important; }
+  .mini { font-size:.9rem; }
+
+  .sello-pagado{
+    position:absolute;
+    top:10px;
+    right:10px;
+    background:#28a745;
+    color:#fff;
+    padding:4px 10px;
+    font-size:.75rem;
+    font-weight:bold;
+    border-radius:6px;
+    transform:rotate(-8deg);
+    box-shadow:0 2px 6px rgba(0,0,0,.2);
+  }
+
+  .card-pagado{
+    opacity:.8;
+  }
+</style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark bg-primary">
+  <div class="container d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center gap-2">
+      <a href="index.html" class="btn btn-outline-light btn-sm">
+        <i class="bi bi-arrow-left"></i> Home
+      </a>
+      <span class="navbar-brand fw-bold mb-0">BuscoTec</span>
+    </div>
+    <span class="text-white">Panel Profesional</span>
+  </div>
+</nav>
+
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Estado de cuenta</h4>
+    <div class="fw-bold">Total adeudado: $<span id="total">0.00</span></div>
+  </div>
+
+  <div id="casos"></div>
+</div>
+
+<script>
+const cont = document.getElementById('casos');
+const totalEl = document.getElementById('total');
+
+function esc(s){
+  return String(s ?? '').replace(/[&<>"']/g, m => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+  }[m]));
+}
+
+async function cargar(){
+  try{
+    const r = await fetch('/backend/listar_casos.php', { credentials:'include' });
+    const j = await r.json();
+
+    if(!j.ok){
+      Swal.fire('Error', j.error || 'Error', 'error');
+      return;
+    }
+
+    cont.innerHTML = '';
+    let totalPendiente = 0;
+
+    if(!Array.isArray(j.casos) || j.casos.length === 0){
+      cont.innerHTML = `
+        <div class="alert alert-info">
+          No hay casos aceptados para mostrar.
+        </div>`;
+      totalEl.textContent = '0.00';
+      return;
+    }
+
+    j.casos.forEach(c => {
+      const pagado = Number(c.pagado) === 1;
+      const importeNum = Number(c.importe) || 0;
+
+      if(!pagado){
+        totalPendiente += importeNum;
+      }
+
+      const d = document.createElement('div');
+      d.className = 'card mb-2 shadow-sm' + (pagado ? ' card-pagado' : '');
+
+      d.innerHTML = `
+        <div class="card-body position-relative">
+
+          ${pagado ? `<div class="sello-pagado">PAGADO</div>` : ''}
+
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="fw-bold">
+                Fecha: ${esc(c.fecha)} — Hora: ${esc(c.hora)}
+              </div>
+              <div class="text-muted mini">Caso #${esc(c.id)}</div>
+            </div>
+
+            <div class="fw-bold ${pagado ? 'text-muted text-decoration-line-through' : ''}">
+              +$${importeNum.toFixed(2)}
+            </div>
+          </div>
+
+          <hr class="my-2">
+
+          <div class="mini">
+            <div><strong>Cliente:</strong> ${esc(c.nombre)} ${esc(c.apellido)}</div>
+            <div><strong>WhatsApp:</strong> ${esc(c.whatsapp)}</div>
+          </div>
+
+        </div>
+      `;
+
+      cont.appendChild(d);
+    });
+
+    totalEl.textContent = totalPendiente.toFixed(2);
+
+  }catch(e){
+    Swal.fire('Error','Error de red','error');
+  }
+}
+
+cargar();
+</script>
+
+</body>
+</html>

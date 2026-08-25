@@ -1,0 +1,7 @@
+# CORS para imágenes — permite cargarlas desde Flutter Web y cualquier origen
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type"
+    Header always set Cross-Origin-Resource-Policy "cross-origin"
+</IfModule>

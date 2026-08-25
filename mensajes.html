@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+
+  <title>Mensajes - BuscoTec</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons (NECESARIO para mostrar el icono) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: #f6f7fb;
+    }
+
+    .tabs {
+      display: flex;
+      gap: .5rem;
+      margin-bottom: 1rem;
+    }
+
+    .tabs .btn {
+      border-radius: 999px;
+    }
+
+    .tabs .btn.active {
+      color: #fff;
+      background: #0d6efd;
+      border-color: #0d6efd;
+    }
+
+    .msg-card {
+      border: 1px solid rgba(0, 0, 0, .06);
+      border-radius: .75rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .04);
+      margin-bottom: .75rem;
+    }
+
+    .msg-card.unread .title {
+      font-weight: 700;
+    }
+
+    .msg-meta {
+      color: #6c757d;
+      font-size: .85rem;
+    }
+
+    .title {
+      font-size: 1rem;
+      white-space: pre-wrap;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #dc3545;
+      margin-right: .35rem;
+      vertical-align: middle;
+    }
+
+    .thumbs .thumb {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: .35rem;
+      margin: 0 .35rem .35rem 0;
+      border: 1px solid rgba(0, 0, 0, .1);
+      cursor: pointer;
+    }
+
+    .modal-lg-custom {
+      max-width: 920px;
+    }
+
+    #modalAdjuntos .thumb {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: .35rem;
+      border: 1px solid rgba(0, 0, 0, .1);
+      margin: 0 .35rem .35rem 0;
+      cursor: pointer;
+    }
+  </style>
+  <script>
+    // 🚑 FIX SESSION: Restaurar sesión al entrar a mensajes
+    (function () {
+      const uid = localStorage.getItem('buscotec_user_id');
+      const email = localStorage.getItem('buscotec_email');
+      const role = localStorage.getItem('buscotec_role');
+      if (uid && email) {
+        fetch('/backend/sesion_estable.php', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `user_id=${encodeURIComponent(uid)}&email=${encodeURIComponent(email)}&role=${encodeURIComponent(role || 'usuario')}`
+        }).catch(e => console.warn("Error ping session:", e));
+      }
+    })();
+  </script>
+</head>
+
+<body>
+
+  <div class="container py-3">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <a href="index.php" class="btn btn-outline-secondary btn-sm">&larr; Home</a>
+
+      <h4 class="m-0">Mensajes</h4>
+
+      <!-- Icono de ayuda a la derecha -->
+      <a href="funciona.html" class="text-warning fs-4" title="Cómo funciona">
+        <i class="bi bi-question-circle-fill"></i>
+      </a>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs mb-3">
+      <button id="tabRecibidos" class="btn btn-outline-primary active">Recibidos</button>
+      <button id="tabEnviados" class="btn btn-outline-primary">Enviados</button>
+    </div>
+
+
+    <div id="listaMensajes"></div>
+
+
+    <!-- Modal: Ver Mensaje -->
+    <div class="modal fade" id="mensajeModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg modal-lg-custom">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Detalle del mensaje</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-8">
+                <div class="mb-2 text-muted" id="modalMeta"></div>
+                <div class="mb-2">
+                  <span class="badge bg-secondary" id="modalEstado">pendiente</span>
+                </div>
+                <div class="mb-2" id="modalRemitente"></div>
+                <div class="p-3 border rounded" id="modalTexto" style="white-space:pre-wrap;"></div>
+
+                <div class="mt-3">
+                  <div class="fw-semibold mb-1">Adjuntos</div>
+                  <div id="modalAdjuntos"></div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div id="accionesTrabajo" class="d-grid gap-2">
+                  <button id="modalBtnAceptar" class="btn btn-success">Aceptar</button>
+                  <button id="modalBtnRechazar" class="btn btn-outline-danger">Rechazar</button>
+                  <button id="btnMapaAprox" class="btn btn-outline-primary btn-sm mt-2">📍 Ver ubicación aproximada del
+                    usuario</button>
+
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Confirmar Aceptación -->
+    <div class="modal fade" id="modalAceptar" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirmar aceptación</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <p>Se cobrará un cargo de <strong>$ <span id="montoCargo">1.00</span></strong> por adjudicación.</p>
+            <p>¿Confirmás aceptar el trabajo?</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button id="btnConfirmAceptar" class="btn btn-success">Aceptar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Confirmar Rechazo -->
+    <div class="modal fade" id="modalRechazar" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirmar rechazo</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <p>¿Seguro que querés rechazar este trabajo?</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button id="btnConfirmRechazar" class="btn btn-outline-danger">Rechazar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Datos del Cliente (al aceptar) -->
+    <div class="modal fade" id="modalCliente" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Cliente</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-2"><strong>Nombre:</strong> <span id="clienteNombre"></span></div>
+            <div class="mb-3"><span id="clienteTelefono"></span></div>
+            <a id="clienteWhatsApp" href="#" class="btn btn-success" target="_blank" rel="noopener">Escribir por
+              WhatsApp</a>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Galería de imágenes -->
+    <div class="modal fade" id="imgModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Vista de imagen <span id="imgCounter">0 / 0</span></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body text-center">
+            <img id="imgPreview" src="" alt="preview" class="img-fluid rounded border">
+          </div>
+          <div class="modal-footer justify-content-between">
+            <button id="btnPrevImg" class="btn btn-outline-secondary">&larr; Anterior</button>
+            <button id="btnNextImg" class="btn btn-outline-secondary">Siguiente &rarr;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      const lista = document.getElementById('listaMensajes');
+      let bandeja = 'recibidos';
+      let itemsCache = [];
+      let seleccionado = null;
+      let solicitudEnCurso = null;
+      let cargoAceptacion = '1.00';
+      let gallery = [];
+      let galleryIndex = 0;
+
+      /* --- Tabs --- */
+      document.getElementById('tabRecibidos').onclick = () => { bandeja = 'recibidos'; toggleTabs(); cargar(); };
+      document.getElementById('tabEnviados').onclick = () => { bandeja = 'enviados'; toggleTabs(); cargar(); };
+      function toggleTabs() {
+        document.getElementById('tabRecibidos').classList.toggle('active', bandeja === 'recibidos');
+        document.getElementById('tabEnviados').classList.toggle('active', bandeja === 'enviados');
+      }
+
+      /* --- Cargar valor dinámico --- */
+      async function cargarValorCargo() {
+        try {
+          const r = await fetch('backend/get_valor_caso.php', { credentials: 'include' });
+          const j = await r.json();
+          if (j.ok && j.valor) {
+            cargoAceptacion = parseFloat(j.valor).toFixed(2);
+            const monto = document.getElementById('montoCargo');
+            if (monto) monto.textContent = cargoAceptacion;
+          }
+        } catch (e) { console.warn('No se pudo obtener valor del caso'); }
+      }
+
+      // 🛑 Función segura: evita el loop si el backend devuelve JSON roto o HTML
+      async function safeFetchJson(url, opts = {}) {
+        opts.credentials = 'include';
+        const res = await fetch(url, opts);
+        const text = await res.text();
+
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          console.error('❌ JSON inválido desde', url, '\nRespuesta cruda:', text);
+          // No reinicia sesión ni recarga; devuelve un objeto neutro
+          return { ok: false, error: 'invalid_json', raw: text };
+        }
+      }
+
+
+      /* --- Cargar mensajes --- */
+      async function cargar() {
+        try {
+          lista.innerHTML = '<div class="text-center text-muted py-3">Cargando...</div>';
+
+          // ✅ No hace falta enviar tipo ni rol; el backend devuelve ambas bandejas
+          const j = await safeFetchJson('backend/mensajes_unificado.php');
+
+
+          if (!j.ok) {
+            lista.innerHTML = `<div class="alert alert-danger">Error al cargar mensajes: ${j.error || 'desconocido'}</div>`;
+            return;
+          }
+
+          // ✅ Cargar según pestaña activa
+          if (bandeja === 'recibidos') {
+            itemsCache = Array.isArray(j.recibidos) ? j.recibidos : [];
+          } else {
+            itemsCache = Array.isArray(j.enviados) ? j.enviados : [];
+          }
+
+          render(itemsCache);
+        } catch (e) {
+          console.error('Error al cargar mensajes:', e);
+          lista.innerHTML = '<div class="alert alert-danger">Error al cargar mensajes</div>';
+        }
+      }
+
+
+      /* --- Renderizar mensajes --- */
+      function render(items) {
+        lista.innerHTML = '';
+        if (!items.length) {
+          lista.innerHTML = '<div class="alert alert-light border text-center">No hay mensajes.</div>';
+          return;
+        }
+
+        for (const m of items) {
+          const estado = (m.estado_respuesta || 'pendiente').toLowerCase();
+          const adj = (m.adjuntos || []).filter(a => (a.mime || '').startsWith('image/'));
+          // 🔹 ESTADO DE LECTURA
+          // Solo se muestra negrita (unread) si es RECIBIDO y no está leído.
+          // En enviados, nunca mostramos negrita (salvo que queramos indicar otra cosa, pero confunde).
+          const unread = (bandeja === 'recibidos') && (Number(m.leido || 0) === 0);
+
+          const badgeClass = estado === 'aceptado'
+            ? 'bg-success'
+            : (estado === 'rechazado' ? 'bg-danger' : 'bg-secondary');
+          const badgeText = estado === 'aceptado' ? 'adjudicado' : estado;
+
+          const card = document.createElement('div');
+          card.className = 'card msg-card ' + (unread ? 'unread' : '');
+          card.dataset.id = m.id;  // 👈 este nombre es el que usa el detector de clic
+
+
+          // 🧹 Filtro: los mensajes de sistema solo se muestran en "Recibidos"
+          if (bandeja === 'enviados' && m.tipo === 'sistema') continue;
+
+
+
+
+          // 🔹 Acciones según bandeja
+          let accionesHTML = '';
+          if (bandeja === 'recibidos' && estado === 'pendiente') {
+            accionesHTML = `
+    <div class="mt-3 d-flex gap-2">
+      <button class="btn btn-success btn-sm btn-aceptar">Aceptar</button>
+      <button class="btn btn-outline-danger btn-sm btn-rechazar">Rechazar</button>
+      <button class="btn btn-outline-secondary btn-sm btn-borrar">🗑️ Borrar mensaje</button>
+    </div>`;
+          } else {
+            accionesHTML = `
+    <div class="mt-3 text-end">
+      <button class="btn btn-outline-secondary btn-sm btn-borrar">🗑️ Borrar mensaje</button>
+    </div>`;
+          }
+
+
+          // 🔧 Miniaturas con control de error (PASO 1 CORREGIDO)
+          const thumbsHTML = adj.length
+            ? `<div class="thumbs d-flex flex-wrap mt-2">
+      ${adj.map((a, i) => `
+        <img src="${a.url}"
+             alt="img${i}"
+             class="thumb msg-adjunto"
+             data-index="${i}"
+             onerror="this.style.display='none'; this.title='Imagen no encontrada';">`).join('')}
+    </div>`
+            : '';
+
+
+          // 🟩 Mensaje de sistema (detectado por texto o tipo)
+          const msgTexto = (m.mensaje || '').toLowerCase();
+          if (
+            m.tipo === 'sistema' ||
+            msgTexto.includes('un profesional aceptó tu pedido') ||
+            msgTexto.includes('podés calificar acá')
+          ) {
+            card.classList.add('bg-light', 'border-primary');
+            card.dataset.tipo = 'sistema'; // 👈 marca para usar en el modal
+
+            // Mostramos el mensaje interpretando HTML (no texto plano)
+            card.innerHTML = `
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <div class="msg-meta">${m.fecha_envio || ''}</div>
+        <div><span class="badge bg-secondary">sistema</span></div>
+      </div>
+      <div class="title" style="color:#495057;">${m.mensaje}</div>
+    </div>
+  `;
+
+            // ✅ Al hacer clic, marcar como leído, descontar contador y abrir modal
+            card.addEventListener('click', async (ev) => {
+              // 1. Actualización visual inmediata
+              card.classList.remove('unread');
+              const dot = card.querySelector('.dot'); if (dot) dot.remove();
+
+              // 2. Llamada al backend
+              marcarLeidoUI(card, m);
+              try {
+                const r = await fetch('backend/marcar_leido.php', {
+                  method: 'POST',
+                  credentials: 'include',
+                  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                  body: 'mensaje_id=' + encodeURIComponent(m.id)
+                });
+                const j = await r.json();
+                if (j.ok && typeof j.unread !== 'undefined') {
+                  const notifCount = parent.document?.getElementById('notifCount') || document.getElementById('notifCount');
+                  if (notifCount) {
+                    notifCount.textContent = j.unread;
+                    notifCount.classList.toggle('d-none', j.unread <= 0);
+                  }
+                }
+              } catch (e) { console.warn('Error al marcar leído:', e); }
+
+              openMessage(m);
+            });
+
+            lista.appendChild(card);
+            continue;
+          }
+
+
+
+          card.innerHTML = `
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <div class="msg-meta">${m.fecha_envio || ''}</div>
+          <div>
+            ${unread ? '<span class="dot"></span>' : ''}
+            <span class="badge ${badgeClass}">${badgeText}</span>
+          </div>
+        </div>
+        <div class="mb-1 small text-dark ${unread ? 'fw-bold' : ''}" style="opacity: 0.9;">
+           ${m.nombre || 'Desconocido'} ${m.apellido || ''}
+        </div>
+        <div class="title">${m.mensaje || '(sin texto)'}</div>
+        ${thumbsHTML}
+        ${accionesHTML}
+      </div>
+    `;
+
+          // --- Click para abrir mensaje ---
+          card.addEventListener('click', async (ev) => {
+            if (ev.target.closest('.btn')) return;
+
+            // 1. Actualización visual inmediata
+            card.classList.remove('unread');
+            const dot = card.querySelector('.dot'); if (dot) dot.remove();
+
+            // 2. Llamada al backend
+            marcarLeidoUI(card, m);
+            try {
+              const r = await fetch('backend/marcar_leido.php', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'mensaje_id=' + encodeURIComponent(m.id)
+              });
+              const j = await r.json();
+              if (j.ok && typeof j.unread !== 'undefined') {
+                const notifCount = parent.document?.getElementById('notifCount') || document.getElementById('notifCount');
+                if (notifCount) {
+                  notifCount.textContent = j.unread;
+                  notifCount.classList.toggle('d-none', j.unread <= 0);
+                }
+              }
+            } catch (e) { console.warn('Error al marcar leído:', e); }
+            openMessage(m);
+          });
+
+          // --- Botones Aceptar / Rechazar / Borrar ---
+          card.querySelector('.btn-aceptar')?.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            seleccionado = m; solicitudEnCurso = m.id;
+            const monto = document.getElementById('montoCargo');
+            if (monto) monto.textContent = cargoAceptacion;
+            new bootstrap.Modal(document.getElementById('modalAceptar')).show();
+          });
+
+          card.querySelector('.btn-rechazar')?.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            seleccionado = m; solicitudEnCurso = m.id;
+            new bootstrap.Modal(document.getElementById('modalRechazar')).show();
+          });
+
+          card.querySelector('.btn-borrar')?.addEventListener('click', async (ev) => {
+            ev.stopPropagation();
+            if (!confirm('¿Eliminar este mensaje?')) return;
+            try {
+              const fd = new FormData();
+              fd.append('mensaje_id', m.id);
+              const r = await fetch('backend/mensaje_borrar.php', { method: 'POST', body: fd, credentials: 'include' });
+              const j = await r.json();
+              if (j.ok) {
+                card.remove();
+              } else {
+                alert(j.error || 'No se pudo eliminar el mensaje');
+              }
+            } catch (e) {
+              alert('Error de conexión al eliminar');
+            }
+          });
+
+          lista.appendChild(card);
+        }
+      }
+
+
+      /* --- Abrir modal mensaje --- */
+      function openMessage(m) {
+        seleccionado = m;
+        window.seleccionado = m; // ✅ clave: hace visible el seleccionado al handler del botón
+
+
+        // ✅ PASO 1: fijar el ID del mensaje activo
+        window.mensajeActualId = m.id;
+
+        // 🧩 Detectar si es mensaje de sistema
+        const esSistema =
+          m.tipo === 'sistema' ||
+          (m.mensaje && (
+            m.mensaje.toLowerCase().includes('un profesional aceptó tu pedido') ||
+            m.mensaje.toLowerCase().includes('podés calificar acá')
+          ));
+
+        // 📅 Fecha
+        document.getElementById('modalMeta').textContent = m.fecha_envio || '';
+
+        // 🏷️ Estado (oculto si es sistema)
+        const estadoEl = document.getElementById('modalEstado');
+        if (esSistema) {
+          estadoEl.style.display = 'none';
+        } else {
+          estadoEl.style.display = 'inline-block';
+          estadoEl.textContent = (m.estado_respuesta || 'pendiente');
+        }
+
+        // 👤 Remitente
+        const remitenteEl = document.getElementById('modalRemitente');
+        // Ajustar etiqueta según si es recibido o enviado
+        const label = (typeof bandeja !== 'undefined' && bandeja === 'enviados') ? 'Para: ' : 'De: ';
+        const nombreMostrar = `${m.nombre || ''} ${m.apellido || ''}`.trim();
+        remitenteEl.textContent = label + (esSistema ? 'Sistema' : (nombreMostrar || 'Usuario'));
+
+        // 💬 Contenido del mensaje
+        const modalTexto = document.getElementById('modalTexto');
+        modalTexto.innerHTML = m.mensaje || '(sin texto)';
+        // 🔘 Botones de acción (ocultos si es sistema)
+        const accionesEl = document.getElementById('accionesTrabajo');
+        if (accionesEl) {
+          if (esSistema) {
+            accionesEl.style.setProperty('display', 'none', 'important');
+            // 🔹 también deshabilita los botones internos por seguridad
+            accionesEl.querySelectorAll('button').forEach(btn => {
+              btn.disabled = true;
+              btn.classList.add('disabled');
+            });
+          } else {
+            accionesEl.style.display = 'grid';
+            accionesEl.querySelectorAll('button').forEach(btn => {
+              btn.disabled = false;
+              btn.classList.remove('disabled');
+            });
+          }
+        }
+        // === Cargar adjuntos en el modal principal ===
+        const modalAdj = document.getElementById("modalAdjuntos");
+        modalAdj.innerHTML = "";
+
+        // Filtrar solo imágenes
+        const imgs = (m.adjuntos || []).filter(a => (a.mime || "").startsWith("image/"));
+
+        if (imgs.length > 0) {
+          imgs.forEach((a, i) => {
+            const thumb = document.createElement("img");
+            thumb.src = a.url;
+            thumb.className = "thumb mb-2";
+            thumb.style.cursor = "pointer";
+            thumb.dataset.index = i;
+
+            // Al hacer clic → abrir galería
+            thumb.onclick = () => {
+              gallery = imgs;
+              galleryIndex = i;
+
+              document.getElementById("imgPreview").src = imgs[i].url;
+              document.getElementById("imgCounter").textContent =
+                (i + 1) + " / " + imgs.length;
+
+              new bootstrap.Modal(document.getElementById("imgModal")).show();
+            };
+
+            modalAdj.appendChild(thumb);
+          });
+        } else {
+          modalAdj.innerHTML = "<div class='text-muted'>No hay adjuntos.</div>";
+        }
+
+
+        // 🪟 Abrir modal
+        new bootstrap.Modal(document.getElementById('mensajeModal')).show();
+      }
+
+
+
+      /* --- Botones modal principal --- */
+      document.getElementById('modalBtnAceptar').onclick = () => {
+        if (seleccionado?.tipo === 'sistema') return; // 🚫 Bloquea acción en mensaje de sistema
+        solicitudEnCurso = seleccionado?.id;
+        new bootstrap.Modal(document.getElementById('modalAceptar')).show();
+      };
+
+      document.getElementById('modalBtnRechazar').onclick = () => {
+        if (seleccionado?.tipo === 'sistema') return; // 🚫 Bloquea acción en mensaje de sistema
+        solicitudEnCurso = seleccionado?.id;
+        new bootstrap.Modal(document.getElementById('modalRechazar')).show();
+      };
+
+      document.getElementById('btnConfirmAceptar').onclick = async () => {
+        if (seleccionado?.tipo === 'sistema') return;
+        bootstrap.Modal.getInstance(document.getElementById('modalAceptar')).hide();
+        await enviarAccion('aceptar');
+      };
+
+      document.getElementById('btnConfirmRechazar').onclick = async () => {
+        if (seleccionado?.tipo === 'sistema') return;
+        bootstrap.Modal.getInstance(document.getElementById('modalRechazar')).hide();
+        await enviarAccion('rechazar');
+      };
+
+      // === 💬 Enviar acción (aceptar / rechazar) al backend ===
+      async function enviarAccion(accion) {
+        if (!seleccionado?.id) {
+          console.warn('No hay mensaje seleccionado');
+          return;
+        }
+
+        try {
+          const r = await fetch('backend/solicitudes_responder.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              accion: accion,
+              mensaje_id: seleccionado.id
+            })
+          });
+
+          const j = await r.json();
+
+          if (j.ok) {
+
+            // 👤 Mostrar modal con los datos del cliente si vienen en la respuesta
+            if (j.usuario) {
+              const nombre = `${j.usuario.nombre ?? ''} ${j.usuario.apellido ?? ''}`.trim() || 'Sin nombre';
+              const tel = j.usuario.whatsapp ? j.usuario.whatsapp : 'Sin número';
+              const link = j.usuario.whatsapp
+                ? `https://wa.me/${j.usuario.whatsapp.replace(/\D/g, '')}?text=Hola%2C%20soy%20el%20profesional%20de%20BuscoTec`
+                : '#';
+
+              document.getElementById('clienteNombre').textContent = nombre;
+              document.getElementById('clienteTelefono').textContent = tel;
+              document.getElementById('clienteWhatsApp').href = link;
+
+              new bootstrap.Modal(document.getElementById('modalCliente')).show();
+            }
+
+            // 🟩 Mostrar notificación visual sin romper nada existente
+            mostrarNotificacionSistema(`✅ Pedido ${accion === 'aceptar' ? 'aceptado' : 'rechazado'} correctamente.`);
+
+            // 🔄 Actualizar la lista de mensajes sin recargar todo
+            if (typeof cargarMensajes === 'function') {
+              await cargarMensajes();
+            }
+
+          } else {
+            console.warn('Error del servidor:', j.error);
+            alert('⚠️ ' + (j.error || 'Error al procesar la acción.'));
+          }
+        } catch (err) {
+          console.error('Error en enviarAccion():', err);
+          alert('❌ Error de conexión al servidor.');
+        }
+      }
+
+
+
+
+      /* --- Cambiar estado visual --- */
+      function marcar(id, estado) {
+        const card = lista.querySelector(`[data-msg-id="${id}"]`);
+        if (!card) return;
+        const badge = card.querySelector('.badge');
+        if (badge) {
+          let clase = 'bg-secondary', texto = 'pendiente';
+          if (estado === 'aceptado') { clase = 'bg-success'; texto = 'adjudicado'; }
+          else if (estado === 'rechazado') { clase = 'bg-danger'; texto = 'rechazado'; }
+          badge.className = 'badge ' + clase;
+          badge.textContent = texto;
+        }
+        card.classList.remove('unread');
+        const dot = card.querySelector('.dot'); if (dot) dot.remove();
+        const btns = card.querySelector('.d-flex.gap-2'); if (btns) btns.remove();
+      }
+
+      /* --- Galería --- */
+      document.getElementById('btnPrevImg').onclick = () => showGallery(galleryIndex - 1);
+      document.getElementById('btnNextImg').onclick = () => showGallery(galleryIndex + 1);
+      function showGallery(i) {
+        if (!gallery.length) return;
+        if (i < 0) i = gallery.length - 1;
+        if (i >= gallery.length) i = 0;
+        galleryIndex = i;
+        document.getElementById('imgPreview').src = gallery[i].url;
+        document.getElementById('imgCounter').textContent = (i + 1) + ' / ' + gallery.length;
+        new bootstrap.Modal(document.getElementById('imgModal')).show();
+      }
+
+      /* --- Init --- */
+      document.addEventListener('DOMContentLoaded', async () => {
+        try {
+          // Evitar caché local de navegador
+          if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            for (const name of cacheNames) {
+              await caches.delete(name);
+            }
+          }
+
+          // Cargar valor dinámico del cargo
+          await cargarValorCargo();
+
+          // Asegura bandeja inicial
+          bandeja = 'recibidos';
+          toggleTabs();
+
+          // Limpia posibles datos viejos en memoria
+          itemsCache = [];
+
+          // Fuerza recarga del backend sin usar caché
+          await cargar();
+
+          // Actualiza contador inicial
+          await actualizarContador();
+        } catch (e) {
+          console.error('Error inicializando mensajes:', e);
+        }
+      });
+
+      /* --- Contador global --- */
+      async function actualizarContador() {
+        try {
+          const r = await fetch('backend/get_unread_count.php', {
+            credentials: 'include',
+            cache: 'no-store' // evita usar respuesta vieja
+          });
+          const j = await r.json();
+          if (j.ok) {
+            const notif = parent.document?.getElementById('notifCount') || document.getElementById('notifCount');
+            if (notif) {
+              notif.textContent = j.unread;
+              notif.classList.toggle('d-none', j.unread <= 0);
+            }
+          }
+        } catch (e) {
+          console.warn('Error contador:', e);
+        }
+      }
+
+      // Actualización periódica cada 10 segundos
+      setInterval(actualizarContador, 10000);
+
+      // === 🔔 Verificar cada minuto si un profesional aceptó un caso ===
+      async function verificarCasoAceptado() {
+
+        // 🧩 1. Obtener el ID del usuario logueado almacenado en el navegador
+        // (se guarda en localStorage al momento del login)
+        const userId = localStorage.getItem('buscotec_user_id');
+
+        // 🚫 Si no hay usuario logueado, se sale sin hacer nada
+        if (!userId) return;
+
+        try {
+          // 🌐 2. Hacer la petición al backend que verifica si hay un caso aceptado
+          // Se pasa el user_id en la URL para identificar al usuario actual
+          const r = await fetch(
+            'backend/check_caso_aceptado.php?user_id=' + encodeURIComponent(userId),
+            {
+              // credentials:'include' asegura que se envíe la cookie de sesión (BUSCOTECSESSID)
+              credentials: 'include'
+            }
+          );
+
+          // 📦 3. Convertir la respuesta del servidor a formato JSON
+          const j = await r.json();
+
+          // ✅ 4. Si la respuesta es válida y contiene un profesional (caso aceptado)
+          if (j.ok && j.profesional) {
+
+            // 🧠 5. Mostrar notificación visual dentro de la página de mensajes
+            // Se usa la función mostrarNotificacionSistema() para crear el mensaje azul en pantalla
+            // Se incluye el nombre del profesional y el ID del caso para poder calificar después
+            mostrarNotificacionSistema(
+              `✅ ${j.profesional} aceptó tu solicitud y se comunicará a la brevedad.<br><br>
+         📌 Cuando finalice el trabajo, podrás calificar su servicio.`,
+              j.caso_id   // 👈 este parámetro permite enlazar directamente con calificar.html?caso=...
+            );
+          }
+
+        } catch (err) {
+          // ⚠️ 6. Si ocurre cualquier error (falla de red o respuesta no válida),
+          // se muestra una advertencia en la consola para depuración
+          console.warn('Error verificando casos aceptados:', err);
+        }
+      }
+
+
+      // 🕒 Ejecutar cada 60 segundos
+      setInterval(verificarCasoAceptado, 60000);
+
+      // === Función para mostrar dentro del área de mensajes (versión neutra, sin cartel azul) ===
+      function mostrarNotificacionSistema(html, casoId = null) {
+        // ⚙️ La dejamos activa para que no se rompa nada,
+        // pero sin insertar el cartel visual en la interfaz.
+
+        const contenedor = document.getElementById('listaMensajes');
+        if (!contenedor) return;
+
+
+
+        // (opcional) Si querés mostrar algo mínimo como un toast, descomentá el bloque siguiente:
+        /*
+        const toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-bg-primary border-0 show position-fixed bottom-0 end-0 m-3';
+        toast.innerHTML = `
+          <div class="d-flex">
+            <div class="toast-body">${html}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+          </div>`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 5000);
+        */
+      }
+
+      // =======================================================
+      // 🔒 Solo permite calificar desde mensajes.html (una vez)
+      // y convierte automáticamente mensaje_id -> caso_id real
+      // =======================================================
+      document.addEventListener('click', async (ev) => {
+        const btn = ev.target.closest('.link-calificar');
+        if (!btn) return;
+
+        ev.preventDefault();
+
+        // Obtener el id que viene del link
+        const rawId = btn.dataset.caso || btn.getAttribute('href').split('caso=')[1];
+        const id = parseInt(rawId || '0', 10);
+
+        if (!id) return alert('ID inválido.');
+
+        try {
+          // Pedir al backend el caso_id correcto (sirve si ya es caso o mensaje)
+          const r = await fetch(`backend/get_caso_id_por_mensaje.php?id=${id}`, { credentials: 'include' });
+          const j = await r.json();
+
+          if (j.ok && j.caso_id) {
+            // 🔹 Marcar como “usado” visualmente (una sola vez)
+            btn.disabled = true;
+            btn.textContent = '✅ Calificación realizada';
+            btn.classList.add('disabled', 'btn-secondary');
+            btn.classList.remove('btn-primary');
+
+            // 🔹 Redirigir al link real
+            window.location.href = `calificar.html?caso=${j.caso_id}`;
+          } else {
+            alert('No se encontró el caso relacionado o ya fue calificado.');
+          }
+        } catch (err) {
+          console.warn('Error normalizando link Calificar:', err);
+          alert('Error al procesar el enlace.');
+        }
+      });
+
+      /* --- Marcar mensaje como leído visualmente --- */
+      function marcarLeidoUI(card, m) {
+        // 🔹 1. Actualizar modelo en memoria (importante para que no vuelva la negrita al filtrar/cambiar tab)
+        if (m) {
+          m.leido = 1;
+          // Buscar en cache global también
+          if (itemsCache) {
+            const enCache = itemsCache.find(x => x.id === m.id);
+            if (enCache) enCache.leido = 1;
+          }
+        }
+
+        if (!card) return;
+        // 🔹 Quitar negrita del contenedor
+        card.classList.remove('unread');
+
+        // 🔹 Quitar negrita de cualquier texto interno (Nombre o Titulo)
+        const textElements = card.querySelectorAll('.title, .fw-bold, div');
+        textElements.forEach(el => {
+          el.classList.remove('fw-bold');
+          el.style.fontWeight = 'normal';
+        });
+
+        // 🔹 Quitar punto rojo
+        const dot = card.querySelector('.dot');
+        if (dot) dot.remove();
+
+        // 🔹 Descontar campanita
+        const notifCount = parent.document?.getElementById('notifCount') || document.getElementById('notifCount');
+        if (notifCount) {
+          let current = parseInt(notifCount.textContent || '0', 10);
+          current = Math.max(current - 1, 0);
+          notifCount.textContent = current;
+          notifCount.classList.toggle('d-none', current <= 0);
+        }
+      }
+
+      /* === PASO 2: Abrir imagen en el modal existente === */
+      document.addEventListener("click", function (e) {
+        // Clic en una miniatura
+        const img = e.target.closest(".msg-adjunto");
+        if (!img) return;
+
+        const card = img.closest(".msg-card");
+        if (!card) return;
+
+        // ID del mensaje de esa tarjeta
+        const msgId = Number(card.dataset.id);
+        const msg = itemsCache.find(x => x.id === msgId);
+        if (!msg) return;
+
+        // Filtrar solo imágenes
+        gallery = (msg.adjuntos || []).filter(a => (a.mime || '').startsWith('image/'));
+
+        // Empezar desde la imagen clickeada
+        const index = Number(img.dataset.index) || 0;
+        galleryIndex = index;
+
+        // Cargar en el modal
+        document.getElementById("imgPreview").src = gallery[index].url;
+        document.getElementById("imgCounter").textContent = (index + 1) + " / " + gallery.length;
+
+        // Mostrar modal
+        new bootstrap.Modal(document.getElementById("imgModal")).show();
+      });
+      /* === PASO 3: Imagen a pantalla completa === */
+      document.getElementById("imgPreview").addEventListener("click", function () {
+        const img = this;
+
+        // Safari, Chrome, Firefox móviles: fullscreen nativo
+        if (img.requestFullscreen) {
+          img.requestFullscreen().catch(() => window.open(img.src, "_blank"));
+        }
+        else {
+          // Si por alguna razón el navegador no soporta fullscreen
+          window.open(img.src, "_blank");
+        }
+      });
+
+    </script>
+    <script>
+      (function () {
+        const btn = document.getElementById('btnMapaAprox');
+        if (!btn) return;
+
+        btn.addEventListener('click', async (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+
+          // ✅ usa seleccionado real
+          const mensajeId = Number((window.seleccionado && window.seleccionado.id) || 0);
+          if (!mensajeId) {
+            alert('No hay un mensaje seleccionado.');
+            return;
+          }
+
+          try {
+            const r = await fetch(`backend/get_ubicacion_aproximada.php?mensaje_id=${mensajeId}`, {
+              credentials: 'include',
+              cache: 'no-store'
+            });
+
+            const text = await r.text();
+            let j;
+            try { j = JSON.parse(text); }
+            catch {
+              console.error('Respuesta no JSON:', text);
+              alert('Respuesta inválida del servidor');
+              return;
+            }
+
+            if (!j.ok) {
+              alert(j.error || 'Ubicación no disponible');
+              return;
+            }
+
+            window.open(`https://www.google.com/maps?q=${j.lat},${j.lng}`, '_blank', 'noopener');
+          } catch (e) {
+            console.error(e);
+            alert('Error al abrir el mapa');
+          }
+        });
+      })();
+    </script>
+
+
+</body>
+
+</html>

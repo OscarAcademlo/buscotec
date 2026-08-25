@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Webpushr</title>
+    <script>
+    (function(w,d,s,id){
+        if(typeof(w.webpushr)!=='undefined')return;
+        w.webpushr=w.webpushr||function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};
+        var js,fjs=d.getElementsByTagName(s)[0];
+        js=d.createElement(s);js.id=id;js.async=1;
+        js.src="https://cdn.webpushr.com/app.min.js";
+        fjs.parentNode.insertBefore(js,fjs);
+    }(window,document,'script','webpushr-jssdk'));
+
+    webpushr('setup', {
+        'key': 'BDR63kCbkqbFxjISA6Bd8yiiZ4KXM4YBKsn9dkuMOMRjNnVWdDy0hghctod9ErIX0KEFpSwLsYhcMVJuFMtXEyc',
+        'serviceWorker': '/sw.js',
+        'integration': 'pwa'
+    });
+    </script>
+</head>
+<body>
+    <h1>Test de Notificaciones</h1>
+    <button onclick="webpushr('subscribe')">🔔 Activar notificaciones</button>
+</body>
+</html>

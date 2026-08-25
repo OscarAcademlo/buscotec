@@ -1,0 +1,2983 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel Admin - BuscoTec</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <script>
+    // ==== PERMISOS DE ADMIN ====
+    const ADMIN_ALLOWLIST = new Set(['oscarns@gmail.com', 'orticelli@gmail.com']);
+    (function () {
+      const email = (localStorage.getItem('buscotec_email') || '').toLowerCase();
+      if (!ADMIN_ALLOWLIST.has(email)) window.location.replace('index.php?err=forbidden');
+    })();
+  </script>
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .card {
+      border-radius: .75rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .05);
+    }
+
+    .mono {
+      font-variant-numeric: tabular-nums;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .small-muted {
+      color: #6c757d;
+      font-size: .9rem;
+    }
+
+    .btn-wide {
+      min-width: 170px;
+    }
+
+    .badge-soft {
+      border: 1px solid rgba(0, 0, 0, .08);
+      background: #fff;
+    }
+
+    #listaCategorias {
+      max-height: 300px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    #listaCategorias::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #listaCategorias::-webkit-scrollbar-thumb {
+      background-color: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+    }
+
+    .case-row {
+      border-bottom: 1px solid rgba(0, 0, 0, .06);
+      padding: 10px 0;
+    }
+
+    .case-row:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="index.php">BuscoTec</a>
+      <button class="btn btn-outline-light" id="logoutBtn">Cerrar sesión</button>
+    </div>
+  </nav>
+
+  <div class="container my-4">
+    <h2 class="text-center mb-4">Panel de Administración</h2>
+
+    <!-- ======= BLOQUE ESTADÍSTICAS GENERALES (ANTI-BOT) ======= -->
+    <div class="card mb-4 border-primary">
+      <div class="card-body">
+        <h5 class="card-title mb-3 d-flex justify-content-between align-items-center">
+          📈 Estadísticas detalladas del sistema
+          <span class="badge bg-success small" style="font-size: 0.7rem;">Dashboard Activo</span>
+        </h5>
+        <div class="row g-3">
+          <!-- Visitas -->
+          <div class="col-md-4">
+            <div class="p-3 border rounded-3 bg-white shadow-sm h-100">
+              <div class="fw-bold text-primary mb-2 border-bottom pb-1">🌐 Visitas</div>
+              <div class="d-flex justify-content-between"><span>Reales:</span> <span id="statVisitasReal" class="fw-bold text-success">-</span></div>
+              <div class="d-flex justify-content-between"><span>Bots:</span> <span id="statVisitasBotsCount" class="fw-bold text-warning">-</span></div>
+              <div class="d-flex justify-content-between mt-1 pt-1 border-top"><span>Total:</span> <span id="statVisitasTotal" class="fw-bold text-dark">-</span></div>
+            </div>
+          </div>
+          <!-- Usuarios -->
+          <div class="col-md-4">
+            <div class="p-3 border rounded-3 bg-white shadow-sm h-100">
+              <div class="fw-bold text-success mb-2 border-bottom pb-1">👤 Usuarios</div>
+              <div class="d-flex justify-content-between"><span>Reales:</span> <span id="statUsersReal" class="fw-bold text-success">-</span></div>
+              <div class="d-flex justify-content-between"><span>Sin verificar:</span> <span id="statUsersUnverif" class="fw-bold text-secondary">-</span></div>
+              <div class="d-flex justify-content-between"><span>Bots (email):</span> <span id="statUsersBots" class="fw-bold text-warning">-</span></div>
+              <div class="d-flex justify-content-between mt-1 pt-1 border-top"><span>Total:</span> <span id="statUsersTotal" class="fw-bold text-dark">-</span></div>
+            </div>
+          </div>
+          <!-- Profesionales -->
+          <div class="col-md-4">
+            <div class="p-3 border rounded-3 bg-white shadow-sm h-100">
+              <div class="fw-bold text-dark mb-2 border-bottom pb-1">🛠️ Profesionales</div>
+              <div class="d-flex justify-content-between"><span>Reales:</span> <span id="statProfesReal" class="fw-bold text-success">-</span></div>
+              <div class="d-flex justify-content-between"><span>Sin verificar:</span> <span id="statProfesUnverif" class="fw-bold text-secondary">-</span></div>
+              <div class="d-flex justify-content-between"><span>Bots (email):</span> <span id="statProfesBots" class="fw-bold text-warning">-</span></div>
+              <div class="d-flex justify-content-between mt-1 pt-1 border-top"><span>Total:</span> <span id="statProfesTotal" class="fw-bold text-dark">-</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= BLOQUE ÚLTIMAS VISITAS (CIUDAD Y PAÍS) ======= -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title mb-3">📍 Últimas visitas detectadas (Geolocalización real)</h5>
+        <div class="table-responsive" style="max-height:350px;">
+          <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
+            <thead class="table-light sticky-top">
+              <tr>
+                <th>IP</th>
+                <th>Localidad / País</th>
+                <th>Fecha / Hora</th>
+                <th>Página</th>
+                <th>Bot?</th>
+              </tr>
+            </thead>
+            <tbody id="listaVisitas">
+              <tr><td colspan="5" class="text-center text-muted">Cargando visitas...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title mb-3">📊 Resumen global del sistema — Casos activos sin abonar (todos los profesionales)
+        </h5>
+
+        <!-- CONFIGURAR VALOR POR CASO -->
+        <div class="alert alert-info mb-4">
+          <label class="form-label fw-bold mb-2">💲 Valor por caso (ARS):</label>
+          <div class="input-group" style="max-width:240px;">
+            <input type="number" id="valorPorCaso" class="form-control mono" value="1400.00" step="0.01">
+            <button class="btn btn-primary" id="btnAplicarValor">Aplicar</button>
+          </div>
+          <div class="form-text">Este valor se usa como fallback si un caso no trae <span class="mono">cargo_ars</span> desde el backend.</div>
+        </div>
+
+        <!-- CONFIGURAR GESTION DE COBRO -->
+        <div class="alert alert-success mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold m-0"><i class="bi bi-wallet2"></i> Gestión de Cobro (Créditos Iniciales y Recordatorio)</h6>
+            <div class="form-check form-switch fs-5 m-0">
+              <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="switchCronActivo" checked>
+              <label class="form-check-label fs-6 ms-2" id="lblCronEstado" for="switchCronActivo">Mensaje automático activado</label>
+            </div>
+          </div>
+          <div id="txtCronProgramado" class="badge bg-primary mb-3" style="font-size: 0.9rem;">
+            <i class="bi bi-calendar-check"></i> Mensaje activado para los días Lunes a las 10:00 hs.
+          </div>
+          <div class="row g-3 mt-2">
+            <div class="col-md-5">
+              <label class="form-label fw-bold mb-1">🎁 Créditos Gratis de bienvenida</label>
+              <input type="number" id="inpCreditosBienvenida" class="form-control mono" min="0" max="100" value="5">
+              <div class="form-text">Casos descartados antes de empezar a cobrar al profesional nuevo.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold mb-1">🗓️ Día de envío de cobro</label>
+              <select id="selDiaCobro" class="form-select">
+                <option value="Lunes">Lunes</option>
+                <option value="Martes">Martes</option>
+                <option value="Miércoles">Miércoles</option>
+                <option value="Jueves">Jueves</option>
+                <option value="Viernes">Viernes</option>
+                <option value="Sábado">Sábado</option>
+                <option value="Domingo">Domingo</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-bold mb-1">⏰ Hora (0-23)</label>
+              <select id="selHoraCobro" class="form-select">
+                <option value="0">00:00</option>
+                <option value="1">01:00</option>
+                <option value="2">02:00</option>
+                <option value="3">03:00</option>
+                <option value="4">04:00</option>
+                <option value="5">05:00</option>
+                <option value="6">06:00</option>
+                <option value="7">07:00</option>
+                <option value="8">08:00</option>
+                <option value="9">09:00</option>
+                <option value="10">10:00</option>
+                <option value="11">11:00</option>
+                <option value="12">12:00</option>
+                <option value="13">13:00</option>
+                <option value="14">14:00</option>
+                <option value="15">15:00</option>
+                <option value="16">16:00</option>
+                <option value="17">17:00</option>
+                <option value="18">18:00</option>
+                <option value="19">19:00</option>
+                <option value="20">20:00</option>
+                <option value="21">21:00</option>
+                <option value="22">22:00</option>
+                <option value="23">23:00</option>
+              </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+              <button class="btn btn-success w-100" id="btnGuardarAjustesCobro"><i class="bi bi-save"></i> Guardar</button>
+            </div>
+          </div>
+          <div class="row g-3 mt-1">
+             <div class="col-12">
+               <label class="form-label fw-bold mb-1">📝 Mensaje Extra (Opcional)</label>
+               <textarea id="inpMensajeExtra" class="form-control" rows="2" placeholder="Ej: Actualmente no estamos cobrando comisiones, aprovecha a usar la plataforma gratis."></textarea>
+               <div class="form-text">Este texto se añadirá al final del correo y del mensaje en la app.</div>
+             </div>
+          </div>
+          <div class="mt-3">
+             <div class="form-check mb-2">
+               <input class="form-check-input" type="checkbox" id="checkSoloDeudores" value="1">
+               <label class="form-check-label text-muted" for="checkSoloDeudores">
+                 <i class="bi bi-funnel"></i> Enviar ÚNICAMENTE a quienes tengan una deuda de dinero mayor a $0 (Ignorar avisos de créditos gratis).
+               </label>
+             </div>
+             <button class="btn btn-sm btn-outline-success" id="btnForzarCronTest">
+                <i class="bi bi-play-circle"></i> Ejecutar Cron manualmente ahora (Test)
+             </button>
+          </div>
+        </div>
+
+        <div class="table-responsive mb-2">
+          <table class="table table-bordered align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Cantidad total de casos activos sin abonar</th>
+                <th>Total global adeudado (ARS)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td id="globalCasosPend" class="fw-bold mono">-</td>
+                <td id="globalTotalAdeudado" class="fw-bold mono">$0.00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="globalHint" class="small-muted mt-2"></div>
+
+        <div class="d-flex flex-wrap gap-2 justify-content-end mt-3">
+
+          <button class="btn btn-outline-success btn-sm btn-wide" id="btnExportarProfesionales">
+            <i class="bi bi-file-earmark-excel"></i> Exportar profesionales (Excel)
+          </button>
+          <button class="btn btn-outline-success btn-sm btn-wide" id="btnExportarCasos">
+            <i class="bi bi-file-earmark-excel"></i> Exportar casos (Excel)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= BLOQUE VER PROFESIONALES (SOLO SELECT + MODAL) ======= -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title mb-3">👤 Ver profesionales (perfil / estado de cuenta)</h5>
+
+        <div class="row g-3 align-items-end">
+          <div class="col-lg-6">
+            <label class="form-label fw-bold">Profesional</label>
+            <select id="selProfesionales" class="form-select">
+              <option value="">Cargando...</option>
+            </select>
+            <div class="form-text">Solo profesionales (incluye doble rol si tu backend los devuelve como profesionales).
+            </div>
+          </div>
+
+          <div class="col-lg-3">
+            <div class="form-check mt-4">
+              <input class="form-check-input" type="checkbox" id="chkSoloDeudores">
+              <label class="form-check-label fw-bold" for="chkSoloDeudores">
+                Ver profesionales con casos a cobrar
+              </label>
+              <div class="small-muted">Filtra por saldo pendiente &gt; 0.</div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 text-end">
+            <button class="btn btn-primary w-100" id="btnAbrirPerfil" disabled>
+              <i class="bi bi-person-lines-fill"></i> Abrir perfil
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= BLOQUE PROFESIONALES SIN VERIFICAR ======= -->
+    <div class="card mb-4 border-warning shadow">
+      <div class="card-body">
+        <h5 class="card-title fw-bold text-warning mb-3">⚠️ Profesionales sin verificar (Gestión rápida)</h5>
+        <div class="row g-3 align-items-end">
+          <div class="col-lg-6">
+            <label class="form-label fw-bold">Profesionales pendientes de verificación</label>
+            <select id="selProfesSinVerificar" class="form-select">
+              <option value="">Cargando...</option>
+            </select>
+            <div class="form-text">Solo se muestran los profesionales que no verificaron su email.</div>
+          </div>
+          <div class="col-lg-6 d-flex gap-2">
+            <button class="btn btn-warning w-33 text-white fw-bold" id="btnVerificarSinVerificar" disabled title="Ver perfil y verificar manualmente">
+              <i class="bi bi-patch-check"></i> Verificar
+            </button>
+            <button class="btn btn-outline-danger w-33" id="btnBorrarSinVerificar" disabled>
+              <i class="bi bi-trash"></i> Borrar
+            </button>
+            <button class="btn btn-outline-primary w-33" id="btnMailSinVerificar" disabled>
+              <i class="bi bi-envelope"></i> Enviar Mail
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= BLOQUE CATEGORÍAS (SE MANTIENE) ======= -->
+    <div class="card shadow mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Agregar Categoría</h5>
+        <form id="formCategoria">
+          <div class="mb-3">
+            <label for="nombreCategoria" class="form-label">Nombre de la categoría</label>
+            <input type="text" class="form-control" id="nombreCategoria" name="nombre" required>
+          </div>
+          <button type="submit" class="btn btn-success">Agregar</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card shadow">
+      <div class="card-body">
+        <h5 class="card-title">Categorías existentes</h5>
+        <ul class="list-group" id="listaCategorias">
+          <li class="list-group-item text-center text-muted">Cargando...</li>
+        </ul>
+      </div>
+    </div>
+    <!-- ======= BLOQUE MENSAJERÍA MASIVA (Broadcasting / Push) ======= -->
+    <div class="card mb-4 border-info shadow">
+      <div class="card-body">
+        <h5 class="card-title fw-bold text-info mb-3">📢 Mensajería Masiva (Push & Promociones)</h5>
+        <div class="row g-3">
+          <div class="col-md-8">
+            <textarea id="txtMasivo" class="form-control" rows="3" placeholder="Escribe el mensaje o promoción aquí... Esto llegará a la App Android (Push) y al buzón interno de todos los elegidos."></textarea>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-2">
+              <label class="form-label fw-bold">Enviar a:</label>
+              <select id="selDestinoMasivo" class="form-select">
+                <option value="all">Sist. Completo (Users + Profes)</option>
+                <option value="users">Solo Usuarios</option>
+                <option value="profes">Solo Profesionales</option>
+              </select>
+            </div>
+            <button class="btn btn-info w-100 text-white fw-bold" id="btnEnviarMasivo">
+               <i class="bi bi-megaphone"></i> Lanza mensaje masivo
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= BLOQUE MODALES PROGRAMADOS (ANUNCIOS POPUP) ======= -->
+    <div class="card mb-4 shadow" style="border: 2px solid #6f42c1;">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="card-title fw-bold mb-0" style="color: #6f42c1;"><i class="bi bi-window-stack"></i> Modales Programados (Anuncios Pop-up)</h5>
+          <button class="btn btn-sm text-white fw-bold" style="background-color: #6f42c1;" onclick="openModalFormAdmin()"><i class="bi bi-plus-circle"></i> Nuevo Modal Programado</button>
+        </div>
+        <p class="text-muted small">Crea y programa modales que se mostrarán automáticamente en el Inicio (index.php) entre las fechas seleccionadas.</p>
+        
+        <div class="table-responsive" style="max-height: 400px;">
+          <table class="table table-sm table-hover align-middle mb-0">
+            <thead class="table-dark sticky-top">
+              <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Vigencia (Desde - Hasta)</th>
+                <th>Imágenes</th>
+                <th>Estado</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="listaModalesAdmin">
+              <tr><td colspan="6" class="text-center py-3 text-muted">Cargando modales programados...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL FORMULARIO CREAR/EDITAR ANUNCIO PROGRAMADO -->
+    <div class="modal fade" id="modalFormAdmin" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header text-white" style="background-color: #6f42c1;">
+            <h5 class="modal-title fw-bold" id="titleModalFormAdmin"><i class="bi bi-calendar-event"></i> Crear Modal Programado</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body p-4">
+            <form id="formModalAdmin" enctype="multipart/form-data">
+              <input type="hidden" id="modalAdminId" name="id" value="">
+              
+              <!-- Opción Inmediato / Programado -->
+              <div class="mb-3 p-3 bg-primary-subtle rounded border border-primary">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="chkModalInstantaneo">
+                  <label class="form-check-label fw-bold text-primary" for="chkModalInstantaneo">
+                    ⚡ Publicar al instante ("Para el momento" - Activo inmediatamente sin fecha límite)
+                  </label>
+                </div>
+              </div>
+
+              <!-- Fechas Vigencia -->
+              <div class="row g-3 mb-3 p-3 bg-light rounded border" id="boxFechasModalAdmin">
+                <div class="col-md-6">
+                  <label class="form-label fw-bold text-dark"><i class="bi bi-calendar-range"></i> Fecha / Hora Desde (*)</label>
+                  <input type="datetime-local" class="form-control" id="modalAdminFechaInicio" name="fecha_inicio" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold text-dark"><i class="bi bi-calendar-range-fill"></i> Fecha / Hora Hasta (*)</label>
+                  <input type="datetime-local" class="form-control" id="modalAdminFechaFin" name="fecha_fin" required>
+                </div>
+              </div>
+
+              <!-- Contenido Principal -->
+              <div class="mb-3">
+                <label class="form-label fw-bold"><i class="bi bi-type-h1"></i> Título Principal (*)</label>
+                <input type="text" class="form-control" id="modalAdminTitulo" name="titulo" placeholder="Ej: ¡Gran Promoción de Primavera!" required>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold"><i class="bi bi-text-paragraph"></i> Texto / Descripción Principal (*)</label>
+                <textarea class="form-control" id="modalAdminTexto" name="texto" rows="3" placeholder="Detalles de la promoción o aviso especial..." required></textarea>
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label fw-bold"><i class="bi bi-image"></i> Imagen Principal (Subir archivo o pegar URL)</label>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <input type="file" class="form-control" id="fileImagenPrincipal" name="file_imagen_principal" accept="image/*">
+                  </div>
+                  <div class="col-md-6">
+                    <input type="text" class="form-control" id="modalAdminImgPrincipal" name="imagen_principal" placeholder="O URL de la imagen (https://...)">
+                  </div>
+                </div>
+                <div class="form-text">Formatos aceptados: JPG, PNG, WEBP, GIF.</div>
+              </div>
+
+              <hr class="my-4">
+              <h6 class="fw-bold mb-3" style="color: #6f42c1;"><i class="bi bi-images"></i> Sub-tarjetas adicionales opcionales (2 Imágenes más pequeñas)</h6>
+
+              <!-- Sub-tarjeta 1 -->
+              <div class="p-3 mb-3 bg-light rounded border">
+                <div class="fw-bold text-secondary mb-2">📌 Sub-item 1 (Opcional)</div>
+                <div class="row g-2 mb-2">
+                  <div class="col-md-6">
+                    <input type="text" class="form-control" id="modalAdminSubTitulo1" name="sub_titulo_1" placeholder="Título secundario 1">
+                  </div>
+                  <div class="col-md-6">
+                    <input type="text" class="form-control" id="modalAdminSubImg1" name="sub_imagen_1" placeholder="URL Imagen secundaria 1">
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <input type="file" class="form-control" id="fileSubImagen1" name="file_sub_imagen_1" accept="image/*">
+                </div>
+                <textarea class="form-control" id="modalAdminSubTexto1" name="sub_texto_1" rows="2" placeholder="Texto descriptivo secundario 1"></textarea>
+              </div>
+
+              <!-- Sub-tarjeta 2 -->
+              <div class="p-3 mb-3 bg-light rounded border">
+                <div class="fw-bold text-secondary mb-2">📌 Sub-item 2 (Opcional)</div>
+                <div class="row g-2 mb-2">
+                  <div class="col-md-6">
+                    <input type="text" class="form-control" id="modalAdminSubTitulo2" name="sub_titulo_2" placeholder="Título secundario 2">
+                  </div>
+                  <div class="col-md-6">
+                    <input type="text" class="form-control" id="modalAdminSubImg2" name="sub_imagen_2" placeholder="URL Imagen secundaria 2">
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <input type="file" class="form-control" id="fileSubImagen2" name="file_sub_imagen_2" accept="image/*">
+                </div>
+                <textarea class="form-control" id="modalAdminSubTexto2" name="sub_texto_2" rows="2" placeholder="Texto descriptivo secundario 2"></textarea>
+              </div>
+
+              <!-- Switch Activo -->
+              <div class="form-check form-switch mt-3">
+                <input class="form-check-input" type="checkbox" id="modalAdminActivo" name="activo" value="1" checked>
+                <label class="form-check-label fw-bold" for="modalAdminActivo">Activar inmediatamente este modal programado</label>
+              </div>
+
+              <div class="modal-footer px-0 pb-0 mt-4 border-top pt-3">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn text-white fw-bold" style="background-color: #6f42c1;" id="btnGuardarModalAdmin"><i class="bi bi-save"></i> Guardar Modal Programado</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= BLOQUE GESTIÓN DE CUENTAS (Borrar / Suspender / Recordar) ======= -->
+    <div class="card mb-4 border-danger shadow">
+      <div class="card-body">
+        <h5 class="card-title fw-bold text-danger mb-3">🛠️ Gestión Avanzada de Usuarios y Profesionales</h5>
+        
+        <div class="row g-3 mb-3">
+          <div class="col-lg-3 col-md-6">
+            <div class="input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-search text-danger"></i></span>
+              <input type="text" id="inpBusquedaCuentas" class="form-control" placeholder="Buscar por nombre, email o whatsapp...">
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <select id="selOrdenFecha" class="form-select fw-bold text-primary border-primary">
+              <option value="desc">📅 Más recientes primero</option>
+              <option value="asc">📅 Más antiguos primero</option>
+            </select>
+          </div>
+          <div class="col-lg-2 col-md-6">
+            <select id="selFiltroTipo" class="form-select">
+              <option value="">Todos (Tipo)</option>
+              <option value="user">Solo Usuarios</option>
+              <option value="profe">Solo Profesionales</option>
+            </select>
+          </div>
+          <div class="col-lg-2 col-md-6">
+            <select id="selFiltroLocalidad" class="form-select">
+              <option value="">Todas las localidades</option>
+            </select>
+          </div>
+          <div class="col-lg-2 col-md-6 d-flex align-items-center">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="chkSoloPendientes">
+              <label class="form-check-label fw-bold" for="chkSoloPendientes">Sin verificar</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive" style="max-height: 500px;">
+          <table class="table table-sm table-hover align-middle">
+            <thead class="table-dark sticky-top">
+              <tr>
+                <th>ID</th>
+                <th>Fecha Registro</th>
+                <th>Tipo</th>
+                <th>Nombre / Email / WA</th>
+                <th>Verificado</th>
+                <th>Estado</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="listaCuentasAdmin">
+              <tr><td colspan="7" class="text-center py-4 text-muted">Cargando cuentas...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+
+  </div>
+
+  <!-- ======= MODAL PERFIL PROFESIONAL ======= -->
+  <div class="modal fade" id="modalPerfil" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <div>
+            <h5 class="modal-title mb-0" id="modalTitulo">Perfil profesional</h5>
+            <div class="small" id="modalSubtitulo"></div>
+          </div>
+          <button class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Resumen del profesional -->
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <div class="p-3 rounded badge-soft">
+                <div class="small-muted">Casos pendientes</div>
+                <div class="fw-bold mono" id="profPend">0</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 rounded badge-soft">
+                <div class="small-muted">Casos pagados</div>
+                <div class="fw-bold mono" id="profPag">0</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 rounded badge-soft">
+                <div class="small-muted">Total a abonar (pendiente)</div>
+                <div class="fw-bold mono" id="profTotal">$0.00</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 rounded badge-soft">
+                <div class="small-muted">WhatsApp</div>
+                <div class="fw-bold mono" id="profWA">-</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 rounded badge-soft">
+                <div class="small-muted">Email</div>
+                <div class="fw-bold mono" id="profEmail">-</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Info Extra (Dirección / Categorías) -->
+          <div id="profInfoExtra" class="alert alert-light border d-none mb-3"></div>
+
+          <!-- DNI (Solo Admin) -->
+          <div class="card mb-3 border-primary shadow-sm" id="dniSection">
+            <div class="card-body">
+              <h6 class="mb-3 d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-person-vcard"></i> Documento (DNI Frente)</span>
+                <span id="dniFechaSubida" class="small-muted fw-normal"></span>
+              </h6>
+              
+              <div id="dniPreviewContainer" class="text-center mb-3 d-none">
+                 <div class="row g-2">
+                   <div class="col-6">
+                     <div class="small-muted mb-1 text-start">Frente:</div>
+                     <img id="dniPreviewImg" src="" class="img-fluid rounded border shadow-sm" style="max-height: 250px; cursor: pointer;" title="Click para ver en grande" onclick="window.open(this.src, '_blank')">
+                   </div>
+                   <div class="col-6" id="dniDorsoContainer">
+                     <div class="small-muted mb-1 text-start">Dorso:</div>
+                     <img id="dniPreviewDorso" src="" class="img-fluid rounded border shadow-sm" style="max-height: 250px; cursor: pointer;" title="Click para ver en grande" onclick="window.open(this.src, '_blank')">
+                   </div>
+                 </div>
+              </div>
+              
+              <div id="dniNoDoc" class="alert alert-warning py-2 small mb-3">
+                <i class="bi bi-exclamation-triangle"></i> No hay DNI cargado.
+              </div>
+
+              <div class="input-group input-group-sm mb-3">
+                <input type="file" id="inpDniFile" class="form-control" accept="image/*">
+                <button class="btn btn-primary" id="btnSubirDni">Subir / Actualizar DNI</button>
+              </div>
+
+              <!-- Fecha de Nacimiento -->
+              <div class="row g-2 align-items-end border-top pt-3">
+                <div class="col-md-6">
+                  <label class="form-sm mb-1 fw-bold">Fecha de Nacimiento</label>
+                  <input type="date" id="inpFechaNacimiento" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-6">
+                  <button class="btn btn-sm btn-info text-white w-100" id="btnGuardarFechaNac">
+                    <i class="bi bi-save"></i> Guardar Fecha
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mensajería -->
+          <div class="card mb-3">
+            <div class="card-body">
+              <h6 class="mb-2">✉️ Mensaje al profesional</h6>
+              <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+                <span class="small text-muted fw-bold">Plantillas:</span>
+                <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" id="btnTplPersonalizado" style="font-size: 0.8rem; border-radius: 6px;">
+                  💵 Recordatorio / Gral.
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-warning py-1 px-2" id="btnTplVerificar" style="font-size: 0.8rem; border-radius: 6px; color: #d97706; border-color: #f59e0b; background-color: rgba(245, 158, 11, 0.05);">
+                  📧 Recordatorio Verificar Email
+                </button>
+              </div>
+              <textarea id="txtMensaje" class="form-control mb-2" rows="3" placeholder="Escribí el mensaje..."></textarea>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="chkWhatsAppMsg" checked>
+                <label class="form-check-label" for="chkWhatsAppMsg">
+                  Abrir también WhatsApp Web al enviar
+                </label>
+              </div>
+              <div class="d-flex flex-wrap gap-2 justify-content-end">
+                <button class="btn btn-primary" id="btnEnviarInterno">
+                  <i class="bi bi-send-fill"></i> Enviar Mensaje Interno + Push
+                </button>
+                <button class="btn btn-info text-white" id="btnEnviarEmailModal">
+                  <i class="bi bi-envelope-fill"></i> Enviar por Email
+                </button>
+                <a class="btn btn-success" id="btnEnviarWhatsApp" target="_blank" rel="noopener">
+                  <i class="bi bi-whatsapp"></i> Solo WhatsApp
+                </a>
+              </div>
+              <div class="small-muted mt-2">
+                El texto es editable. Si hay saldo pendiente, se pre-carga un recordatorio.
+              </div>
+            </div>
+          </div>
+
+          <!-- Registrar pago (FIFO) -->
+          <div class="card mb-3">
+            <div class="card-body">
+              <h6 class="mb-2">💳 Registrar pago (FIFO: paga primero lo más viejo)</h6>
+
+              <div class="row g-2 align-items-end">
+                <div class="col-md-4">
+                  <label class="form-label mb-1">Monto abonado (ARS)</label>
+                  <input type="number" step="0.01" min="0" id="inpPagoMonto" class="form-control mono"
+                    placeholder="Ej: 1400.00">
+                </div>
+
+                <div class="col-md-5">
+                  <label class="form-label mb-1">Nota (opcional)</label>
+                  <input type="text" id="inpPagoNota" class="form-control" placeholder="Transferencia, efectivo, etc.">
+                </div>
+
+                <div class="col-md-3 d-grid">
+                  <button class="btn btn-primary" id="btnImputarPago">
+                    <i class="bi bi-check2-circle"></i> Aplicar pago
+                  </button>
+                </div>
+              </div>
+
+              <div class="small-muted mt-2">
+                Este pago marcará casos como <b>PAGADO</b> en orden FIFO (más viejo primero) hasta cubrir el monto.
+              </div>
+
+              <div id="pagoResultado" class="mt-3"></div>
+            </div>
+          </div>
+
+
+          <!-- Casos -->
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <h6 class="mb-0">🧾 Casos del profesional</h6>
+            <div class="small-muted">Primero pendientes, luego pagados.</div>
+          </div>
+
+          <div id="listaCasos" class="border rounded p-3 bg-white">
+            <div class="text-muted text-center">Cargando...</div>
+          </div>
+
+          <div class="mt-4 border-top pt-3">
+            <button class="btn btn-danger" id="btnBorrarPagados">
+              <i class="bi bi-trash"></i> Borrar los casos ya saldados
+            </button>
+            <div class="small-muted mt-2">
+              Esta acción debe borrar únicamente los casos marcados como PAGADO del profesional.
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-warning text-dark" id="btnBlanquearContrasenaModal" onclick="blanquearContraseñaModalActual()">
+            <i class="bi bi-key"></i> Blanquear Contraseña (WhatsApp)
+          </button>
+          <button class="btn btn-success d-none" id="btnVerificarManual">
+            <i class="bi bi-patch-check"></i> Verificar manualmente
+          </button>
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== SCRIPT PRINCIPAL =================== -->
+  <script>
+    // =================== UTILIDADES ===================
+    function n(x) { const v = Number(x); return Number.isFinite(v) ? v : 0; }
+
+    const fmtARS = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 2 });
+    function moneyARS(x) { return fmtARS.format(n(x)); }
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", "&#039;");
+    }
+
+    function waClean(x) { 
+      let n = String(x || '').replace(/\D/g, ''); 
+      if (n.length === 10) n = '549' + n; // Unificar para Argentina si falta el código
+      return n;
+    }
+
+    function isPagado(v) {
+      return v === 1 || v === "1" || v === true || v === "true";
+    }
+
+    // =================== ESTADO EN MEMORIA ===================
+    let _operacionesCache = null;   // respuesta completa de consultar_operaciones.php
+    let _profList = [];            // data.items
+    let _profCalc = [];            // profesionales con deuda calculada por casos reales
+    let _profActual = null;        // {id, nombre, whatsapp, casos[], deudaPend}
+
+    // =================== VALOR POR CASO ===================
+    async function cargarValorActual() {
+      try {
+        const r = await fetch('backend/get_valor_caso.php', { credentials: 'include' });
+        const j = await r.json();
+        if (j.ok && j.valor != null) {
+          document.getElementById('valorPorCaso').value = (parseFloat(j.valor) || 0).toFixed(2);
+        }
+      } catch (e) {
+        // no romper
+      }
+    }
+
+    async function guardarValorCaso() {
+      const valor = document.getElementById('valorPorCaso').value;
+      try {
+        const fd = new FormData();
+        fd.append('valor', valor);
+
+        const r = await fetch('backend/set_valor_caso.php', { method: 'POST', body: fd, credentials: 'include' });
+        const j = await r.json();
+        if (!j.ok) throw new Error(j.error || 'Error al guardar valor');
+        alert('✅ Valor actualizado correctamente.');
+        await cargarOperaciones(); // refresca cálculo contable
+      } catch (e) {
+        alert('❌ No se pudo guardar el valor.');
+      }
+    }
+    document.getElementById('btnAplicarValor').addEventListener('click', guardarValorCaso);
+
+    async function cargarAjustesCobro() {
+       try {
+         const r = await fetch('backend/get_ajustes_cobro.php', { credentials: 'include' });
+         const j = await r.json();
+         if (j.ok && j.data) {
+             const dia = j.data.dia_cobro || 'Lunes';
+             const hora = j.data.hora_cobro || '10';
+             const activo = parseInt(j.data.cron_activado ?? 1) === 1;
+
+             document.getElementById('inpCreditosBienvenida').value = j.data.creditos_bienvenida || 5;
+             document.getElementById('selDiaCobro').value = dia;
+             if (document.getElementById('selHoraCobro')) document.getElementById('selHoraCobro').value = hora;
+             if (document.getElementById('inpMensajeExtra')) document.getElementById('inpMensajeExtra').value = j.data.mensaje_extra || '';
+             
+             if (document.getElementById('switchCronActivo')) {
+                 const sw = document.getElementById('switchCronActivo');
+                 sw.checked = activo;
+                 actualizarLabelCron(activo, dia, hora);
+             }
+         }
+       } catch (e) { }
+    }
+
+    function actualizarLabelCron(activo, dia, hora) {
+        const lbl = document.getElementById('lblCronEstado');
+        const txt = document.getElementById('txtCronProgramado');
+        if (!lbl || !txt) return;
+
+        if (activo) {
+            lbl.textContent = 'Mensaje automático activado';
+            lbl.className = 'form-check-label fs-6 ms-2 fw-bold text-success';
+            txt.innerHTML = `<i class="bi bi-calendar-check"></i> Mensaje programado para enviar cada <b>${dia}</b> a las <b>${hora}:00 hs</b>.`;
+            txt.className = 'badge bg-primary mb-3';
+        } else {
+            lbl.textContent = 'Mensaje automático desactivado';
+            lbl.className = 'form-check-label fs-6 ms-2 text-danger fw-bold';
+            txt.innerHTML = `<i class="bi bi-calendar-x"></i> El envío automático está actualmente pausado.`;
+            txt.className = 'badge bg-secondary mb-3';
+        }
+    }
+
+    document.getElementById('switchCronActivo')?.addEventListener('change', (e) => {
+        const dia = document.getElementById('selDiaCobro').value;
+        const hora = document.getElementById('selHoraCobro')?.value || '10';
+        actualizarLabelCron(e.target.checked, dia, hora);
+    });
+
+    // Actualizar visualmente al cambiar los selects, sin guardar aún
+    document.getElementById('selDiaCobro')?.addEventListener('change', (e) => {
+        if (document.getElementById('switchCronActivo').checked) {
+            actualizarLabelCron(true, e.target.value, document.getElementById('selHoraCobro')?.value || '10');
+        }
+    });
+    document.getElementById('selHoraCobro')?.addEventListener('change', (e) => {
+        if (document.getElementById('switchCronActivo').checked) {
+            actualizarLabelCron(true, document.getElementById('selDiaCobro').value, e.target.value);
+        }
+    });
+
+
+    document.getElementById('btnGuardarAjustesCobro')?.addEventListener('click', async () => {
+       const cd = document.getElementById('inpCreditosBienvenida').value;
+       const dia = document.getElementById('selDiaCobro').value;
+       const hora = document.getElementById('selHoraCobro')?.value || '10';
+       const msg = document.getElementById('inpMensajeExtra')?.value || '';
+       const activo = document.getElementById('switchCronActivo')?.checked ? 1 : 0;
+       try {
+          const fd = new FormData();
+          fd.append('creditos_bienvenida', cd);
+          fd.append('dia_cobro', dia);
+          fd.append('hora_cobro', hora);
+          fd.append('mensaje_extra', msg);
+          fd.append('cron_activado', activo);
+          const r = await fetch('backend/set_ajustes_cobro.php', { method: 'POST', body: fd, credentials: 'include' });
+
+          const j = await r.json();
+          if (j.ok) alert('✅ Ajustes de cobro guardados correctamente');
+          else alert('❌ Error: ' + j.error);
+       } catch (e) {
+          alert('⚠️ Error de red al guardar.');
+       }
+    });
+
+    document.getElementById('btnForzarCronTest')?.addEventListener('click', async () => {
+        const soloDeudores = document.getElementById('checkSoloDeudores').checked ? 1 : 0;
+        const modalPreview = new bootstrap.Modal(document.getElementById('modalCronPreview'));
+        const btn = document.getElementById('btnForzarCronTest');
+        const msg = document.getElementById('cronPreviewMsg');
+        const table = document.getElementById('tableCronPreview');
+        const tbody = document.getElementById('tbodyCronPreview');
+        const btnConfirm = document.getElementById('btnConfirmarEnvioCron');
+
+        btn.disabled = true;
+        tbody.innerHTML = '';
+        table.classList.add('d-none');
+        btnConfirm.classList.add('d-none');
+        msg.className = 'alert alert-info';
+        msg.innerHTML = '<i class="bi bi-hourglass-split"></i> Analizando base de datos...';
+        modalPreview.show();
+
+        try {
+            const r = await fetch(`backend/cron_estado_cuenta.php?force=1&preview=1&solo_deudores=${soloDeudores}`);
+            const data = await r.json();
+            btn.disabled = false;
+            if (data.ok && data.preview) {
+                if (data.preview.length === 0) {
+                    msg.className = 'alert alert-warning';
+                    msg.textContent = 'No hay datos para enviar.';
+                    return;
+                }
+                msg.className = 'alert alert-success';
+                msg.innerHTML = `Detectados: <strong>${data.preview.length}</strong>`;
+                data.preview.forEach(p => {
+                    const deudor = p.deuda > 0;
+                    tbody.innerHTML += `<tr class="${deudor ? 'table-warning':''}"><td>${p.nombre}</td><td>${p.email}</td><td class="text-end">$${p.deuda}</td><td class="text-center">${p.casos}</td><td class="text-center">${p.creditos}</td></tr>`;
+                });
+                table.classList.remove('d-none');
+                btnConfirm.classList.remove('d-none');
+                btnConfirm.onclick = async () => {
+                    if (!confirm("¿Enviar ahora?")) return;
+                    btnConfirm.disabled = true;
+                    const r2 = await fetch(`backend/cron_estado_cuenta.php?force=1&solo_deudores=${soloDeudores}`);
+                    const txt = await r2.text();
+                    alert('Resultado: ' + txt);
+                    modalPreview.hide();
+                    location.reload();
+                };
+            }
+        } catch(e) { alert('Error preview'); btn.disabled = false; }
+    });
+
+    // =================== CARGAR OPERACIONES ===================
+    async function cargarOperaciones() {
+      const globalCasosPend = document.getElementById('globalCasosPend');
+      const globalTotalAdeudado = document.getElementById('globalTotalAdeudado');
+      const globalHint = document.getElementById('globalHint');
+
+      globalCasosPend.textContent = '...';
+      globalTotalAdeudado.textContent = '$0.00';
+      globalHint.textContent = '';
+
+      try {
+        const res = await fetch('backend/consultar_operaciones.php', { credentials: 'include' });
+        const data = await res.json();
+
+        if (!data || !data.ok) {
+          throw new Error(data?.error || 'Respuesta inesperada');
+        }
+
+        _operacionesCache = data;
+        _profList = Array.isArray(data.items) ? data.items : [];
+
+        // === Contabilidad global REAL basada en casos (detalles + pagado) ===
+        const valorCaso = parseFloat(document.getElementById('valorPorCaso')?.value) || 0;
+        const detallesMap = data.detalles || {};
+
+        let totalCasos = 0;
+        let pendCasos = 0;
+        let pagCasos = 0;
+        let deudaGlobal = 0;
+
+        Object.values(detallesMap).forEach(lista => {
+          if (!Array.isArray(lista)) return;
+          lista.forEach(c => {
+            totalCasos++;
+            const pagado = isPagado(c.pagado);
+
+            if (pagado) {
+              pagCasos++;
+            } else {
+              pendCasos++;
+              const monto = (c.cargo_ars !== undefined && c.cargo_ars !== null)
+                ? n(c.cargo_ars)
+                : valorCaso;
+              deudaGlobal += monto;
+            }
+          });
+        });
+
+        globalCasosPend.textContent = String(pendCasos);
+        globalTotalAdeudado.textContent = moneyARS(deudaGlobal);
+        globalHint.textContent = `Casos totales: ${totalCasos} — Pendientes: ${pendCasos} — Pagados: ${pagCasos}`;
+
+        // Construir lista calculada por profesional (para el select y el filtro)
+        _profCalc = _profList.map(p => {
+          const lista = (data.detalles && Array.isArray(data.detalles[p.id])) ? data.detalles[p.id] : [];
+          let pend = 0, pag = 0, deuda = 0;
+          lista.forEach(c => {
+            const pagado = isPagado(c.pagado);
+            if (pagado) {
+              pag++;
+            } else {
+              pend++;
+              const monto = (c.cargo_ars !== undefined && c.cargo_ars !== null) ? n(c.cargo_ars) : valorCaso;
+              deuda += monto;
+            }
+          });
+          return {
+            id: p.id,
+            profesional: p.profesional || (p.nombre ? `${p.nombre} ${p.apellido || ''}`.trim() : `ID ${p.id}`),
+            whatsapp: p.whatsapp || '',
+            direccion: p.direccion || '',
+            barrio: p.barrio || '',
+            ciudad: p.ciudad || '',
+            provincia: p.provincia || '',
+            categorias: p.categorias || '',
+            estado_servicio: p.estado_servicio,
+            ultima_conexion: p.ultima_conexion,
+            pend,
+            pag,
+            deuda
+          };
+        });
+
+        poblarSelectProfesionales();
+      } catch (err) {
+        globalCasosPend.textContent = '0';
+        globalTotalAdeudado.textContent = '$0.00';
+        globalHint.textContent = 'Error al cargar operaciones.';
+      }
+    }
+
+    // =================== SELECT + FILTRO ===================
+    function poblarSelectProfesionales() {
+      const sel = document.getElementById('selProfesionales');
+      const soloDeudores = document.getElementById('chkSoloDeudores').checked;
+
+      const list = soloDeudores
+        ? _profCalc.filter(p => n(p.deuda) > 0)
+        : _profCalc.slice();
+
+      list.sort((a, b) => (n(b.deuda) - n(a.deuda)) || String(a.profesional).localeCompare(String(b.profesional)));
+
+      sel.innerHTML = `<option value="">Seleccioná un profesional...</option>` + list.map(p => {
+        const tag = n(p.deuda) > 0
+          ? ` — Debe ${moneyARS(p.deuda)} (${p.pend} pend.)`
+          : ` — Sin deuda`;
+        return `<option value="${p.id}">${escapeHtml(p.profesional)}${tag}</option>`;
+      }).join('');
+
+      document.getElementById('btnAbrirPerfil').disabled = true;
+    }
+
+    document.getElementById('chkSoloDeudores').addEventListener('change', () => {
+      poblarSelectProfesionales();
+    });
+
+    document.getElementById('selProfesionales').addEventListener('change', (e) => {
+      document.getElementById('btnAbrirPerfil').disabled = !e.target.value;
+    });
+
+    document.getElementById('btnAbrirPerfil').addEventListener('click', () => {
+      const id = parseInt(document.getElementById('selProfesionales').value, 10);
+      if (!id) return;
+      abrirPerfilProfesional(id);
+    });
+
+    // =================== ABRIR MODAL PERFIL ===================
+    function abrirPerfilProfesional(id, tipo = 'profe') {
+      const modal = new bootstrap.Modal(document.getElementById('modalPerfil'));
+      const data = _operacionesCache || {};
+      const valorCaso = parseFloat(document.getElementById('valorPorCaso')?.value) || 0;
+
+      let p = null;
+      if (tipo === 'profe') {
+        p = _profCalc.find(x => String(x.id) === String(id));
+      }
+      
+      const lista = (data.detalles && Array.isArray(data.detalles[id]) && tipo === 'profe') ? data.detalles[id] : [];
+
+      // Buscar en _cuentasCache asegurando que sea el tipo correcto
+      let cuenta = _cuentasCache.find(x => String(x.id) === String(id) && x.tipo === tipo);
+      
+      // ordenar: pendientes primero, luego pagados; dentro por fecha/hora si viene
+      const casos = lista.slice().sort((a, b) => {
+        const ap = isPagado(a.pagado);
+        const bp = isPagado(b.pagado);
+        if (ap !== bp) return ap ? 1 : -1;
+        // fallback: no romper
+        const da = String(a.dia || '');
+        const db = String(b.dia || '');
+        if (da !== db) return db.localeCompare(da);
+        return String(b.hora || '').localeCompare(String(a.hora || ''));
+      });
+
+      let pend = 0, pag = 0, deuda = 0;
+      casos.forEach(c => {
+        if (isPagado(c.pagado)) {
+          pag++;
+        } else {
+          pend++;
+          const monto = (c.cargo_ars !== undefined && c.cargo_ars !== null) ? n(c.cargo_ars) : valorCaso;
+          deuda += monto;
+        }
+      });
+
+      const nombre = p ? p.profesional : (cuenta ? `${cuenta.nombre} ${cuenta.apellido}` : `Usuario #${id}`);
+      const whatsapp = p ? p.whatsapp : (cuenta ? cuenta.whatsapp : '');
+      const direccion = p ? `${p.direccion} ${p.barrio} ${p.ciudad} ${p.provincia}`.trim() : '';
+      const categorias = p ? p.categorias : '';
+      const estado = p ? parseInt(p.estado_servicio || 0) : 0;
+      const ultConexion = p ? (p.ultima_conexion || '') : '';
+
+      _profActual = {
+        id,
+        tipo,
+        nombre,
+        whatsapp,
+        casos,
+        pend,
+        pag,
+        deuda
+      };
+
+      // -- Botón Verificar Manual --
+      const btnVerifManual = document.getElementById('btnVerificarManual');
+      if (btnVerifManual) {
+        // Buscamos en _cuentasCache si está verificado
+        const cuenta = _cuentasCache.find(c => String(c.id) === String(id) && c.tipo === 'profe');
+        const verificado = cuenta ? parseInt(cuenta.verificado) === 1 : true;
+        
+        if (!verificado) {
+          btnVerifManual.classList.remove('d-none');
+        } else {
+          btnVerifManual.classList.add('d-none');
+        }
+      }
+
+      document.getElementById('modalTitulo').textContent = `Perfil — ${nombre}`;
+      document.getElementById('modalSubtitulo').textContent = `ID: ${id}`;
+      document.getElementById('profPend').textContent = String(pend);
+      document.getElementById('profPag').textContent = String(pag);
+      document.getElementById('profTotal').textContent = moneyARS(deuda);
+      document.getElementById('profWA').textContent = waClean(whatsapp) || '-';
+      
+      const email = cuenta ? cuenta.email : (p ? p.email : '');
+      document.getElementById('profEmail').textContent = email || '-';
+
+      // Info Extra
+      const infoBox = document.getElementById('profInfoExtra');
+      if (infoBox) {
+        let html = '';
+
+        // -- Estado --
+        const badgeClass = estado === 1 ? 'bg-success' : 'bg-secondary';
+        const badgeIcon = estado === 1 ? 'bi-check-circle' : 'bi-toggle-off';
+        const badgeText = estado === 1 ? 'En servicio (Activo)' : 'Fuera de servicio';
+        html += `<div class="mb-2"><span class="badge ${badgeClass}"><i class="bi ${badgeIcon}"></i> ${badgeText}</span></div>`;
+
+        // -- Última conexión --
+        if (ultConexion) {
+          let f = ultConexion;
+          try {
+            // Intento simple de formatear
+            const d = new Date(ultConexion.replace(/-/g, '/')); // compat simple
+            if (!isNaN(d.getTime())) {
+              f = d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            }
+          } catch (e) { }
+          html += `<div class="mb-2 text-muted small"><i class="bi bi-clock-history"></i> Última ubicación: <strong>${f}</strong></div>`;
+        } else {
+          html += `<div class="mb-2 text-muted small"><i class="bi bi-clock"></i> Última ubicación: <span class="fst-italic">Desconocida</span></div>`;
+        }
+
+        if (direccion) html += `<div><i class="bi bi-geo-alt"></i> <strong>Dirección:</strong> ${escapeHtml(direccion)}</div>`;
+        if (categorias) html += `<div><i class="bi bi-tags"></i> <strong>Categorías:</strong> ${escapeHtml(categorias)}</div>`;
+
+        infoBox.innerHTML = html;
+        infoBox.classList.remove('d-none');
+      }
+
+      // mensaje por defecto si debe
+      const defaultMsg = (deuda > 0)
+        ? `Hola, este mensaje es de los administradores de BuscoTec para recordarte que tu saldo pendiente es ${moneyARS(deuda)} y deberás abonar en las próximas horas para continuar en nuestros listados que ofrecen los servicios.`
+        : `Hola, este mensaje es de los administradores de BuscoTec.`;
+
+      const txt = document.getElementById('txtMensaje');
+      txt.value = defaultMsg;
+
+      // configurar botón WhatsApp
+      const waBtn = document.getElementById('btnEnviarWhatsApp');
+      const w = waClean(whatsapp);
+      if (w) {
+        const waText = encodeURIComponent(txt.value);
+        waBtn.classList.remove('disabled');
+        waBtn.href = `https://wa.me/${w}?text=${waText}`;
+      } else {
+        waBtn.classList.add('disabled');
+        waBtn.removeAttribute('href');
+      }
+
+      // render casos
+      renderCasos();
+
+      // cargar DNI
+      cargarDni(id, tipo);
+
+      modal.show();
+    }
+
+    async function cargarDni(id, tipo) {
+      const container = document.getElementById('dniPreviewContainer');
+      const img = document.getElementById('dniPreviewImg');
+      const fecha = document.getElementById('dniFechaSubida');
+      const noDoc = document.getElementById('dniNoDoc');
+
+      if (container) container.classList.add('d-none');
+      if (noDoc) {
+        noDoc.classList.remove('d-none');
+        noDoc.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Cargando documentos...';
+      }
+      if (img) img.src = '';
+      
+      const dorsoContainer = document.getElementById('dniDorsoContainer');
+      const dorsoImg = document.getElementById('dniPreviewDorso');
+      if (dorsoContainer) dorsoContainer.classList.add('d-none');
+      if (dorsoImg) dorsoImg.src = '';
+      
+      const inpBirth = document.getElementById('inpFechaNacimiento');
+      if (inpBirth) inpBirth.value = '';
+
+      try {
+        const r = await fetch(`backend/admin_get_dni.php?id=${id}&tipo=${tipo}`, { credentials: 'include' });
+        const j = await r.json();
+        
+        if (j.ok && j.data && j.data.fecha_nacimiento) {
+          document.getElementById('inpFechaNacimiento').value = j.data.fecha_nacimiento;
+        }
+
+        if (j.ok && j.has_dni) {
+          if (img) img.src = j.data.dni_frente + '?v=' + Date.now();
+          
+          if (j.data.dni_dorso) {
+            const dImg = document.getElementById('dniPreviewDorso');
+            const dCont = document.getElementById('dniDorsoContainer');
+            if (dImg) dImg.src = j.data.dni_dorso + '?v=' + Date.now();
+            if (dCont) dCont.classList.remove('d-none');
+          } else {
+            const dCont = document.getElementById('dniDorsoContainer');
+            if (dCont) dCont.classList.add('d-none');
+          }
+
+          if (container) container.classList.remove('d-none');
+          if (noDoc) noDoc.classList.add('d-none');
+          if (j.data.fecha_subida && fecha) {
+            fecha.textContent = 'Subido: ' + j.data.fecha_subida;
+          }
+        } else {
+          // Si j.ok es true pero no hay DNI
+          if (noDoc) {
+            noDoc.classList.remove('d-none');
+            noDoc.innerHTML = '<i class="bi bi-exclamation-triangle"></i> No hay DNI cargado.';
+          }
+        }
+      } catch (e) {
+        if (noDoc) {
+          noDoc.classList.remove('d-none');
+          noDoc.innerHTML = '<i class="bi bi-x-circle"></i> Error al cargar documentos.';
+        }
+        console.error("Error al cargar DNI:", e);
+      }
+    }
+
+    document.getElementById('btnSubirDni').addEventListener('click', async () => {
+      const p = _profActual;
+      if (!p) return;
+
+      const fileInput = document.getElementById('inpDniFile');
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('Seleccioná un archivo primero.');
+        return;
+      }
+
+      const btn = document.getElementById('btnSubirDni');
+      btn.disabled = true;
+      btn.textContent = 'Subiendo...';
+
+      try {
+        const fd = new FormData();
+        fd.append('profesional_id', p.id);
+        fd.append('dni_file', file);
+
+        const r = await fetch('backend/admin_upload_dni.php', {
+          method: 'POST',
+          body: fd,
+          credentials: 'include'
+        });
+        const j = await r.json();
+
+        if (j.ok) {
+          alert('✅ DNI subido correctamente.');
+          cargarDni(p.id);
+        } else {
+          alert('❌ Error: ' + j.error);
+        }
+      } catch (e) {
+        alert('⚠️ Error de conexión.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Subir / Actualizar DNI';
+      }
+    });
+
+    document.getElementById('btnGuardarFechaNac').addEventListener('click', async () => {
+      const p = _profActual;
+      if (!p) return;
+
+      const fecha = document.getElementById('inpFechaNacimiento').value;
+      if (!fecha) {
+        alert('Seleccioná una fecha.');
+        return;
+      }
+
+      const btn = document.getElementById('btnGuardarFechaNac');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>...';
+
+      try {
+        const fd = new FormData();
+        fd.append('profesional_id', p.id);
+        fd.append('fecha_nacimiento', fecha);
+
+        const r = await fetch('backend/admin_update_birthdate.php', {
+          method: 'POST',
+          body: fd,
+          credentials: 'include'
+        });
+        const j = await r.json();
+
+        if (j.ok) {
+          alert('✅ Fecha de nacimiento guardada.');
+        } else {
+          alert('❌ Error: ' + j.error);
+        }
+      } catch (e) {
+        alert('⚠️ Error de conexión.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-save"></i> Guardar Fecha';
+      }
+    });
+
+    async function editarValorCaso(idCaso, valorActual) {
+      const nuevo = prompt(`Editar monto del caso #${idCaso}:`, valorActual);
+      if (nuevo === null) return;
+      const val = parseFloat(nuevo.replace(',', '.'));
+      if (isNaN(val) || val < 0) return alert('Monto inválido.');
+
+      try {
+        const fd = new FormData();
+        fd.append('caso_id', idCaso);
+        fd.append('valor', val);
+        const r = await fetch('backend/update_caso_valor.php', { method: 'POST', body: fd, credentials: 'include' });
+        const j = await r.json();
+        if (j.ok) {
+          alert('✅ Monto actualizado.');
+          await cargarOperaciones();
+          if (_profActual) abrirPerfilProfesional(_profActual.id);
+        } else {
+          alert('❌ Error: ' + j.error);
+        }
+      } catch (e) { alert('⚠️ Error de conexión.'); }
+    }
+
+    async function eliminarCaso(idCaso) {
+      if (!confirm(`¿Eliminar el caso #${idCaso}? Se registrará en la trazabilidad.`)) return;
+      try {
+        const fd = new FormData();
+        fd.append('id', idCaso);
+        const r = await fetch('backend/delete_caso.php', { method: 'POST', body: fd, credentials: 'include' });
+        const j = await r.json();
+        if (j.ok) {
+          alert('✅ Caso eliminado.');
+          await cargarOperaciones();
+          if (_profActual) abrirPerfilProfesional(_profActual.id);
+        } else {
+          alert('❌ Error: ' + j.error);
+        }
+      } catch (e) { alert('⚠️ Error de conexión.'); }
+    }
+
+    function renderCasos() {
+      const box = document.getElementById('listaCasos');
+      const p = _profActual;
+
+      if (!p) {
+        box.innerHTML = `<div class="text-muted text-center">Sin datos</div>`;
+        return;
+      }
+
+      if (!p.casos || p.casos.length === 0) {
+        box.innerHTML = `<div class="text-muted text-center">Este profesional no tiene casos.</div>`;
+        return;
+      }
+
+      const valorCasoGlobal = parseFloat(document.getElementById('valorPorCaso')?.value) || 0;
+
+      box.innerHTML = p.casos.map(c => {
+        const pagado = isPagado(c.pagado);
+        const monto = (c.cargo_ars !== undefined && c.cargo_ars !== null) ? n(c.cargo_ars) : valorCasoGlobal;
+        const idCaso = c.id_caso || c.caso_id || c.id;
+
+        const badge = pagado
+          ? `<span class="badge bg-success">PAGADO</span>`
+          : `<span class="badge bg-warning text-dark">PENDIENTE</span>`;
+
+        return `
+          <div class="case-row">
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <div>
+                <div class="fw-bold">Fecha: ${escapeHtml(c.dia || '-')} — Hora: ${escapeHtml(c.hora || '-')} <span class="small-muted ms-2">Caso #${escapeHtml(idCaso)}</span></div>
+                <div class="small-muted">Cliente: ${escapeHtml(c.cliente || '-')}</div>
+                <div class="small-muted">WhatsApp cliente: <span class="mono">${escapeHtml(c.whatsapp || '-')}</span></div>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold mono">
+                   <span class="text-primary cursor-pointer" onclick="editarValorCaso(${idCaso}, ${monto})" title="Click para editar monto">+${moneyARS(monto)}</span>
+                </div>
+                <div class="mt-1">${badge}</div>
+                <button class="btn btn-sm btn-link text-danger p-0 mt-1" onclick="eliminarCaso(${idCaso})"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // actualizar link WhatsApp cuando cambie el texto
+    document.getElementById('txtMensaje').addEventListener('input', () => {
+      const p = _profActual;
+      const waBtn = document.getElementById('btnEnviarWhatsApp');
+      if (!p) return;
+      const w = waClean(p.whatsapp);
+      if (!w) return;
+
+      const waText = encodeURIComponent(document.getElementById('txtMensaje').value || '');
+      waBtn.href = `https://wa.me/${w}?text=${waText}`;
+    });
+
+    // Control de Plantillas de Mensajes
+    document.getElementById('btnTplPersonalizado')?.addEventListener('click', () => {
+      const p = _profActual;
+      if (!p) return;
+      const defaultMsg = (p.deuda > 0)
+        ? `Hola, este mensaje es de los administradores de BuscoTec para recordarte que tu saldo pendiente es ${moneyARS(p.deuda)} y deberás abonar en las próximas horas para continuar en nuestros listados que ofrecen los servicios.`
+        : `Hola, este mensaje es de los administradores de BuscoTec.`;
+      const txt = document.getElementById('txtMensaje');
+      txt.value = defaultMsg;
+      txt.dispatchEvent(new Event('input'));
+    });
+
+    document.getElementById('btnTplVerificar')?.addEventListener('click', () => {
+      const p = _profActual;
+      if (!p) return;
+      const verifMsg = `Hola, espero que estés muy bien. Te escribimos desde el equipo de BuscoTec para recordarte que es muy importante verificar tu dirección de correo electrónico. Esto te permitirá recibir notificaciones de clientes, alertas y aprovechar al máximo la aplicación. ¡Cualquier duda, contá con nosotros!`;
+      const txt = document.getElementById('txtMensaje');
+      txt.value = verifMsg;
+      txt.dispatchEvent(new Event('input'));
+    });
+
+    // Enviar Email desde el Modal del Perfil
+    document.getElementById('btnEnviarEmailModal')?.addEventListener('click', async () => {
+      const p = _profActual;
+      if (!p) return;
+
+      const texto = (document.getElementById('txtMensaje').value || '').trim();
+      if (!texto) {
+        alert('Escribí un mensaje antes de enviar.');
+        return;
+      }
+
+      const btn = document.getElementById('btnEnviarEmailModal');
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Enviando...';
+
+      try {
+        const fd = new FormData();
+        fd.append('id', String(p.id));
+        fd.append('tipo', p.tipo || 'profe');
+        const asunto = texto.toLowerCase().includes('verificar') 
+          ? 'Verificación de cuenta pendiente - BuscoTec' 
+          : 'Mensaje importante de BuscoTec';
+        fd.append('asunto', asunto);
+        fd.append('mensaje', texto);
+
+        const r = await fetch('backend/admin_enviar_email.php', {
+          method: 'POST',
+          body: fd,
+          credentials: 'include'
+        });
+
+        const text = await r.text();
+        let j;
+        try {
+          j = JSON.parse(text);
+        } catch (jsonErr) {
+          alert(`❌ Error del servidor (${r.status}): No se pudo procesar la respuesta.`);
+          return;
+        }
+
+        if (j.ok) {
+          alert('✅ Email enviado correctamente.');
+        } else {
+          alert('❌ Error al enviar email: ' + (j.error || 'error desconocido'));
+        }
+      } catch (e) {
+        console.error(e);
+        alert('⚠️ Error de red o conexión al intentar enviar el email.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
+    });
+
+    // =================== ENVIAR MENSAJE INTERNO (UNIFICADO) ===================
+    document.getElementById('btnEnviarInterno').addEventListener('click', async () => {
+      const p = _profActual;
+      if (!p) return;
+
+      const texto = (document.getElementById('txtMensaje').value || '').trim();
+      if (!texto) {
+        alert('Escribí un mensaje antes de enviar.');
+        return;
+      }
+
+      const btn = document.getElementById('btnEnviarInterno');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Enviando...';
+
+      try {
+        const fd = new FormData();
+        fd.append('action', 'single');
+        fd.append('target_id', String(p.id));
+        fd.append('target_type', 'profesional');
+        fd.append('message', texto);
+
+        const r = await fetch('backend/admin_broadcast.php', {
+          method: 'POST',
+          body: fd,
+          credentials: 'include'
+        });
+
+        const j = await r.json();
+
+        if (j && j.ok) {
+          // Si el checkbox de WhatsApp está activo, abrimos WA
+          if (document.getElementById('chkWhatsAppMsg').checked && p.whatsapp) {
+            const waText = encodeURIComponent(texto);
+            const w = waClean(p.whatsapp);
+            window.open(`https://wa.me/${w}?text=${waText}`, '_blank');
+          }
+          alert('✅ Mensaje interno y Push enviados correctamente.');
+        } else {
+          alert('❌ Error: ' + (j.msg || 'No se pudo enviar.'));
+        }
+      } catch (e) {
+        alert('⚠️ Error de conexión con el servidor.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-send-fill"></i> Enviar Mensaje Interno + Push';
+      }
+    });
+
+    // =================== BORRAR CASOS PAGADOS (requiere backend específico) ===================
+    document.getElementById('btnBorrarPagados').addEventListener('click', async () => {
+      const p = _profActual;
+      if (!p) return;
+
+      if (!confirm(`ADVERTENCIA: ¿Borrar SOLO los casos ya PAGADOS de ${p.nombre}?`)) return;
+
+      try {
+        const fd = new FormData();
+        fd.append('profesional_id', String(p.id));
+
+        // Endpoint previsto (no borra TODO, solo pagados)
+        const r = await fetch('backend/delete_casos_pagados_profesional.php', {
+          method: 'POST',
+          body: fd,
+          credentials: 'include'
+        });
+
+        const t = await r.text();
+        let j = null;
+        try { j = JSON.parse(t); } catch (_) { }
+
+        if (j && j.ok) {
+          alert('✅ Casos pagados borrados.');
+          await cargarOperaciones();
+          // reabrir el modal con datos frescos
+          abrirPerfilProfesional(p.id);
+        } else {
+          alert('⚠️ Falta el backend para borrar SOLO pagados.\nNo voy a borrar todo con un endpoint equivocado.');
+        }
+      } catch (e) {
+        alert('⚠️ No se pudo borrar. (Backend pendiente)');
+      }
+    });
+
+    // =================== EXPORTACIONES (CSV compatible Excel) ===================
+    function downloadCSV(filename, rows) {
+      const DELIM = ';';         // ✅ Excel es-AR
+      const NEWLINE = '\r\n';    // ✅ Excel Windows/Mac
+
+      const csv =
+        '\ufeff' + // ✅ BOM UTF-8 para acentos
+        rows
+          .map((r) =>
+            r
+              .map((v) => {
+                const s = String(v ?? '');
+
+                // si contiene comillas, delimitador o saltos de línea -> comillas y escape
+                if (s.includes('"') || s.includes(DELIM) || s.includes('\n') || s.includes('\r')) {
+                  return `"${s.replaceAll('"', '""')}"`;
+                }
+                return s;
+              })
+              .join(DELIM)
+          )
+          .join(NEWLINE);
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+
+
+
+    document.getElementById('btnExportarProfesionales').addEventListener('click', () => {
+      downloadCSV('buscotec_profesionales_deuda.csv', [
+        ['ProfesionalID', 'Profesional', 'WhatsApp', 'Pendientes', 'Pagados', 'DeudaARS'],
+        ..._profCalc.map(p => [p.id, p.profesional, waClean(p.whatsapp), p.pend, p.pag, n(p.deuda).toFixed(2)])
+      ]);
+    });
+
+    document.getElementById('btnExportarCasos').addEventListener('click', () => {
+      const data = _operacionesCache || {};
+      const valorCaso = parseFloat(document.getElementById('valorPorCaso')?.value) || 0;
+      const detalles = data.detalles || {};
+
+      const rows = [['ProfesionalID', 'Fecha', 'Hora', 'Cliente', 'WhatsAppCliente', 'MontoARS', 'Pagado']];
+      Object.entries(detalles).forEach(([pid, lista]) => {
+        if (!Array.isArray(lista)) return;
+        lista.forEach(c => {
+          const monto = (c.cargo_ars !== undefined && c.cargo_ars !== null) ? n(c.cargo_ars) : valorCaso;
+          rows.push([
+            pid,
+            c.dia || '',
+            c.hora || '',
+            c.cliente || '',
+            c.whatsapp || '',
+            n(monto).toFixed(2),
+            isPagado(c.pagado) ? '1' : '0'
+          ]);
+        });
+      });
+
+      downloadCSV('buscotec_casos.csv', rows);
+    });
+
+    // =================== CATEGORÍAS ===================
+    async function cargarCategorias() {
+      const lista = document.getElementById('listaCategorias');
+      lista.innerHTML = '<li class="list-group-item text-center text-muted">Cargando...</li>';
+      try {
+        const res = await fetch('backend/get_categorias.php', { credentials: 'include' });
+        const data = await res.json();
+        if (!data.ok || !Array.isArray(data.items)) throw new Error(data.error || 'Formato inesperado');
+        lista.innerHTML = '';
+        if (data.items.length === 0) {
+          lista.innerHTML = '<li class="list-group-item text-center text-muted">Sin categorías</li>';
+          return;
+        }
+        data.items.forEach(cat => {
+          const li = document.createElement('li');
+          li.className = 'list-group-item d-flex justify-content-between align-items-center';
+          li.textContent = cat.nombre;
+
+          const btn = document.createElement('button');
+          btn.className = 'btn btn-danger btn-sm';
+          btn.textContent = 'Eliminar';
+          btn.onclick = async () => {
+            if (!confirm(`¿Eliminar la categoría "${cat.nombre}"?`)) return;
+            await fetch('backend/delete_categoria.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              credentials: 'include',
+              body: `id=${encodeURIComponent(cat.id)}`
+            });
+            cargarCategorias();
+          };
+
+          li.appendChild(btn);
+          lista.appendChild(li);
+        });
+      } catch (e) {
+        lista.innerHTML = '<li class="list-group-item text-danger text-center">Error al cargar categorías</li>';
+      }
+    }
+
+    document.getElementById('formCategoria').addEventListener('submit', async e => {
+      e.preventDefault();
+      const nombre = document.getElementById('nombreCategoria').value.trim();
+      const email = (localStorage.getItem('buscotec_email') || '').toLowerCase();
+
+      if (!nombre) { alert('Ingresá un nombre de categoría'); return; }
+
+      try {
+        const res = await fetch('/backend/add_categoria.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          credentials: 'include',
+          body: new URLSearchParams({ nombre, email })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          alert('✅ Categoría agregada correctamente');
+          document.getElementById('formCategoria').reset();
+          await cargarCategorias();
+        } else {
+          alert('❌ Error: ' + (data.error || 'No se pudo agregar la categoría'));
+        }
+      } catch (err) {
+        alert('⚠️ Error de conexión: ' + err.message);
+      }
+    });
+
+    // =================== LOGOUT ===================
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      ['buscotec_role', 'buscotec_user_id', 'buscotec_nombre', 'buscotec_email']
+        .forEach(k => localStorage.removeItem(k));
+      window.location.href = 'index.php';
+    });
+
+    // =================== WEBPUSHR (ADMIN: desactivado salvo appKey real) ===================
+    (function () {
+      // En el panel admin no lo necesitamos. Si un día lo querés activar aquí,
+      // pegás tu appKey real y listo.
+      const WEBPUSHR_APP_KEY = ''; // <- si está vacío, no hace nada
+
+      if (!WEBPUSHR_APP_KEY) return;
+
+      (function (w, d, s, id) {
+        if (typeof (w.webpushr) !== 'undefined') return;
+        w.webpushr = w.webpushr || function () { (w.webpushr.q = w.webpushr.q || []).push(arguments) }
+        var js, fjs = d.getElementsByTagName(s)[0];
+        js = d.createElement(s);
+        js.id = id;
+        js.async = 1;
+        js.src = "https://cdn.webpushr.com/app.min.js";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(window, document, 'script', 'webpushr-jssdk'));
+
+      window.webpushr('init', { appKey: WEBPUSHR_APP_KEY, widget: { enable: false } });
+    })();
+
+    // =================== ESTADÍSTICAS GENERALES (ANTI-BOT) ===================
+    async function cargarStats() {
+      try {
+        const r = await fetch('backend/admin_stats.php', { credentials: 'include' });
+        const j = await r.json();
+        if (j.ok) {
+          // Visitas
+          document.getElementById('statVisitasReal').textContent = j.visitas.reales;
+          document.getElementById('statVisitasBotsCount').textContent = j.visitas.bots;
+          document.getElementById('statVisitasTotal').textContent = j.visitas.total;
+
+          // Usuarios
+          document.getElementById('statUsersReal').textContent = j.usuarios.reales;
+          document.getElementById('statUsersUnverif').textContent = j.usuarios.sin_verificar;
+          document.getElementById('statUsersBots').textContent = j.usuarios.bots;
+          document.getElementById('statUsersTotal').textContent = j.usuarios.total;
+
+          // Profesionales
+          document.getElementById('statProfesReal').textContent = j.profesionales.reales;
+          document.getElementById('statProfesUnverif').textContent = j.profesionales.sin_verificar;
+          document.getElementById('statProfesBots').textContent = j.profesionales.bots;
+          document.getElementById('statProfesTotal').textContent = j.profesionales.total;
+
+          // Poblar tabla de visitas
+          const tbody = document.getElementById('listaVisitas');
+          tbody.innerHTML = '';
+          (j.ultimas_visitas || []).forEach(v => {
+            const tr = document.createElement('tr');
+            if (v.es_bot) tr.classList.add('table-light');
+            tr.innerHTML = `
+              <td class="mono">${v.ip}</td>
+              <td>${v.localidad || 'Desconocida'}</td>
+              <td>${v.fecha}</td>
+              <td><span class="badge bg-secondary">${v.pagina || 'home'}</span></td>
+              <td>${v.es_bot ? '<span class="badge bg-warning text-dark">Bot</span>' : '<span class="badge bg-info">Humano</span>'}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      } catch (e) {
+        console.error("Error al cargar stats:", e);
+      }
+    }
+
+    // =================== GESTIÓN DE CUENTAS (SUSPENDER / BORRAR / RECORDAR) ===================
+    let _cuentasCache = [];
+
+    async function cargarCuentasAdmin() {
+      try {
+        const r = await fetch('backend/admin_get_all_accounts.php', { credentials: 'include' });
+        const data = await r.json();
+        if (data.ok) {
+          _cuentasCache = data.items || [];
+          actualizarSelectLocalidades();
+          renderCuentasAdmin();
+        }
+      } catch (e) {
+        console.error("Error al cargar cuentas:", e);
+      }
+    }
+
+    function renderCuentasAdmin() {
+      const tbody = document.getElementById('listaCuentasAdmin');
+      const busqueda = document.getElementById('inpBusquedaCuentas').value.toLowerCase();
+      const ordenFecha = document.getElementById('selOrdenFecha')?.value || 'desc';
+      const filtroTipo = document.getElementById('selFiltroTipo').value; 
+      const filtroLoc = document.getElementById('selFiltroLocalidad')?.value || '';
+      const soloPend = document.getElementById('chkSoloPendientes').checked;
+
+      const filtered = _cuentasCache.filter(c => {
+        const matchBusqueda = (c.nombre + ' ' + c.apellido + ' ' + c.email + ' ' + c.whatsapp + ' ' + (c.ciudad || '') + ' ' + (c.barrio || '')).toLowerCase().includes(busqueda);
+        const matchTipo = filtroTipo === '' || c.tipo === filtroTipo;
+        const matchLoc = filtroLoc === '' || (c.ciudad && c.ciudad.trim() === filtroLoc);
+        const matchPend = !soloPend || parseInt(c.verificado) === 0;
+        return matchBusqueda && matchTipo && matchLoc && matchPend;
+      });
+
+      // Ordenar por fecha_registro / ID
+      filtered.sort((a, b) => {
+        const valA = a.fecha_registro ? new Date(a.fecha_registro.replace(' ', 'T')).getTime() : (parseInt(a.id) || 0);
+        const valB = b.fecha_registro ? new Date(b.fecha_registro.replace(' ', 'T')).getTime() : (parseInt(b.id) || 0);
+        return ordenFecha === 'asc' ? (valA - valB) : (valB - valA);
+      });
+
+      tbody.innerHTML = '';
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No se encontraron cuentas con esos filtros.</td></tr>';
+        return;
+      }
+
+      filtered.forEach(c => {
+        const tr = document.createElement('tr');
+        const verif = parseInt(c.verificado) === 1 
+          ? '<span class="badge bg-success"><i class="bi bi-patch-check"></i> SI</span>' 
+          : '<span class="badge bg-warning text-dark"><i class="bi bi-clock"></i> NO</span>';
+        
+        const isVerif = parseInt(c.verificado) === 1;
+        const isSusp = parseInt(c.activo) === 0;
+        
+        let suspBadge = '';
+        if (isSusp) {
+          suspBadge = '<span class="badge bg-danger">Suspendido</span>';
+        } else if (!isVerif) {
+          suspBadge = '<span class="badge bg-warning text-dark">Pend. Verif.</span>';
+        } else {
+          suspBadge = '<span class="badge bg-outline-success border border-success text-success">Activo</span>';
+        }
+
+        let fechaDisplay = '-';
+        if (c.fecha_registro && !c.fecha_registro.startsWith('0000')) {
+          fechaDisplay = c.fecha_registro.substring(0, 10);
+        } else {
+          fechaDisplay = `Reg. #${c.id}`;
+        }
+
+        tr.innerHTML = `
+          <td class="small mono">#${c.id}</td>
+          <td class="small text-nowrap fw-bold text-secondary"><i class="bi bi-calendar-event"></i> ${fechaDisplay}</td>
+          <td><span class="badge ${c.tipo==='user'?'bg-info text-dark':'bg-dark text-white'}">${c.tipo.toUpperCase()}</span></td>
+          <td>
+            <div class="fw-bold">${c.nombre} ${c.apellido}</div>
+            <div class="small text-muted">${c.email}</div>
+            <div class="small mono text-primary">${c.whatsapp || '-'}</div>
+            <div class="mt-1">
+               <span class="badge bg-light text-dark border"><i class="bi bi-geo-alt"></i> ${c.ciudad || 'S/D'}</span>
+               ${c.barrio ? `<span class="badge bg-light text-muted border small">${c.barrio}</span>` : ''}
+            </div>
+          </td>
+          <td>${verif}</td>
+          <td>${suspBadge}</td>
+          <td class="text-center">
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-primary" onclick="abrirPerfilProfesional(${c.id}, '${c.tipo}')" title="Ver Perfil completo">
+                <i class="bi bi-person-lines-fill"></i> Ver Perfil
+              </button>
+              <button class="btn btn-outline-info" onclick="enviarMensajeInterno(${c.id}, '${c.tipo}', '${c.nombre}')" title="Mensaje Interno (App)">
+                <i class="bi bi-envelope"></i>
+              </button>
+              <button class="btn btn-outline-success" onclick="abrirWA('${c.whatsapp}')" title="Chat WhatsApp">
+                <i class="bi bi-whatsapp"></i>
+              </button>
+              <button class="btn btn-outline-warning text-dark" onclick="blanquearContraseña(${c.id}, '${c.tipo}', '${c.whatsapp}', '${c.nombre} ${c.apellido}')" title="Blanquear contraseña (WhatsApp)">
+                <i class="bi bi-key"></i>
+              </button>
+              ${parseInt(c.verificado) === 0 ? ` 
+                <button class="btn btn-outline-primary" onclick="recordarVerificacion(${c.id}, '${c.tipo}', '${c.whatsapp}', '${c.nombre}')" title="Recordar Verificación (WhatsApp)">
+                  <i class="bi bi-patch-exclamation"></i>
+                </button>
+              ` : ''}
+              <button class="btn ${isSusp?'btn-success':'btn-warning'}" onclick="gestionarCuenta(${c.id}, '${c.tipo}', '${isSusp?'unsuspend':'suspend'}')" title="${isSusp?'Activar':'Suspender'}">
+                <i class="bi ${isSusp?'bi-play-fill':'bi-pause-fill'}"></i>
+              </button>
+              <button class="btn btn-danger" onclick="gestionarCuenta(${c.id}, '${c.tipo}', 'delete')" title="Borrar cuenta">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      
+      // Update quick unverified select
+      renderUnverifiedSelect();
+    }
+    
+    function renderUnverifiedSelect() {
+      const sel = document.getElementById('selProfesSinVerificar');
+      if (!sel) return;
+      const unverifiedProfes = _cuentasCache.filter(c => c.tipo === 'profe' && parseInt(c.verificado) === 0);
+      
+      sel.innerHTML = '<option value="">Seleccioná un profesional...</option>';
+      unverifiedProfes.forEach(p => {
+         const wa = waClean(p.whatsapp);
+         sel.innerHTML += `<option value="${p.id}" data-wa="${wa}">${p.nombre} ${p.apellido} (${p.email})</option>`;
+      });
+      
+      const disable = unverifiedProfes.length === 0;
+      document.getElementById('btnVerificarSinVerificar').disabled = true;
+      document.getElementById('btnBorrarSinVerificar').disabled = true;
+      document.getElementById('btnMailSinVerificar').disabled = true;
+    }
+    
+    document.getElementById('selProfesSinVerificar')?.addEventListener('change', (e) => {
+        const val = e.target.value;
+        const btnVerif = document.getElementById('btnVerificarSinVerificar');
+        const btnDelete = document.getElementById('btnBorrarSinVerificar');
+        const btnMail = document.getElementById('btnMailSinVerificar');
+        if (btnVerif) btnVerif.disabled = !val;
+        if (btnDelete) btnDelete.disabled = !val;
+        if (btnMail) btnMail.disabled = !val;
+    });
+
+    document.getElementById('btnVerificarSinVerificar')?.addEventListener('click', () => {
+        const id = document.getElementById('selProfesSinVerificar').value;
+        if (id) abrirPerfilProfesional(id);
+    });
+
+    document.getElementById('btnVerificarManual')?.addEventListener('click', async () => {
+        const p = _profActual;
+        if (!p) return;
+        
+        if (!confirm(`¿Verificar manualmente a ${p.nombre}?\nAparecerá activo en el sistema al instante.`)) return;
+        
+        const btn = document.getElementById('btnVerificarManual');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Verificando...';
+
+        try {
+          const fd = new FormData();
+          fd.append('id', p.id);
+          fd.append('type', 'profe');
+          fd.append('action', 'verify');
+
+          const r = await fetch('backend/admin_manage_account.php', { method: 'POST', body: fd, credentials: 'include' });
+          const j = await r.json();
+
+          if (j.ok) {
+            alert('✅ Profesional verificado correctamente.');
+            btn.classList.add('d-none');
+            // Refrescar datos
+            await cargarCuentasAdmin();
+            await cargarStats();
+            await cargarOperaciones();
+            // Re-abrir para ver cambios (opcional)
+            abrirPerfilProfesional(p.id);
+          } else {
+            alert('❌ Error: ' + j.msg);
+          }
+        } catch (e) {
+          alert('⚠️ Error de conexión');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-patch-check"></i> Verificar manualmente';
+        }
+    });
+    
+    document.getElementById('btnBorrarSinVerificar')?.addEventListener('click', async () => {
+       const sel = document.getElementById('selProfesSinVerificar');
+       const id = sel.value;
+       if (!id) return;
+       const opt = sel.options[sel.selectedIndex];
+       
+       if (!confirm(`¿Borrar permanentemente a ${opt.text}?`)) return;
+       
+       try {
+         const fd = new FormData();
+         fd.append('id', id);
+         fd.append('type', 'profe');
+         fd.append('action', 'delete');
+
+         const r = await fetch('backend/admin_manage_account.php', { method: 'POST', body: fd, credentials: 'include' });
+         const data = await r.json();
+         if (data.ok) {
+           alert('✅ Borrado exitosamente.');
+           await cargarCuentasAdmin();
+           await cargarStats();
+           await cargarOperaciones();
+         } else {
+           alert('❌ Error: ' + data.msg);
+         }
+       } catch (e) {
+         alert('⚠️ Error de conexión');
+       }
+    });
+
+    document.getElementById('btnMailSinVerificar')?.addEventListener('click', async () => {
+       const sel = document.getElementById('selProfesSinVerificar');
+       const id = sel.value;
+       if (!id) return;
+       const opt = sel.options[sel.selectedIndex];
+       
+       const msg = window.prompt(`Escribí el texto del email que se enviará a:\n${opt.text}\n(Se enviará al instante)`);
+       if (!msg) return;
+
+       try {
+         const fd = new FormData();
+         fd.append('id', id);
+         fd.append('tipo', 'profe');
+         fd.append('asunto', 'Mensaje de BuscoTec - Verificación pendiente');
+         fd.append('mensaje', msg);
+
+         const r = await fetch('backend/admin_enviar_email.php', { method: 'POST', body: fd, credentials: 'include' });
+         const data = await r.json();
+         if (data.ok) {
+           alert('✅ ' + data.msg);
+         } else {
+           alert('❌ Error: ' + data.error);
+         }
+       } catch (e) {
+         alert('⚠️ Error de conexión al enviar email');
+       }
+    });
+
+    async function gestionarCuenta(id, tipo, accion) {
+      if (accion === 'delete') {
+        if (!confirm('¿Estás SEGURO de borrar esta cuenta permanentemente?\nEsta acción no se puede deshacer.')) return;
+      } else {
+        const msg = accion === 'suspend' ? '¿Suspender esta cuenta?' : '¿Activar esta cuenta?';
+        if (!confirm(msg)) return;
+      }
+
+      try {
+        const fd = new FormData();
+        fd.append('id', id);
+        fd.append('type', tipo);
+        fd.append('action', accion);
+
+        const r = await fetch('backend/admin_manage_account.php', {
+          method: 'POST',
+          body: fd,
+          credentials: 'include'
+        });
+        const data = await r.json();
+        if (data.ok) {
+          alert('✅ Operación exitosa: ' + data.msg);
+          await cargarCuentasAdmin();
+          await cargarStats();
+          if (tipo === 'profe') await cargarOperaciones();
+        } else {
+          alert('❌ Error: ' + data.msg);
+        }
+      } catch (e) {
+        alert('⚠️ Error de conexión');
+      }
+    }
+
+    function abrirWA(wa) {
+      const limpio = waClean(wa);
+      if (!limpio) { alert('No hay WhatsApp registrado.'); return; }
+      window.open(`https://wa.me/${limpio}`, '_blank');
+    }
+
+    function recordarVerificacion(id, tipo, wa, nombre) {
+      const limpio = wa.replace(/\D/g, '');
+      if (!limpio) { alert('No hay WhatsApp registrado.'); return; }
+      
+      const msg = `Hola ${nombre}, te hablamos de BuscoTec. Notamos que aún no has verificado tu email. Por favor, revisa tu casilla de correo para activar tu cuenta y poder aparecer en los mapas de Bariloche.`;
+      const url = `https://wa.me/${limpio}?text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
+    }
+
+    async function enviarMensajeInterno(id, tipo, nombre) {
+      const msg = window.prompt(`Enviar mensaje interno a ${nombre}:`);
+      if (!msg) return;
+
+      try {
+        const fd = new FormData();
+        fd.append('action', 'single');
+        fd.append('target_id', id);
+        fd.append('target_type', tipo);
+        fd.append('message', msg);
+
+        const r = await fetch('backend/admin_broadcast.php', { method: 'POST', body: fd, credentials: 'include' });
+        const data = await r.json();
+        if (data.ok) {
+          alert('✅ Mensaje enviado al buzón interno.');
+        } else {
+          alert('❌ Error: ' + data.msg);
+        }
+      } catch (e) {
+        alert('⚠️ Error de conexión');
+      }
+    }
+
+    async function blanquearContraseña(id, tipo, whatsapp, nombre) {
+      if (!confirm(`¿Estás seguro de que deseas blanquear la contraseña de "${nombre}"?\nSe generará un enlace y se abrirá WhatsApp para enviarlo.`)) {
+        return;
+      }
+
+      try {
+        const fd = new FormData();
+        fd.append('id', id);
+        fd.append('tipo', tipo);
+
+        const r = await fetch('backend/admin_reset_password_link.php', {
+          method: 'POST',
+          body: fd,
+          credentials: 'include'
+        });
+        const j = await r.json();
+
+        if (j && j.ok) {
+          const resetLink = j.link;
+          const waNum = waClean(j.whatsapp || whatsapp);
+          if (!waNum) {
+            alert(`✅ Contraseña blanqueada correctamente.\n\nEnlace de restablecimiento:\n${resetLink}\n\n(No hay WhatsApp registrado para enviar automáticamente).`);
+            return;
+          }
+          
+          const text = `Hola ${j.nombre || nombre}, para restablecer tu contraseña en BuscoTec, por favor ingresa al siguiente enlace:\n${resetLink}`;
+          const waUrl = `https://wa.me/${waNum}?text=${encodeURIComponent(text)}`;
+          
+          alert(`✅ Enlace generado con éxito.\nAl presionar Aceptar, se abrirá WhatsApp para enviar el link.`);
+          window.open(waUrl, '_blank');
+        } else {
+          alert('❌ Error: ' + (j.error || 'No se pudo blanquear la contraseña.'));
+        }
+      } catch (e) {
+        alert('⚠️ Error de conexión o el backend no está disponible.');
+      }
+    }
+
+    async function blanquearContraseñaModalActual() {
+      if (!_profActual) return;
+      await blanquearContraseña(_profActual.id, _profActual.tipo, _profActual.whatsapp, _profActual.nombre);
+    }
+
+    document.getElementById('btnEnviarMasivo').addEventListener('click', async () => {
+      const msg = document.getElementById('txtMasivo').value.trim();
+      const scope = document.getElementById('selDestinoMasivo').value;
+      
+      if (!msg) { alert('Escribe el mensaje primero.'); return; }
+      if (!confirm(`¿Estás SEGURO de enviar este mensaje a TODO el grupo seleccionado (${scope})?\nSe enviará Push y Mensaje Interno.`)) return;
+
+      const btn = document.getElementById('btnEnviarMasivo');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Lanzando...';
+
+      try {
+        const fd = new FormData();
+        fd.append('action', 'bulk');
+        fd.append('message', msg);
+        fd.append('scope', scope);
+
+        const r = await fetch('backend/admin_broadcast.php', { method: 'POST', body: fd, credentials: 'include' });
+        const data = await r.json();
+        alert(data.ok ? '✅ ' + data.msg : '❌ Error: ' + data.msg);
+        if (data.ok) document.getElementById('txtMasivo').value = '';
+      } catch (e) {
+        alert('⚠️ Error de conexión');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-megaphone"></i> Lanza mensaje masivo';
+      }
+    });
+
+    document.getElementById('inpBusquedaCuentas')?.addEventListener('input', renderCuentasAdmin);
+    document.getElementById('selOrdenFecha')?.addEventListener('change', renderCuentasAdmin);
+    document.getElementById('selFiltroTipo')?.addEventListener('change', renderCuentasAdmin);
+    document.getElementById('selFiltroLocalidad')?.addEventListener('change', renderCuentasAdmin);
+    document.getElementById('chkSoloPendientes')?.addEventListener('change', renderCuentasAdmin);
+
+    document.getElementById('chkModalInstantaneo')?.addEventListener('change', (e) => {
+      const isInstant = e.target.checked;
+      const boxFechas = document.getElementById('boxFechasModalAdmin');
+      if (isInstant) {
+        const now = new Date();
+        const pad = (num) => String(num).padStart(2, '0');
+        const nowISO = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        document.getElementById('modalAdminFechaInicio').value = nowISO;
+        document.getElementById('modalAdminFechaFin').value = '2099-12-31T23:59';
+        if (boxFechas) boxFechas.classList.add('d-none');
+      } else {
+        if (boxFechas) boxFechas.classList.remove('d-none');
+      }
+    });
+
+    function actualizarSelectLocalidades() {
+      const sel = document.getElementById('selFiltroLocalidad');
+      if (!sel) return;
+      const currentVal = sel.value;
+      
+      const localidades = new Set();
+      _cuentasCache.forEach(c => {
+        if (c.ciudad && c.ciudad.trim()) localidades.add(c.ciudad.trim());
+      });
+      
+      const sorted = Array.from(localidades).sort();
+      sel.innerHTML = '<option value="">Todas las localidades</option>';
+      sorted.forEach(loc => {
+        sel.innerHTML += `<option value="${escapeHtml(loc)}">${escapeHtml(loc)}</option>`;
+      });
+      sel.value = currentVal;
+    }
+
+    // =================== INIT ===================
+    (async () => {
+      await cargarStats();
+      await cargarValorActual();
+      await cargarAjustesCobro();
+      await cargarOperaciones();
+      await cargarCategorias();
+      await cargarCuentasAdmin();
+      await cargarSorteoAdmin();
+    })();
+    // =================== IMPUTAR PAGO FIFO (requiere backend) ===================
+    document.getElementById('btnImputarPago').addEventListener('click', async () => {
+      const p = _profActual;
+      if (!p) return;
+
+      const out = document.getElementById('pagoResultado');
+      out.innerHTML = '';
+
+      const monto = parseFloat(document.getElementById('inpPagoMonto').value);
+      const nota = (document.getElementById('inpPagoNota').value || '').trim();
+
+      if (!Number.isFinite(monto) || monto <= 0) {
+        out.innerHTML = `<div class="alert alert-warning mb-0">Ingresá un monto válido mayor a 0.</div>`;
+        return;
+      }
+
+      const totalPend = n(p.deuda);
+      if (totalPend <= 0) {
+        out.innerHTML = `<div class="alert alert-info mb-0">Este profesional no tiene deuda pendiente.</div>`;
+        return;
+      }
+
+      const aplicar = confirm(
+        `¿Aplicar pago de ${moneyARS(monto)} a ${p.nombre}?\n` +
+        `Se marcarán casos como PAGADO (FIFO) hasta cubrir el monto.`
+      );
+      if (!aplicar) return;
+
+      // Por ahora no permitimos "pago mayor a deuda" para evitar saldos negativos.
+      if (monto > totalPend) {
+        out.innerHTML = `<div class="alert alert-danger mb-0">
+      El monto supera la deuda pendiente (${moneyARS(totalPend)}).<br>
+      Para evitar saldos negativos, ingresá un monto menor o igual.
+    </div>`;
+        return;
+      }
+
+      out.innerHTML = `<div class="alert alert-secondary mb-0">Aplicando pago...</div>`;
+
+      try {
+        const fd = new FormData();
+        fd.append('profesional_id', String(p.id));
+        fd.append('monto_ars', String(monto));
+        fd.append('nota', nota);
+
+        const r = await fetch('backend/admin_imputar_pago_fifo.php', {
+          method: 'POST',
+          body: fd,
+          credentials: 'include'
+        });
+
+        // tolerante a respuestas no JSON
+        const t = await r.text();
+        let j = null;
+        try { j = JSON.parse(t); } catch (_) { }
+
+        if (!r.ok) {
+          out.innerHTML = `<div class="alert alert-danger mb-0">
+        Backend respondió ${r.status}.<br>
+        ${escapeHtml(j?.error || t || 'Error')}
+      </div>`;
+          return;
+        }
+
+        if (j && j.ok) {
+          // Ejemplo esperado:
+          // { ok:true, marcados: X, deuda_antes: 1000, deuda_despues: 0 }
+          const marcados = j.marcados ?? '-';
+          const antes = (j.deuda_antes != null) ? moneyARS(j.deuda_antes) : '';
+          const despues = (j.deuda_despues != null) ? moneyARS(j.deuda_despues) : '';
+
+          out.innerHTML = `<div class="alert alert-success mb-0">
+        ✅ Pago aplicado.<br>
+        Casos marcados como PAGADO: <b>${escapeHtml(marcados)}</b><br>
+        ${antes && despues ? `Deuda: ${antes} → ${despues}` : ''}
+      </div>`;
+
+          // refrescar todo SIN apilar modales (evita pantalla gris)
+          await cargarOperaciones();
+
+          const modalEl = document.getElementById('modalPerfil');
+          const inst = bootstrap.Modal.getInstance(modalEl);
+
+          // Cerramos el modal actual y, recién cuando terminó de cerrar, lo reabrimos ya actualizado
+          if (inst) {
+            modalEl.addEventListener('hidden.bs.modal', () => {
+              // limpieza defensiva por si quedó algún backdrop
+              document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+              document.body.classList.remove('modal-open');
+              document.body.style.removeProperty('overflow');
+              document.body.style.removeProperty('padding-right');
+
+              abrirPerfilProfesional(p.id);
+            }, { once: true });
+
+            inst.hide();
+          } else {
+            // si por alguna razón no hay instancia, abrimos normal
+            abrirPerfilProfesional(p.id);
+          }
+
+
+          // limpiar inputs
+          document.getElementById('inpPagoMonto').value = '';
+          document.getElementById('inpPagoNota').value = '';
+        } else {
+          out.innerHTML = `<div class="alert alert-warning mb-0">
+        El frontend está listo, pero falta/No coincide el backend (<span class="mono">admin_imputar_pago_fifo.php</span>).<br>
+        Respuesta: ${escapeHtml(t)}
+      </div>`;
+        }
+      } catch (e) {
+        out.innerHTML = `<div class="alert alert-danger mb-0">
+      Error de conexión o backend pendiente.
+    </div>`;
+      }
+    });
+
+    // =================== GESTIÓN SORTEO REUTILIZABLE CON BUSCADOR ===================
+    async function cargarSorteoAdmin() {
+      const tbody = document.getElementById('listaSorteoJunio2026');
+      if (!tbody) return;
+
+      const selPeriodo = document.getElementById('selPeriodoSorteo');
+      const periodo = selPeriodo ? selPeriodo.value : '';
+
+      try {
+        const url = `backend/admin_sorteo.php?action=list&periodo=${encodeURIComponent(periodo)}`;
+        const r = await fetch(url, { credentials: 'include' });
+        const data = await r.json();
+
+        if (!data.ok) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-3">Error: ${escapeHtml(data.msg)}</td></tr>`;
+          return;
+        }
+
+        // Poblado del combo selector de períodos si está vacío
+        if (selPeriodo && selPeriodo.options.length === 0) {
+          const activePer = data.periodo_activo || '';
+          (data.periodos || []).forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p;
+            
+            const parts = p.split('-');
+            const nombresMeses = {
+              '01': 'Enero', '02': 'Febrero', '03': 'Marzo', '04': 'Abril',
+              '05': 'Mayo', '06': 'Junio', '07': 'Julio', '08': 'Agosto',
+              '09': 'Septiembre', '10': 'Octubre', '11': 'Noviembre', '12': 'Diciembre'
+            };
+            const nombreMes = nombresMeses[parts[1]] || parts[1];
+            opt.textContent = `${nombreMes} ${parts[0]}`;
+            selPeriodo.appendChild(opt);
+          });
+          selPeriodo.value = activePer;
+        }
+
+        const concursantes = data.concursantes || [];
+        if (concursantes.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3">No hay participantes registrados en el sorteo para este período aún.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = '';
+        concursantes.forEach(c => {
+          let ticketsListHtml = '<ul class="list-unstyled mb-0">';
+          c.tickets.forEach(t => {
+            const badgeClass = t.email_enviado ? 'bg-success' : 'bg-warning text-dark';
+            const badgeText = t.email_enviado ? 'Enviado' : 'Pendiente';
+            ticketsListHtml += `
+              <li class="mb-1">
+                <span class="badge bg-primary font-monospace">${escapeHtml(t.numero_sorteo)}</span> 
+                <span class="small-muted">(Ref: ${escapeHtml(t.referido_nombre)} - @${escapeHtml(t.referido_instagram)})</span>
+                <span class="badge ${badgeClass}" style="font-size: 0.7rem;">${badgeText}</span>
+              </li>`;
+          });
+          ticketsListHtml += '</ul>';
+
+          let btnHtml = '';
+          const total = c.total_tickets;
+          const enviados = c.tickets_enviados;
+
+          if (enviados < total) {
+            const nextTicket = c.tickets.find(t => t.email_enviado === 0);
+            const ticketId = nextTicket ? nextTicket.id : 0;
+            const nextNum = enviados + 1;
+            
+            btnHtml = `
+              <button class="btn btn-sm btn-primary fw-bold px-3 btn-enviar-sorteo" 
+                      data-id="${ticketId}" 
+                      data-email="${escapeHtml(c.email)}"
+                      data-numero="${nextNum}">
+                <i class="bi bi-envelope-paper-fill"></i> Enviar (${nextNum} de 3)
+              </button>`;
+          } else {
+            if (enviados === 3) {
+              btnHtml = `
+                <button class="btn btn-sm btn-secondary fw-bold px-3" disabled>
+                  <i class="bi bi-check-all"></i> Enviadas las 3 opciones
+                </button>`;
+            } else {
+              btnHtml = `
+                <button class="btn btn-sm btn-secondary fw-bold px-3" disabled>
+                  <i class="bi bi-check"></i> Enviados (${enviados} de 3)
+                </button>`;
+            }
+          }
+
+          tbody.innerHTML += `
+            <tr>
+              <td>
+                <span class="fw-bold text-dark">${escapeHtml(c.nombre)} ${escapeHtml(c.apellido)}</span>
+              </td>
+              <td>
+                <span class="mono">${escapeHtml(c.email)}</span><br>
+                <small class="text-success fw-bold"><i class="bi bi-whatsapp"></i> ${escapeHtml(c.telefono)}</small>
+              </td>
+              <td>${ticketsListHtml}</td>
+              <td class="text-center font-monospace fw-bold text-primary">
+                ${enviados} / ${total} enviado${enviados !== 1 ? 's' : ''}
+              </td>
+              <td class="text-center">
+                <div class="d-inline-flex gap-1 align-items-center">
+                  ${btnHtml}
+                  <button class="btn btn-sm btn-danger fw-bold px-2 btn-eliminar-sorteo" 
+                          data-email="${escapeHtml(c.email)}"
+                          data-nombre="${escapeHtml(c.nombre)} ${escapeHtml(c.apellido)}">
+                    <i class="bi bi-trash-fill"></i> Eliminar
+                  </button>
+                </div>
+              </td>
+            </tr>`;
+        });
+
+        // Event listener para enviar correo
+        document.querySelectorAll('.btn-enviar-sorteo').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const ticketId = btn.getAttribute('data-id');
+            const email = btn.getAttribute('data-email');
+            const nextNum = btn.getAttribute('data-numero');
+            
+            if (!confirm(`¿Enviar el email para la participación ${nextNum} al correo ${email}?`)) {
+              return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Enviando...';
+
+            try {
+              const r = await fetch('backend/admin_sorteo.php?action=send_email', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: ticketId }),
+                credentials: 'include'
+              });
+              const resData = await r.json();
+              if (resData.ok) {
+                alert(`✅ Email enviado con éxito. Número del sorteo: ${resData.numero_sorteo}`);
+                cargarSorteoAdmin();
+              } else {
+                alert(`❌ Error: ${resData.msg}`);
+                btn.disabled = false;
+                btn.innerHTML = `<i class="bi bi-envelope-paper-fill"></i> Enviar (${nextNum} de 3)`;
+              }
+            } catch (err) {
+              alert('⚠️ Error de conexión al enviar el correo.');
+              btn.disabled = false;
+              btn.innerHTML = `<i class="bi bi-envelope-paper-fill"></i> Enviar (${nextNum} de 3)`;
+            }
+          });
+        });
+
+        // Event listener para eliminar participante
+        document.querySelectorAll('.btn-eliminar-sorteo').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const email = btn.getAttribute('data-email');
+            const nombreCompleto = btn.getAttribute('data-nombre');
+            
+            if (!confirm(`¿Estás SEGURO de eliminar por completo al concursante ${nombreCompleto} (${email}) de este concurso?\nEsta acción borrará todas sus participaciones y números del sorteo del período activo.`)) {
+              return;
+            }
+
+            btn.disabled = true;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>...';
+
+            try {
+              const activePeriodo = document.getElementById('selPeriodoSorteo')?.value || '';
+              const r = await fetch(`backend/admin_sorteo.php?action=delete_concursante&periodo=${encodeURIComponent(activePeriodo)}`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email }),
+                credentials: 'include'
+              });
+              const resData = await r.json();
+              if (resData.ok) {
+                alert(`✅ Concursante eliminado con éxito.`);
+                cargarSorteoAdmin();
+              } else {
+                alert(`❌ Error: ${resData.msg}`);
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+              }
+            } catch (err) {
+              alert('⚠️ Error de conexión al eliminar el concursante.');
+              btn.disabled = false;
+              btn.innerHTML = originalHtml;
+            }
+          });
+        });
+
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-3">Error de red al conectar con el servidor.</td></tr>`;
+      }
+    }
+
+    // Inicializar listeners del concurso al cargar
+    document.getElementById('selPeriodoSorteo')?.addEventListener('change', () => {
+      cargarSorteoAdmin();
+    });
+
+    document.getElementById('btnAsignarSorteoFaltantes')?.addEventListener('click', async () => {
+      const activePeriodo = document.getElementById('selPeriodoSorteo')?.value || '';
+      if (!confirm(`¿Deseas asignar números al azar a todos los usuarios y profesionales que no tengan número para el período ${activePeriodo}?\nNo se modificarán los registros existentes.`)) {
+        return;
+      }
+      
+      const btn = document.getElementById('btnAsignarSorteoFaltantes');
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Asignando...';
+      
+      try {
+        const url = `backend/admin_sorteo.php?action=asignar_numeros_faltantes&periodo=${encodeURIComponent(activePeriodo)}`;
+        const r = await fetch(url, { credentials: 'include' });
+        const data = await r.json();
+        
+        if (data.ok) {
+          alert('✅ ' + data.msg);
+          await cargarSorteoAdmin();
+        } else {
+          alert('❌ Error: ' + data.msg);
+        }
+      } catch (e) {
+        alert('⚠️ Error de conexión al asignar números.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+      }
+    });
+
+    document.getElementById('btnBuscarGanador')?.addEventListener('click', async () => {
+      const inpNum = document.getElementById('inpBuscarNumeroGanador');
+      const inpLim = document.getElementById('inpCantidadGanadores');
+      const resDiv = document.getElementById('resultadoGanador');
+      
+      const numStr = inpNum.value.trim();
+      const limStr = inpLim.value.trim();
+      const activePeriodo = document.getElementById('selPeriodoSorteo')?.value || '';
+      
+      if (numStr === '') {
+        alert('Por favor, ingresá un número para buscar.');
+        return;
+      }
+      
+      const num = parseInt(numStr, 10);
+      const lim = parseInt(limStr, 10) || 3;
+      
+      if (isNaN(num) || num < 0 || num > 9999) {
+        alert('Por favor, ingresá un número válido entre 0 y 9999.');
+        return;
+      }
+      
+      resDiv.classList.add('d-none');
+      resDiv.innerHTML = '';
+      
+      try {
+        const url = `backend/admin_sorteo.php?action=buscar_numero&numero=${num}&limite=${lim}&periodo=${encodeURIComponent(activePeriodo)}`;
+        const r = await fetch(url, { credentials: 'include' });
+        const data = await r.json();
+        
+        if (data.ok && data.ganadores && data.ganadores.length > 0) {
+          resDiv.classList.remove('d-none');
+          
+          let cardsHtml = '';
+          data.ganadores.forEach((g, index) => {
+            const esExacto = g.es_exacto;
+            const cardBorder = esExacto ? 'success' : 'info';
+            const badgeBg = esExacto ? 'success' : 'info';
+            const medalla = index === 0 ? '🥇 1° Ganador' : (index === 1 ? '🥈 2° Ganador' : (index === 2 ? '🥉 3° Ganador' : `✨ ${index + 1}° Puesto`));
+            
+            const txtMsg = `Hola ${g.nombre}, te comunicamos de BuscoTec para avisarte que saliste ganador del sorteo con el número ${g.numero_sorteo}! Felicitaciones!`;
+            const limpioWA = waClean(g.telefono);
+            const waUrl = limpioWA ? `https://wa.me/${limpioWA}?text=${encodeURIComponent(txtMsg)}` : '';
+            
+            cardsHtml += `
+              <div class="card border-${cardBorder} bg-white shadow-sm mb-2">
+                <div class="card-body py-2">
+                  <div class="row align-items-center">
+                    <div class="col-md-3">
+                      <span class="fw-bold text-${cardBorder}">${medalla}</span>
+                      ${esExacto ? ' <span class="badge bg-success small" style="font-size:0.7rem;">Exacto</span>' : ''}
+                    </div>
+                    <div class="col-md-3">
+                      <span class="fw-bold text-dark">${escapeHtml(g.nombre)} ${escapeHtml(g.apellido)}</span><br>
+                      <small class="text-muted">${escapeHtml(g.email)}</small>
+                    </div>
+                    <div class="col-md-3 font-monospace fw-bold text-primary">
+                      Número: ${g.numero_sorteo} <small class="text-muted" style="font-size:0.7rem;">(Dif: ${g.diferencia})</small>
+                    </div>
+                    <div class="col-md-3 text-md-end mt-2 mt-md-0">
+                      ${waUrl 
+                        ? `<a href="${waUrl}" target="_blank" class="btn btn-sm btn-success fw-bold"><i class="bi bi-whatsapp"></i> Avisar WA</a>`
+                        : `<button class="btn btn-sm btn-secondary" disabled><i class="bi bi-whatsapp"></i> Sin WA</button>`
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+          
+          resDiv.innerHTML = `
+            <div class="p-3 border border-success-subtle rounded-3 bg-light">
+              <h6 class="fw-bold text-success mb-3"><i class="bi bi-trophy-fill"></i> Resultados de Búsqueda para el número ${num}:</h6>
+              ${cardsHtml}
+            </div>
+          `;
+        } else {
+          resDiv.classList.remove('d-none');
+          resDiv.innerHTML = `<div class="alert alert-warning mb-0">${escapeHtml(data.msg || 'No se encontraron resultados.')}</div>`;
+        }
+      } catch (e) {
+        alert('⚠️ Error de conexión al buscar el ganador.');
+      }
+    });
+
+    // =================== LÓGICA DE MODALES PROGRAMADOS (ADMIN) ===================
+    let _modalesAdminCache = [];
+
+    async function cargarModalesAdmin() {
+      const tbody = document.getElementById('listaModalesAdmin');
+      if (!tbody) return;
+
+      try {
+        const r = await fetch('backend/admin_modales.php?action=listar', { credentials: 'include' });
+        const data = await r.json();
+
+        if (data.ok) {
+          _modalesAdminCache = data.modales || [];
+          renderModalesAdmin(_modalesAdminCache);
+        } else {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-3">Error: ${escapeHtml(data.error || 'No se pudieron cargar los modales')}</td></tr>`;
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-3">Error de conexión al cargar modales.</td></tr>`;
+      }
+    }
+
+    function renderModalesAdmin(modales) {
+      const tbody = document.getElementById('listaModalesAdmin');
+      if (!tbody) return;
+
+      if (!modales || modales.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">No hay modales programados registrados aún. ¡Hace click en "Nuevo Modal Programado" para crear uno!</td></tr>`;
+        return;
+      }
+
+      const now = new Date();
+
+      tbody.innerHTML = modales.map(m => {
+        const fInicio = new Date(m.fecha_inicio.replace(' ', 'T'));
+        const fFin = new Date(m.fecha_fin.replace(' ', 'T'));
+
+        let badgeEstado = '';
+        if (m.activo === 1) {
+          if (now >= fInicio && now <= fFin) {
+            badgeEstado = '<span class="badge bg-success"><i class="bi bi-broadcast"></i> Activo (En emisión)</span>';
+          } else if (now < fInicio) {
+            badgeEstado = '<span class="badge bg-info text-dark"><i class="bi bi-clock-history"></i> Programado</span>';
+          } else {
+            badgeEstado = '<span class="badge bg-secondary"><i class="bi bi-calendar-x"></i> Vencido</span>';
+          }
+        } else {
+          badgeEstado = '<span class="badge bg-danger"><i class="bi bi-dash-circle"></i> Desactivado</span>';
+        }
+
+        const imgs = [];
+        if (m.imagen_principal) imgs.push('Principal');
+        if (m.sub_imagen_1) imgs.push('Sub 1');
+        if (m.sub_imagen_2) imgs.push('Sub 2');
+        const imgsStr = imgs.length > 0 ? imgs.join(', ') : 'Sin imágenes';
+
+        return `
+          <tr>
+            <td class="fw-bold mono">#${m.id}</td>
+            <td>
+              <div class="fw-bold text-dark">${escapeHtml(m.titulo)}</div>
+              <div class="small text-muted text-truncate" style="max-width:260px;">${escapeHtml(m.texto)}</div>
+            </td>
+            <td class="small">
+              <span class="text-success fw-bold"><i class="bi bi-play"></i> ${m.fecha_inicio}</span><br>
+              <span class="text-danger fw-bold"><i class="bi bi-stop"></i> ${m.fecha_fin}</span>
+            </td>
+            <td class="small text-muted"><i class="bi bi-image"></i> ${imgsStr}</td>
+            <td>${badgeEstado}</td>
+            <td class="text-center">
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-primary" onclick="editarModalAdmin(${m.id})" title="Editar"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-outline-${m.activo === 1 ? 'warning' : 'success'}" onclick="toggleModalAdmin(${m.id})" title="${m.activo === 1 ? 'Desactivar' : 'Activar'}">
+                  <i class="bi bi-${m.activo === 1 ? 'pause-fill' : 'play-fill'}"></i>
+                </button>
+                <button class="btn btn-outline-danger" onclick="borrarModalAdmin(${m.id})" title="Borrar"><i class="bi bi-trash"></i></button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openModalFormAdmin(modal = null) {
+      document.getElementById('formModalAdmin').reset();
+      document.getElementById('modalAdminId').value = modal ? modal.id : '';
+      document.getElementById('titleModalFormAdmin').innerHTML = modal ? '<i class="bi bi-pencil-square"></i> Editar Modal Programado' : '<i class="bi bi-calendar-event"></i> Crear Modal Programado';
+
+      const chkInstant = document.getElementById('chkModalInstantaneo');
+      const boxFechas = document.getElementById('boxFechasModalAdmin');
+
+      if (modal) {
+        document.getElementById('modalAdminTitulo').value = modal.titulo || '';
+        document.getElementById('modalAdminTexto').value = modal.texto || '';
+        document.getElementById('modalAdminImgPrincipal').value = modal.imagen_principal || '';
+
+        const formatForInput = (dStr) => dStr ? dStr.replace(' ', 'T').substring(0, 16) : '';
+        document.getElementById('modalAdminFechaInicio').value = formatForInput(modal.fecha_inicio);
+        document.getElementById('modalAdminFechaFin').value = formatForInput(modal.fecha_fin);
+
+        const isInstant = modal.fecha_fin && modal.fecha_fin.startsWith('2099');
+        if (chkInstant) chkInstant.checked = isInstant;
+        if (boxFechas) boxFechas.classList.toggle('d-none', isInstant);
+
+        document.getElementById('modalAdminSubTitulo1').value = modal.sub_titulo_1 || '';
+        document.getElementById('modalAdminSubTexto1').value = modal.sub_texto_1 || '';
+        document.getElementById('modalAdminSubImg1').value = modal.sub_imagen_1 || '';
+
+        document.getElementById('modalAdminSubTitulo2').value = modal.sub_titulo_2 || '';
+        document.getElementById('modalAdminSubTexto2').value = modal.sub_texto_2 || '';
+        document.getElementById('modalAdminSubImg2').value = modal.sub_imagen_2 || '';
+
+        document.getElementById('modalAdminActivo').checked = modal.activo === 1;
+      } else {
+        if (chkInstant) chkInstant.checked = false;
+        if (boxFechas) boxFechas.classList.remove('d-none');
+
+        const now = new Date();
+        const in7days = new Date();
+        in7days.setDate(now.getDate() + 7);
+
+        const toISO = (d) => {
+          const pad = (num) => String(num).padStart(2, '0');
+          return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        };
+
+        document.getElementById('modalAdminFechaInicio').value = toISO(now);
+        document.getElementById('modalAdminFechaFin').value = toISO(in7days);
+        document.getElementById('modalAdminActivo').checked = true;
+      }
+
+      const bsModal = new bootstrap.Modal(document.getElementById('modalFormAdmin'));
+      bsModal.show();
+    }
+
+    function editarModalAdmin(id) {
+      const modal = _modalesAdminCache.find(m => m.id === id);
+      if (modal) openModalFormAdmin(modal);
+    }
+
+    async function toggleModalAdmin(id) {
+      try {
+        const r = await fetch(`backend/admin_modales.php?action=toggle&id=${id}`, { credentials: 'include' });
+        const data = await r.json();
+        if (data.ok) {
+          await cargarModalesAdmin();
+        } else {
+          alert('❌ Error: ' + (data.error || 'No se pudo cambiar el estado'));
+        }
+      } catch (e) {
+        alert('⚠️ Error de conexión');
+      }
+    }
+
+    async function borrarModalAdmin(id) {
+      if (!confirm('¿Estás seguro de que querés borrar este modal programado? Esta acción no se puede deshacer.')) return;
+      try {
+        const r = await fetch(`backend/admin_modales.php?action=borrar&id=${id}`, { credentials: 'include' });
+        const data = await r.json();
+        if (data.ok) {
+          await cargarModalesAdmin();
+        } else {
+          alert('❌ Error: ' + (data.error || 'No se pudo borrar el modal'));
+        }
+      } catch (e) {
+        alert('⚠️ Error de conexión');
+      }
+    }
+
+    document.getElementById('formModalAdmin')?.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnGuardarModalAdmin');
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Guardando...';
+
+      try {
+        const formData = new FormData(this);
+        formData.append('action', 'guardar');
+
+        const r = await fetch('backend/admin_modales.php', {
+          method: 'POST',
+          body: formData,
+          credentials: 'include'
+        });
+        const data = await r.json();
+
+        if (data.ok) {
+          const bsModal = bootstrap.Modal.getInstance(document.getElementById('modalFormAdmin'));
+          if (bsModal) bsModal.hide();
+          await cargarModalesAdmin();
+          alert('✅ Modal programado guardado correctamente.');
+        } else {
+          alert('❌ Error: ' + (data.error || 'No se pudo guardar el modal'));
+        }
+      } catch (e) {
+        alert('⚠️ Error al enviar los datos del modal.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+      }
+    });
+
+    cargarModalesAdmin();
+
+  </script>
+
+    <!-- MODAL PREVIEW CRON -->
+    <div class="modal fade" id="modalCronPreview" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content shadow-lg border-0">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-eye"></i> Vista Previa del Envío</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="cronPreviewMsg" class="alert alert-info border-0 shadow-sm">Calculando...</div>
+                    <div class="table-responsive rounded-3 border" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-sm table-hover mb-0 d-none" id="tableCronPreview">
+                            <thead class="table-dark sticky-top">
+                                <tr>
+                                    <th>Profesional</th>
+                                    <th>Email</th>
+                                    <th class="text-end">Deuda</th>
+                                    <th class="text-center">Casos</th>
+                                    <th class="text-center">Créditos</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyCronPreview" class="align-middle"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 px-4 py-3">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success fw-bold d-none shadow-sm" id="btnConfirmarEnvioCron">
+                        <i class="bi bi-send-check"></i> CONFIRMAR Y ENVIAR AHORA
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
